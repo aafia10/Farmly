@@ -19,7 +19,6 @@ import {
   ScrollText,
   Truck,
   Building2,
-  Wrench,
   UserCheck,
 } from "lucide-react";
 import {
@@ -280,10 +279,10 @@ export const USER_ROLES: UserRoleOption[] = [
     icon: Sprout,
   },
   {
-    id: "buyer",
-    label: "Produce Buyer / Mill",
-    description: "Commercial buyer, food processor, or institutional procurer.",
-    icon: Store,
+    id: "helper",
+    label: "Field Helper / Sathi",
+    description: "Assisting with farmer onboarding, voice interactions, lot documentation and data entry.",
+    icon: HeartHandshake,
   },
   {
     id: "distributor",
@@ -296,12 +295,6 @@ export const USER_ROLES: UserRoleOption[] = [
     label: "Retailer / Agro-Store",
     description: "Local shop or dealer selling to consumers and farm communities.",
     icon: Building2,
-  },
-  {
-    id: "service_provider",
-    label: "Agricultural Service Provider",
-    description: "Drone spraying, soil testing, machinery rental, or advisory.",
-    icon: Wrench,
   },
 ];
 

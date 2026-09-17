@@ -7,6 +7,7 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./lib/**/*.{js,ts,jsx,tsx,mdx}",
+    "./contexts/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     container: {
@@ -24,20 +25,20 @@ const config: Config = {
     },
     extend: {
       colors: {
-        background: "#050806",
-        foreground: "#FFFFFF",
-        "farmly-bg": "#050806",
+        background: "var(--farmly-bg)",
+        foreground: "var(--farmly-foreground)",
+        "farmly-bg": "var(--farmly-bg)",
         "farmly-dark-green": "#0B3D2E",
         "farmly-primary": "#145C43",
         "farmly-primary-hover": "#1A7254",
         "farmly-accent": "#2F8F68",
         "farmly-accent-light": "#3EB081",
-        "farmly-surface": "#0B120F",
-        "farmly-surface-elevated": "#121C18",
-        "farmly-surface-card": "#0E1713",
-        "farmly-muted": "#D1D5DB",
-        "farmly-muted-dark": "#9CA3AF",
-        "farmly-border": "rgba(255, 255, 255, 0.10)",
+        "farmly-surface": "var(--farmly-surface)",
+        "farmly-surface-elevated": "var(--farmly-surface-elevated)",
+        "farmly-surface-card": "var(--farmly-surface-card)",
+        "farmly-muted": "var(--farmly-muted)",
+        "farmly-muted-dark": "var(--farmly-muted-dark)",
+        "farmly-border": "var(--farmly-border)",
         "farmly-border-focus": "rgba(47, 143, 104, 0.5)",
       },
       borderRadius: {

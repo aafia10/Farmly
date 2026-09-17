@@ -3,35 +3,50 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 5 8 6;
-    --foreground: 255 255 255;
-    --card: 11 18 15;
-    --card-foreground: 255 255 255;
-    --primary: 20 92 67;
-    --primary-foreground: 255 255 255;
-    --muted: 209 213 219;
-    --border: 255 255 255 / 0.1;
+  :root,
+  .dark {
+    --farmly-bg: #050806;
+    --farmly-foreground: #FFFFFF;
+    --farmly-surface: #0B120F;
+    --farmly-surface-elevated: #121C18;
+    --farmly-surface-card: #0E1713;
+    --farmly-muted: #D1D5DB;
+    --farmly-muted-dark: #9CA3AF;
+    --farmly-border: rgba(255, 255, 255, 0.10);
     --radius: 0.75rem;
+    color-scheme: dark;
+  }
+
+  .light {
+    --farmly-bg: #F5F7F5;
+    --farmly-foreground: #0E1A13;
+    --farmly-surface: #FFFFFF;
+    --farmly-surface-elevated: #E9EFEA;
+    --farmly-surface-card: #FFFFFF;
+    --farmly-muted: #46554D;
+    --farmly-muted-dark: #6E7C74;
+    --farmly-border: rgba(0, 0, 0, 0.10);
+    --radius: 0.75rem;
+    color-scheme: light;
   }
 
   * {
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--farmly-border);
   }
 
   html {
     scroll-behavior: smooth;
-    color-scheme: dark;
   }
 
   body {
-    background-color: #050806;
-    color: #FFFFFF;
+    background-color: var(--farmly-bg);
+    color: var(--farmly-foreground);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
     overflow-x: hidden;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
 
   /* Custom selection */
@@ -66,7 +81,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #050806;
+  background: var(--farmly-bg);
 }
 
 ::-webkit-scrollbar-thumb {

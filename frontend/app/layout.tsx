@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/contexts/theme-context";
+import { LanguageProvider } from "@/contexts/language-context";
+import { MockDataProvider } from "@/contexts/mock-data-context";
+import { AuthProvider } from "@/contexts/auth-context";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -53,7 +57,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen bg-farmly-bg text-white font-sans antialiased selection:bg-farmly-primary selection:text-white">
-        {children}
+        <ThemeProvider>
+          <LanguageProvider>
+            <MockDataProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </MockDataProvider>
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

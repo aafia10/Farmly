@@ -41,7 +41,7 @@ export type LoginFormData = z.infer<typeof loginSchema>;
  * User roles allowed during registration.
  */
 export const userRolesEnum = z.enum(
-  ["farmer", "buyer", "distributor", "retailer", "service_provider"],
+  ["farmer", "helper", "distributor", "retailer"],
   {
     errorMap: () => ({ message: "Please select how you will use Farmly." }),
   }
@@ -84,6 +84,10 @@ export const signupSchema = z
       .regex(/[0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/, "Include at least one number or special character."),
     confirmPassword: z.string().min(1, "Please confirm your password."),
     role: userRolesEnum,
+    state: z.string().optional(),
+    district: z.string().optional(),
+    preferredLanguage: z.string().optional(),
+    organization: z.string().optional(),
     acceptTerms: z.literal(true, {
       errorMap: () => ({
         message: "You must agree to the Terms of Service & Privacy Policy to continue.",
@@ -93,7 +97,37 @@ export const signupSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match.",
     path: ["confirmPassword"],
+  })
+  .refine((data) => {
+    if (data.role === "helper") {
+      return Boolean(data.state && data.district && data.organization);
+    }
+    return true;
+  }, {
+    message: "Field helpers must provide State, District, and Organization/FPO.",
+    path: ["organization"],
   });
+
+/**
+ * Schema for adding a new farmer via Helper assistance (/helper/farmers/new)
+ */
+export const addFarmerSchema = z.object({
+  fullName: z.string().trim().min(2, "Please enter farmer's full name."),
+  mobile: z.string().trim().min(10, "Please enter a valid 10-digit mobile number."),
+  village: z.string().trim().min(2, "Village name is required."),
+  taluka: z.string().trim().optional(),
+  district: z.string().trim().min(2, "District is required."),
+  state: z.string().trim().min(2, "State is required."),
+  preferredLanguage: z.string().min(1, "Please select preferred language."),
+  farmingCategory: z.string().min(1, "Please select primary farming category."),
+  fpo: z.string().optional(),
+  verificationLevel: z.enum(["Basic", "Field Verified", "Identity Confirmed"]).default("Field Verified"),
+  consent: z.literal(true, {
+    errorMap: () => ({ message: "Farmer consent must be recorded." }),
+  }),
+});
+
+export type AddFarmerFormData = z.infer<typeof addFarmerSchema>;
 
 export type SignupFormData = z.infer<typeof signupSchema>;
 
