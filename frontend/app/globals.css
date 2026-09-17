@@ -3,7 +3,26 @@
 @tailwind utilities;
 
 @layer base {
-  :root,
+  /* Default = Light Mode (Tailwind darkMode: "class" — no class = light) */
+  :root {
+    --farmly-bg: #F8FAF8;
+    --farmly-foreground: #111827;
+    --farmly-surface: #FFFFFF;
+    --farmly-surface-elevated: #F0F4F1;
+    --farmly-surface-card: #FFFFFF;
+    --farmly-muted: #4B5563;
+    --farmly-muted-dark: #6B7280;
+    --farmly-border: #E5E7EB;
+    --farmly-input-bg: #FFFFFF;
+    --farmly-input-border: #D1D5DB;
+    --farmly-input-text: #111827;
+    --farmly-table-header: #F3F4F6;
+    --farmly-table-row-hover: #F9FAFB;
+    --radius: 0.75rem;
+    color-scheme: light;
+  }
+
+  /* Dark Mode — activated by .dark class on <html> */
   .dark {
     --farmly-bg: #050806;
     --farmly-foreground: #FFFFFF;
@@ -13,19 +32,30 @@
     --farmly-muted: #D1D5DB;
     --farmly-muted-dark: #9CA3AF;
     --farmly-border: rgba(255, 255, 255, 0.10);
+    --farmly-input-bg: #0B120F;
+    --farmly-input-border: rgba(255, 255, 255, 0.14);
+    --farmly-input-text: #FFFFFF;
+    --farmly-table-header: #121C18;
+    --farmly-table-row-hover: rgba(255, 255, 255, 0.04);
     --radius: 0.75rem;
     color-scheme: dark;
   }
 
+  /* Explicit Light Mode — same as :root, activated by .light class on <html> */
   .light {
-    --farmly-bg: #F5F7F5;
-    --farmly-foreground: #0E1A13;
+    --farmly-bg: #F8FAF8;
+    --farmly-foreground: #111827;
     --farmly-surface: #FFFFFF;
-    --farmly-surface-elevated: #E9EFEA;
+    --farmly-surface-elevated: #F0F4F1;
     --farmly-surface-card: #FFFFFF;
-    --farmly-muted: #46554D;
-    --farmly-muted-dark: #6E7C74;
-    --farmly-border: rgba(0, 0, 0, 0.10);
+    --farmly-muted: #4B5563;
+    --farmly-muted-dark: #6B7280;
+    --farmly-border: #E5E7EB;
+    --farmly-input-bg: #FFFFFF;
+    --farmly-input-border: #D1D5DB;
+    --farmly-input-text: #111827;
+    --farmly-table-header: #F3F4F6;
+    --farmly-table-row-hover: #F9FAFB;
     --radius: 0.75rem;
     color-scheme: light;
   }

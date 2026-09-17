@@ -60,7 +60,7 @@ export default function MarketplaceLotDetailPage() {
         {/* Navigation */}
         <div className="flex items-center gap-3">
           <Link href="/marketplace">
-            <Button variant="outline" size="sm" className="h-9 w-9 p-0 border-farmly-border text-white hover:bg-farmly-surface-elevated">
+            <Button variant="outline" size="sm" className="h-9 w-9 p-0 border-farmly-border text-farmly-foreground hover:bg-farmly-surface-elevated">
               <ArrowLeft className="w-4 h-4" />
             </Button>
           </Link>
@@ -68,9 +68,9 @@ export default function MarketplaceLotDetailPage() {
             <div className="text-xs text-farmly-muted flex items-center gap-1.5">
               <Link href="/marketplace" className="hover:underline">Marketplace</Link>
               <span>/</span>
-              <span className="font-mono text-white">{lot?.id}</span>
+              <span className="font-mono text-farmly-foreground">{lot?.id}</span>
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl font-bold text-farmly-foreground tracking-tight">
               {lot?.crop} <span className="text-farmly-muted text-lg font-normal">({lot?.variety})</span>
             </h1>
           </div>
@@ -82,7 +82,7 @@ export default function MarketplaceLotDetailPage() {
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
               <div>
-                <h3 className="font-bold text-white text-base">Trade Bid Formally Logged in Escrow Registry</h3>
+                <h3 className="font-bold text-farmly-foreground text-base">Trade Bid Formally Logged in Escrow Registry</h3>
                 <p className="text-xs text-farmly-muted">
                   The verified grower has been notified. Upon acceptance, an automated 7-stage settlement timeline will activate.
                 </p>
@@ -98,7 +98,7 @@ export default function MarketplaceLotDetailPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setOfferSubmitted(false)}
-                className="border-farmly-border text-white text-xs hover:bg-farmly-surface-elevated"
+                className="border-farmly-border text-farmly-foreground text-xs hover:bg-farmly-surface-elevated"
               >
                 Modify Bid
               </Button>
@@ -113,7 +113,7 @@ export default function MarketplaceLotDetailPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <span className="font-mono text-xs font-bold text-farmly-accent uppercase">{lot?.id}</span>
-                  <h2 className="text-xl font-bold text-white mt-1">{lot?.crop} ({lot?.variety})</h2>
+                  <h2 className="text-xl font-bold text-farmly-foreground mt-1">{lot?.crop} ({lot?.variety})</h2>
                 </div>
                 <StatusBadge status={lot?.qualityGrade || "Grade A"} size="sm" />
               </div>
@@ -121,12 +121,12 @@ export default function MarketplaceLotDetailPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
                 <div className="p-3 rounded-xl bg-farmly-surface-elevated border border-farmly-border">
                   <span className="text-farmly-muted block">Available Volume</span>
-                  <span className="font-bold text-white text-sm mt-0.5 block">{lot?.quantity} {lot?.unit}</span>
+                  <span className="font-bold text-farmly-foreground text-sm mt-0.5 block">{lot?.quantity} {lot?.unit}</span>
                 </div>
 
                 <div className="p-3 rounded-xl bg-farmly-surface-elevated border border-farmly-border">
                   <span className="text-farmly-muted block">Regional Origin</span>
-                  <span className="font-bold text-white text-sm mt-0.5 block">{stateOrigin} Region</span>
+                  <span className="font-bold text-farmly-foreground text-sm mt-0.5 block">{stateOrigin} Region</span>
                 </div>
 
                 <div className="p-3 rounded-xl bg-farmly-surface-elevated border border-farmly-border">
@@ -147,7 +147,7 @@ export default function MarketplaceLotDetailPage() {
 
             {/* Evidence Artifacts Preview */}
             <Card className="bg-farmly-surface border-farmly-border p-6 space-y-4">
-              <h3 className="font-bold text-white text-base">Accompanying Verification Proofs</h3>
+              <h3 className="font-bold text-farmly-foreground text-base">Accompanying Verification Proofs</h3>
               <div className="space-y-2">
                 {lotEvidence.length === 0 ? (
                   <p className="text-xs text-farmly-muted">Scale weighbridge receipt and moisture test calibrated.</p>
@@ -155,7 +155,7 @@ export default function MarketplaceLotDetailPage() {
                   lotEvidence.map((ev) => (
                     <div key={ev.id} className="p-3 rounded-xl bg-farmly-surface-elevated border border-farmly-border/70 flex items-center justify-between text-xs">
                       <div>
-                        <span className="font-semibold text-white">{ev.title}</span>
+                        <span className="font-semibold text-farmly-foreground">{ev.title}</span>
                         <div className="text-[11px] text-farmly-muted font-mono">{ev.value}</div>
                       </div>
                       <StatusBadge status={ev.status} size="sm" />
@@ -169,7 +169,7 @@ export default function MarketplaceLotDetailPage() {
           {/* Place Offer Form (Right 1 col) */}
           <div>
             <Card className="bg-farmly-surface border-farmly-border p-6 space-y-4 sticky top-24">
-              <h3 className="font-bold text-white text-base flex items-center gap-2">
+              <h3 className="font-bold text-farmly-foreground text-base flex items-center gap-2">
                 <Scale className="w-4 h-4 text-emerald-400" />
                 Submit Commercial Offer
               </h3>
@@ -208,14 +208,14 @@ export default function MarketplaceLotDetailPage() {
                 <div className="p-3 rounded-xl bg-farmly-surface-elevated border border-farmly-border/80 space-y-2 text-xs">
                   <div className="flex justify-between text-farmly-muted">
                     <span>Gross Bid Value:</span>
-                    <span className="text-white font-mono font-semibold">₹{grossValue.toLocaleString("en-IN")}</span>
+                    <span className="text-farmly-foreground font-mono font-semibold">₹{grossValue.toLocaleString("en-IN")}</span>
                   </div>
                   <div className="flex justify-between text-farmly-muted">
                     <span>Estimated Mandi & Transit:</span>
                     <span className="text-amber-400 font-mono">-₹{estimatedDeductions.toLocaleString("en-IN")}</span>
                   </div>
                   <div className="pt-2 border-t border-farmly-border flex justify-between font-bold">
-                    <span className="text-white">Net to Grower:</span>
+                    <span className="text-farmly-foreground">Net to Grower:</span>
                     <span className="text-emerald-400 font-mono text-sm">₹{netEstimated.toLocaleString("en-IN")}</span>
                   </div>
                 </div>

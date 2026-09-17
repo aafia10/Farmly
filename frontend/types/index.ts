@@ -1,6 +1,14 @@
 import { type LucideIcon } from "lucide-react";
 
-export type UserRole = "farmer" | "helper" | "distributor" | "retailer";
+export type UserRole =
+  | "farmer"
+  | "helper"
+  | "distributor"
+  | "retailer"
+  | "fpo"
+  | "collection_center"
+  | "quality_assessor"
+  | "admin";
 
 export interface UserRoleOption {
   id: UserRole;
@@ -261,4 +269,83 @@ export interface HelperActivity {
   category: "Registration" | "Crop Availability" | "Lot Creation" | "Evidence" | "Offer" | "Profile";
   details: string;
   badgeStatus: "Assisted" | "Pending" | "Completed" | "Needs Review";
+}
+
+export type InformationSource =
+  | "Farmer-declared"
+  | "Helper-entered"
+  | "Scale-measured"
+  | "Meter-measured"
+  | "Assessor-recorded"
+  | "Lab-certified"
+  | "Certificate-verified"
+  | "Externally sourced";
+
+export interface SourceTaggedField<T> {
+  value: T;
+  source: InformationSource;
+  timestamp?: string;
+  verifiedBy?: string;
+}
+
+export interface CollectionArrival {
+  id: string; // e.g. "ARR-881"
+  farmerId: string;
+  farmerName: string;
+  crop: string;
+  variety: string;
+  declaredQuantity: number;
+  measuredQuantity: number;
+  unit: string;
+  scaleId: string;
+  scalePhotoUrl?: string;
+  moisturePercent: number;
+  qualityGrade: "Grade A" | "Grade B" | "Standard";
+  status: "Checked In" | "Weighed" | "Lot Created" | "Handed Over";
+  timestamp: string;
+  recordedBy: string;
+}
+
+export interface QualityAssessment {
+  id: string; // e.g. "QA-109"
+  lotId: string;
+  crop: string;
+  moisturePercent: number;
+  foreignMatterPercent: number;
+  visibleSpoilage: "None" | "Low" | "Moderate" | "High";
+  assignedGrade: "Grade A" | "Grade B" | "Standard";
+  method: string;
+  assessedBy: string;
+  reportNotes: string;
+  status: "Pending" | "Certified" | "Rejected";
+  timestamp: string;
+}
+
+export interface FPOMember {
+  id: string; // "MEM-201"
+  farmerId: string;
+  name: string;
+  village: string;
+  crops: string[];
+  shareHolding: number; // in shares
+  totalContributedKg: number;
+  status: "Active" | "Pending";
+  joinedDate: string;
+}
+
+export interface AdminAuditAlert {
+  id: string; // "ALT-701"
+  severity: "High" | "Medium" | "Low";
+  category: "QR Anomaly" | "Duplicate Lot" | "Payment Delay" | "Deduction Discrepancy" | "Scale Miscalibration";
+  description: string;
+  relatedEntityId: string;
+  timestamp: string;
+  status: "Investigating" | "Resolved" | "Ignored";
+}
+
+export interface MixedLotComponent {
+  sourceLotId: string;
+  sourceFarmer: string;
+  quantity: number;
+  percentage: number;
 }

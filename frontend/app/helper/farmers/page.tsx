@@ -8,9 +8,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/common/status-badge";
 import { useMockData } from "@/contexts/mock-data-context";
+import { useTranslation } from "@/contexts/language-context";
 
 export default function HelperFarmersListPage() {
   const { farmers } = useMockData();
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [districtFilter, setDistrictFilter] = useState("all");
   const [languageFilter, setLanguageFilter] = useState("all");
@@ -36,20 +38,25 @@ export default function HelperFarmersListPage() {
   }, [farmers, searchQuery, districtFilter, languageFilter, statusFilter]);
 
   return (
-    <AppLayout title="Assisted Farmers Directory">
+    <AppLayout title={t("nav.farmers", "Assisted Farmers Directory")}>
       <div className="space-y-6">
         {/* Top Action Bar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">Registered Farmers</h2>
+            <h2 className="text-2xl font-bold text-farmly-foreground tracking-tight">
+              {t("nav.farmers", "Registered Farmers")}
+            </h2>
             <p className="text-xs sm:text-sm text-farmly-muted">
-              Manage farmer records, verification statuses, and crop profiles.
+              {t(
+                "helper.farmersSubtitle",
+                "Manage farmer records, verification statuses, and crop profiles."
+              )}
             </p>
           </div>
           <Link href="/helper/farmers/new">
-            <Button size="md" className="gap-2 shadow-md shadow-farmly-primary/30">
+            <Button size="md" className="gap-2 shadow-md shadow-farmly-primary/30 font-semibold text-white">
               <UserPlus className="w-4 h-4" />
-              <span>Add New Farmer</span>
+              <span>{t("nav.addFarmer", "Add New Farmer")}</span>
             </Button>
           </Link>
         </div>
@@ -64,8 +71,11 @@ export default function HelperFarmersListPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by name, ID (e.g. FM-10294), mobile or village..."
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-sm text-white placeholder:text-farmly-muted-dark focus:border-farmly-accent outline-none"
+                placeholder={t(
+                  "helper.searchFarmerPlaceholder",
+                  "Search by name, ID (e.g. FM-10294), mobile or village..."
+                )}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-sm text-farmly-foreground placeholder:text-farmly-muted-dark focus:border-farmly-accent outline-none"
               />
             </div>
 
@@ -74,10 +84,10 @@ export default function HelperFarmersListPage() {
               <select
                 value={districtFilter}
                 onChange={(e) => setDistrictFilter(e.target.value)}
-                className="px-3 py-2.5 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-xs text-white outline-none focus:border-farmly-accent"
+                className="px-3 py-2.5 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-xs text-farmly-foreground outline-none focus:border-farmly-accent"
                 aria-label="Filter by district"
               >
-                <option value="all">All Districts</option>
+                <option value="all">{t("common.all", "All Districts")}</option>
                 {districts.map((d) => (
                   <option key={d} value={d}>
                     {d}
@@ -88,10 +98,10 @@ export default function HelperFarmersListPage() {
               <select
                 value={languageFilter}
                 onChange={(e) => setLanguageFilter(e.target.value)}
-                className="px-3 py-2.5 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-xs text-white outline-none focus:border-farmly-accent"
+                className="px-3 py-2.5 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-xs text-farmly-foreground outline-none focus:border-farmly-accent"
                 aria-label="Filter by language"
               >
-                <option value="all">All Languages</option>
+                <option value="all">{t("common.all", "All Languages")}</option>
                 {languages.map((l) => (
                   <option key={l} value={l}>
                     {l}
@@ -102,13 +112,13 @@ export default function HelperFarmersListPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2.5 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-xs text-white outline-none focus:border-farmly-accent"
+                className="px-3 py-2.5 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-xs text-farmly-foreground outline-none focus:border-farmly-accent"
                 aria-label="Filter by status"
               >
-                <option value="all">All Statuses</option>
-                <option value="Active">Active</option>
-                <option value="Needs Review">Needs Review</option>
-                <option value="Pending">Pending</option>
+                <option value="all">{t("common.all", "All Statuses")}</option>
+                <option value="Active">{t("status.active", "Active")}</option>
+                <option value="Needs Review">{t("status.needsReview", "Needs Review")}</option>
+                <option value="Pending">{t("status.pending", "Pending")}</option>
               </select>
             </div>
           </div>
@@ -118,7 +128,7 @@ export default function HelperFarmersListPage() {
         <div className="space-y-3">
           {filteredFarmers.length === 0 ? (
             <Card className="p-12 text-center text-farmly-muted">
-              <p className="text-sm">No farmers matched your search or filters.</p>
+              <p className="text-sm">{t("helper.noFarmersFound", "No farmers matched your search or filters.")}</p>
               <Button
                 variant="outline"
                 size="sm"
@@ -130,7 +140,7 @@ export default function HelperFarmersListPage() {
                   setStatusFilter("all");
                 }}
               >
-                Clear Filters
+                {t("common.clearFilters", "Clear Filters")}
               </Button>
             </Card>
           ) : (
@@ -148,10 +158,10 @@ export default function HelperFarmersListPage() {
 
                     <div className="space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-bold text-white text-base group-hover:text-emerald-300 transition-colors">
+                        <h3 className="font-bold text-farmly-foreground text-base group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors">
                           {farmer.name}
                         </h3>
-                        <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-farmly-surface-elevated border border-farmly-border text-emerald-300">
+                        <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-farmly-surface-elevated border border-farmly-border text-emerald-800 dark:text-emerald-300 font-semibold">
                           {farmer.id}
                         </span>
                         <StatusBadge status={farmer.verificationLevel} size="sm" />
@@ -168,11 +178,13 @@ export default function HelperFarmersListPage() {
                           {farmer.mobile}
                         </span>
                         <span>•</span>
-                        <span>Lang: <strong className="text-white">{farmer.language}</strong></span>
+                        <span>
+                          {t("profile.language", "Lang")}: <strong className="text-farmly-foreground">{farmer.language}</strong>
+                        </span>
                       </div>
 
                       <div className="text-xs text-farmly-muted-dark pt-1">
-                        Category: <span className="text-white">{farmer.farmingCategory}</span> | FPO: {farmer.fpo || "Individual"}
+                        {t("profile.farmingCategory", "Category")}: <span className="text-farmly-foreground">{farmer.farmingCategory}</span> | FPO: {farmer.fpo || "Individual"}
                       </div>
                     </div>
                   </div>
@@ -185,7 +197,7 @@ export default function HelperFarmersListPage() {
                       </span>
                     </div>
 
-                    <div className="w-8 h-8 rounded-full bg-farmly-surface-elevated border border-farmly-border flex items-center justify-center text-farmly-muted group-hover:text-white group-hover:border-farmly-accent/40 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-farmly-surface-elevated border border-farmly-border flex items-center justify-center text-farmly-muted group-hover:text-farmly-foreground group-hover:border-farmly-accent/40 transition-colors">
                       <ArrowRight className="w-4 h-4" />
                     </div>
                   </div>

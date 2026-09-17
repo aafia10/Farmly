@@ -53,7 +53,7 @@ export default function AgroSathiPage() {
               <Sparkles className="w-3.5 h-3.5" />
               Multilingual Farmer Digital Companion
             </div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl lg:text-3xl font-bold text-farmly-foreground tracking-tight">
               AgroSathi — Your Farmly AI Assistant
             </h1>
             <p className="text-xs text-farmly-muted leading-relaxed">
@@ -78,7 +78,7 @@ export default function AgroSathiPage() {
                 <Sparkles className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white">Ask AgroSathi About Your Farm</h3>
+                <h3 className="text-sm font-bold text-farmly-foreground">Ask AgroSathi About Your Farm</h3>
                 <span className="text-[11px] text-farmly-muted">Available in 11 Indian regional dialects</span>
               </div>
             </div>
@@ -97,7 +97,7 @@ export default function AgroSathiPage() {
                 </div>
                 <div className="flex justify-start">
                   <div className="p-3.5 rounded-2xl bg-farmly-surface-elevated border border-farmly-border text-farmly-muted max-w-lg rounded-bl-none leading-relaxed">
-                    <span className="font-bold text-white block mb-1">AgroSathi:</span>
+                    <span className="font-bold text-farmly-foreground block mb-1">AgroSathi:</span>
                     {msg.answer}
                   </div>
                 </div>
@@ -111,7 +111,7 @@ export default function AgroSathiPage() {
               placeholder="Ask about lot grades, buyer offers, or payment timelines..."
               value={simulatedQuery}
               onChange={(e) => setSimulatedQuery(e.target.value)}
-              className="flex-1 bg-farmly-surface-elevated border border-farmly-border rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-farmly-accent placeholder:text-farmly-muted"
+              className="flex-1 bg-farmly-surface-elevated border border-farmly-border rounded-xl px-4 py-2.5 text-xs text-farmly-foreground focus:outline-none focus:ring-2 focus:ring-farmly-accent placeholder:text-farmly-muted"
             />
             <Button type="submit" className="bg-farmly-primary hover:bg-farmly-primary-hover text-white text-xs px-4">
               Ask
@@ -121,7 +121,7 @@ export default function AgroSathiPage() {
 
         {/* 11 Regional Languages Preview */}
         <div className="space-y-3">
-          <h2 className="text-base font-bold text-white flex items-center gap-2">
+          <h2 className="text-base font-bold text-farmly-foreground flex items-center gap-2">
             <Globe className="w-4 h-4 text-emerald-400" />
             11 Regional Languages Supported
           </h2>
@@ -134,7 +134,7 @@ export default function AgroSathiPage() {
                 className={`p-3 rounded-xl border text-center transition-all ${
                   selectedLanguage === lang.name
                     ? "bg-farmly-primary/30 border-farmly-accent text-white"
-                    : "bg-farmly-surface border-farmly-border text-farmly-muted hover:text-white"
+                    : "bg-farmly-surface border-farmly-border text-farmly-muted hover:text-farmly-foreground"
                 }`}
               >
                 <div className="font-bold text-xs">{lang.nativeName}</div>
@@ -156,7 +156,7 @@ export default function AgroSathiPage() {
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
               <FileCheck2 className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-white text-sm">Document Simplifier</h3>
+            <h3 className="font-bold text-farmly-foreground text-sm">Document Simplifier</h3>
             <p className="text-xs text-farmly-muted leading-relaxed">
               Explains complex weighbridge receipts, deduction percentages, and APMC cess in plain local language.
             </p>
@@ -166,7 +166,7 @@ export default function AgroSathiPage() {
             <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
               <Mic className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-white text-sm">Voice Navigation (In Dev)</h3>
+            <h3 className="font-bold text-farmly-foreground text-sm">Voice Navigation (In Dev)</h3>
             <p className="text-xs text-farmly-muted leading-relaxed">
               Assists farmers with low digital literacy through intuitive audio prompts and voice query synthesis.
             </p>
@@ -176,7 +176,7 @@ export default function AgroSathiPage() {
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
               <Bell className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-white text-sm">Mandi Price Alerts</h3>
+            <h3 className="font-bold text-farmly-foreground text-sm">Mandi Price Alerts</h3>
             <p className="text-xs text-farmly-muted leading-relaxed">
               Instant alerts when nearby APMC auctions exceed the minimum guaranteed support price thresholds.
             </p>

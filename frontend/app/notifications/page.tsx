@@ -27,7 +27,16 @@ export default function NotificationsPage() {
 
   const [activeCategory, setActiveCategory] = useState<string>("All");
 
-  const categories = ["All", "Unread", "Offer", "Payment", "Lot", "Evidence", "Dispute", "System"];
+  const categories = [
+    { value: "All", label: t("common.all", "All") },
+    { value: "Unread", label: t("notifications.unread", "Unread") },
+    { value: "Offer", label: t("nav.offers", "Offer") },
+    { value: "Payment", label: t("nav.payments", "Payment") },
+    { value: "Lot", label: t("nav.lots", "Lot") },
+    { value: "Evidence", label: t("nav.evidence", "Evidence") },
+    { value: "Dispute", label: t("nav.disputes", "Dispute") },
+    { value: "System", label: t("notifications.system", "System") },
+  ];
 
   const filteredNotifications = notifications.filter((item) => {
     if (activeCategory === "All") return true;
@@ -38,17 +47,17 @@ export default function NotificationsPage() {
   const getCategoryIcon = (category: NotificationItem["category"]) => {
     switch (category) {
       case "Offer":
-        return <FileText className="w-5 h-5 text-amber-400" />;
+        return <FileText className="w-5 h-5 text-amber-600 dark:text-amber-400" />;
       case "Payment":
-        return <CreditCard className="w-5 h-5 text-emerald-400" />;
+        return <CreditCard className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />;
       case "Lot":
         return <Boxes className="w-5 h-5 text-farmly-accent" />;
       case "Evidence":
-        return <FileCheck2 className="w-5 h-5 text-sky-400" />;
+        return <FileCheck2 className="w-5 h-5 text-sky-600 dark:text-sky-400" />;
       case "Dispute":
-        return <AlertTriangle className="w-5 h-5 text-red-400" />;
+        return <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />;
       case "Farmer activity":
-        return <User className="w-5 h-5 text-purple-400" />;
+        return <User className="w-5 h-5 text-purple-600 dark:text-purple-400" />;
       default:
         return <Bell className="w-5 h-5 text-farmly-muted" />;
     }
@@ -60,9 +69,14 @@ export default function NotificationsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Notification Center</h1>
+            <h1 className="text-2xl font-bold text-farmly-foreground tracking-tight">
+              {t("notifications.title", "Notification Center")}
+            </h1>
             <p className="text-xs text-farmly-muted">
-              Live updates on trade offers, escrow payment releases, field evidence, and dispute cases.
+              {t(
+                "notifications.subtitle",
+                "Live updates on trade offers, escrow payment releases, field evidence, and dispute cases."
+              )}
             </p>
           </div>
           <Button
@@ -70,10 +84,10 @@ export default function NotificationsPage() {
             variant="outline"
             size="sm"
             onClick={markAllNotificationsAsRead}
-            className="border-farmly-border text-xs text-white hover:bg-farmly-surface-elevated shrink-0"
+            className="border-farmly-border text-xs text-farmly-foreground hover:bg-farmly-surface-elevated shrink-0 font-medium"
           >
             <CheckCheck className="w-4 h-4 mr-1.5 text-farmly-accent" />
-            Mark All as Read
+            {t("notifications.markAllRead", "Mark All as Read")}
           </Button>
         </div>
 
@@ -81,28 +95,30 @@ export default function NotificationsPage() {
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
           {categories.map((cat) => {
             const count =
-              cat === "All"
+              cat.value === "All"
                 ? notifications.length
-                : cat === "Unread"
+                : cat.value === "Unread"
                 ? notifications.filter((n) => !n.read).length
-                : notifications.filter((n) => n.category === cat).length;
+                : notifications.filter((n) => n.category === cat.value).length;
 
             return (
               <button
-                key={cat}
+                key={cat.value}
                 type="button"
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => setActiveCategory(cat.value)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
-                  activeCategory === cat
-                    ? "bg-farmly-primary text-white shadow-sm"
-                    : "bg-farmly-surface border border-farmly-border text-farmly-muted hover:text-white"
+                  activeCategory === cat.value
+                    ? "bg-farmly-primary text-white shadow-sm font-bold"
+                    : "bg-farmly-surface border border-farmly-border text-farmly-muted hover:text-farmly-foreground"
                 }`}
               >
-                <span>{cat}</span>
+                <span>{cat.label}</span>
                 {count > 0 && (
                   <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                      activeCategory === cat ? "bg-white/20 text-white" : "bg-farmly-surface-elevated text-farmly-muted"
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                      activeCategory === cat.value
+                        ? "bg-white/25 text-white font-bold"
+                        : "bg-farmly-surface-elevated text-farmly-muted"
                     }`}
                   >
                     {count}
@@ -118,8 +134,12 @@ export default function NotificationsPage() {
           {filteredNotifications.length === 0 ? (
             <Card className="bg-farmly-surface border-farmly-border p-8 text-center space-y-2">
               <Bell className="w-10 h-10 text-farmly-muted mx-auto opacity-40" />
-              <div className="text-sm font-semibold text-white">No notifications in this filter</div>
-              <p className="text-xs text-farmly-muted">You are up to date on all agricultural alerts.</p>
+              <div className="text-sm font-semibold text-farmly-foreground">
+                {t("notifications.emptyTitle", "No notifications in this filter")}
+              </div>
+              <p className="text-xs text-farmly-muted">
+                {t("notifications.emptyDesc", "You are up to date on all agricultural alerts.")}
+              </p>
             </Card>
           ) : (
             filteredNotifications.map((notif) => (
@@ -141,13 +161,13 @@ export default function NotificationsPage() {
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-mono text-farmly-muted">{notif.category}</span>
                         {!notif.read && (
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                         )}
                       </div>
                       <span className="text-[11px] text-farmly-muted">{notif.timestamp}</span>
                     </div>
 
-                    <h3 className="text-sm font-bold text-white">{notif.title}</h3>
+                    <h3 className="text-sm font-bold text-farmly-foreground">{notif.title}</h3>
                     <p className="text-xs text-farmly-muted leading-relaxed">{notif.message}</p>
 
                     <div className="pt-2 flex items-center justify-between">
@@ -156,16 +176,16 @@ export default function NotificationsPage() {
                         onClick={() => markNotificationAsRead(notif.id)}
                         className="text-xs text-farmly-accent hover:underline inline-flex items-center gap-1 font-medium"
                       >
-                        View Details <ArrowRight className="w-3 h-3" />
+                        {t("common.details", "View Details")} <ArrowRight className="w-3 h-3" />
                       </Link>
 
                       {!notif.read && (
                         <button
                           type="button"
                           onClick={() => markNotificationAsRead(notif.id)}
-                          className="text-[11px] text-farmly-muted hover:text-white"
+                          className="text-[11px] text-farmly-muted hover:text-farmly-foreground font-medium"
                         >
-                          Mark as read
+                          {t("notifications.markRead", "Mark as read")}
                         </button>
                       )}
                     </div>

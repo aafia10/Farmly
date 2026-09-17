@@ -36,7 +36,7 @@ export default function AssetsPage() {
               <Boxes className="w-3.5 h-3.5" />
               Verified Agricultural Asset Portfolio
             </div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl lg:text-3xl font-bold text-farmly-foreground tracking-tight">
               Grower Holdings & Harvest Pipeline
             </h1>
             <p className="text-xs text-farmly-muted leading-relaxed">
@@ -49,7 +49,7 @@ export default function AssetsPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white">Active Produce Lots</h2>
+              <h2 className="text-lg font-bold text-farmly-foreground">Active Produce Lots</h2>
               <p className="text-xs text-farmly-muted">Ready for marketplace bidding or fulfillment</p>
             </div>
             <Link href="/lots" className="text-xs text-farmly-accent hover:underline flex items-center gap-1">
@@ -64,7 +64,7 @@ export default function AssetsPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <span className="font-mono text-xs font-bold text-farmly-accent">{lot.id}</span>
-                      <h3 className="font-bold text-white text-base mt-0.5">{lot.crop}</h3>
+                      <h3 className="font-bold text-farmly-foreground text-base mt-0.5">{lot.crop}</h3>
                       <div className="text-xs text-farmly-muted">{lot.variety}</div>
                     </div>
                     <StatusBadge status={lot.status} size="sm" />
@@ -72,12 +72,12 @@ export default function AssetsPage() {
 
                   <div className="p-3 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-xs flex justify-between">
                     <span className="text-farmly-muted">Volume:</span>
-                    <span className="font-bold text-white">{lot.quantity} {lot.unit}</span>
+                    <span className="font-bold text-farmly-foreground">{lot.quantity} {lot.unit}</span>
                   </div>
                 </div>
 
                 <Link href={`/lots/${lot.id}`}>
-                  <Button variant="outline" size="sm" className="w-full text-xs border-farmly-border hover:bg-farmly-surface-elevated text-white">
+                  <Button variant="outline" size="sm" className="w-full text-xs border-farmly-border hover:bg-farmly-surface-elevated text-farmly-foreground">
                     View Lineage & Documents
                   </Button>
                 </Link>
@@ -90,7 +90,7 @@ export default function AssetsPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white">Upcoming Harvest Pipeline</h2>
+              <h2 className="text-lg font-bold text-farmly-foreground">Upcoming Harvest Pipeline</h2>
               <p className="text-xs text-farmly-muted">Declared standing crops with expected harvest dates</p>
             </div>
             <Link href="/helper/crop-availability" className="text-xs text-farmly-accent hover:underline flex items-center gap-1">
@@ -104,7 +104,7 @@ export default function AssetsPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <span className="font-mono text-xs text-amber-400 font-bold">{ca.id}</span>
-                    <h3 className="font-bold text-white text-base mt-0.5">{ca.crop}</h3>
+                    <h3 className="font-bold text-farmly-foreground text-base mt-0.5">{ca.crop}</h3>
                     <div className="text-xs text-farmly-muted">{ca.variety}</div>
                   </div>
                   <StatusBadge status={ca.status} size="sm" />
@@ -113,7 +113,7 @@ export default function AssetsPage() {
                 <div className="space-y-1.5 text-xs text-farmly-muted">
                   <div className="flex justify-between">
                     <span>Estimated Yield:</span>
-                    <span className="text-white font-semibold">{ca.estimatedQuantity} {ca.unit}</span>
+                    <span className="text-farmly-foreground font-semibold">{ca.estimatedQuantity} {ca.unit}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Expected Harvest:</span>
@@ -121,7 +121,7 @@ export default function AssetsPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Location:</span>
-                    <span className="text-white truncate max-w-[140px]">{ca.location}</span>
+                    <span className="text-farmly-foreground truncate max-w-[140px]">{ca.location}</span>
                   </div>
                 </div>
               </Card>
@@ -132,7 +132,7 @@ export default function AssetsPage() {
         {/* Section 3: Future Asset Registry Domains (Preview) */}
         <div className="space-y-4">
           <div>
-            <h2 className="text-lg font-bold text-white">Future Asset Domains (Coming Soon)</h2>
+            <h2 className="text-lg font-bold text-farmly-foreground">Future Asset Domains (Coming Soon)</h2>
             <p className="text-xs text-farmly-muted">Extensible digital infrastructure under development for Farmly 2.0</p>
           </div>
 
@@ -144,7 +144,7 @@ export default function AssetsPage() {
               <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                 <FileCheck2 className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-white text-base">Digital Land Titles</h3>
+              <h3 className="font-bold text-farmly-foreground text-base">Digital Land Titles</h3>
               <p className="text-xs text-farmly-muted leading-relaxed">
                 Connect state revenue records and cadastral survey numbers to create unassailable identity collateral for crop loans.
               </p>
@@ -157,7 +157,7 @@ export default function AssetsPage() {
               <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
                 <Leaf className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-white text-base">Agricultural Inputs</h3>
+              <h3 className="font-bold text-farmly-foreground text-base">Agricultural Inputs</h3>
               <p className="text-xs text-farmly-muted leading-relaxed">
                 Track certified seeds, organic bio-fertilizers, and water telemetry to verify zero-residue regenerative practices.
               </p>
@@ -170,7 +170,7 @@ export default function AssetsPage() {
               <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                 <Coins className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-white text-base">Soil Carbon Credits</h3>
+              <h3 className="font-bold text-farmly-foreground text-base">Soil Carbon Credits</h3>
               <p className="text-xs text-farmly-muted leading-relaxed">
                 Monetize verified soil organic carbon increases through satellite remote sensing and soil testing integration.
               </p>

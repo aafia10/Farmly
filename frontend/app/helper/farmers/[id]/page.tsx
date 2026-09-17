@@ -60,7 +60,7 @@ export default function HelperFarmerDetailPage() {
         {/* Back Link */}
         <Link
           href="/helper/farmers"
-          className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-farmly-muted hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-farmly-muted hover:text-farmly-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Farmers Directory</span>
@@ -75,7 +75,7 @@ export default function HelperFarmerDetailPage() {
               </div>
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <h2 className="text-2xl font-extrabold text-white">{farmer.name}</h2>
+                  <h2 className="text-2xl font-extrabold text-farmly-foreground">{farmer.name}</h2>
                   <span className="font-mono text-xs px-2.5 py-1 rounded-md bg-farmly-surface border border-farmly-border text-emerald-300">
                     {farmer.id}
                   </span>
@@ -102,7 +102,7 @@ export default function HelperFarmerDetailPage() {
                 <HeartHandshake className="w-4 h-4" />
                 <span>Assisted by Helper</span>
               </div>
-              <p className="text-white font-medium">
+              <p className="text-farmly-foreground font-medium">
                 Helper: {farmer.assistedBy?.helperName || "Priya Sharma"}
               </p>
               <p className="text-[11px] text-farmly-muted-dark">
@@ -125,7 +125,7 @@ export default function HelperFarmerDetailPage() {
                     "flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all outline-none min-h-[38px]",
                     isSelected
                       ? "bg-farmly-primary text-white shadow-sm"
-                      : "text-farmly-muted hover:bg-farmly-surface hover:text-white"
+                      : "text-farmly-muted hover:bg-farmly-surface hover:text-farmly-foreground"
                   )}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -140,7 +140,7 @@ export default function HelperFarmerDetailPage() {
         {activeTab === "overview" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="p-6 border-farmly-border/70 space-y-4">
-              <h3 className="text-base font-bold text-white">Farmer Identity &amp; Location</h3>
+              <h3 className="text-base font-bold text-farmly-foreground">Farmer Identity &amp; Location</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between py-2 border-b border-farmly-border/40">
                   <span className="text-farmly-muted">Farmer ID:</span>
@@ -148,29 +148,29 @@ export default function HelperFarmerDetailPage() {
                 </div>
                 <div className="flex justify-between py-2 border-b border-farmly-border/40">
                   <span className="text-farmly-muted">Full Name:</span>
-                  <span className="text-white font-medium">{farmer.name}</span>
+                  <span className="text-farmly-foreground font-medium">{farmer.name}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-farmly-border/40">
                   <span className="text-farmly-muted">Mobile Number:</span>
-                  <span className="text-white font-mono">{farmer.mobile}</span>
+                  <span className="text-farmly-foreground font-mono">{farmer.mobile}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-farmly-border/40">
                   <span className="text-farmly-muted">Village / Taluka:</span>
-                  <span className="text-white">{farmer.village}, {farmer.taluka || "N/A"}</span>
+                  <span className="text-farmly-foreground">{farmer.village}, {farmer.taluka || "N/A"}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-farmly-border/40">
                   <span className="text-farmly-muted">District / State:</span>
-                  <span className="text-white">{farmer.district}, {farmer.state}</span>
+                  <span className="text-farmly-foreground">{farmer.district}, {farmer.state}</span>
                 </div>
                 <div className="flex justify-between py-2">
                   <span className="text-farmly-muted">Preferred Language:</span>
-                  <span className="text-white font-medium">{farmer.language}</span>
+                  <span className="text-farmly-foreground font-medium">{farmer.language}</span>
                 </div>
               </div>
             </Card>
 
             <Card className="p-6 border-farmly-border/70 space-y-4">
-              <h3 className="text-base font-bold text-white">Verification &amp; Governance</h3>
+              <h3 className="text-base font-bold text-farmly-foreground">Verification &amp; Governance</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between py-2 border-b border-farmly-border/40">
                   <span className="text-farmly-muted">Verification Level:</span>
@@ -178,7 +178,7 @@ export default function HelperFarmerDetailPage() {
                 </div>
                 <div className="flex justify-between py-2 border-b border-farmly-border/40">
                   <span className="text-farmly-muted">FPO Affiliation:</span>
-                  <span className="text-white">{farmer.fpo || "Independent Grower"}</span>
+                  <span className="text-farmly-foreground">{farmer.fpo || "Independent Grower"}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-farmly-border/40">
                   <span className="text-farmly-muted">Digital Consent:</span>
@@ -209,7 +209,7 @@ export default function HelperFarmerDetailPage() {
                 <Card key={c.id} className="p-5 border-farmly-border/70 flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-white text-base">{c.crop} ({c.variety})</h4>
+                      <h4 className="font-bold text-farmly-foreground text-base">{c.crop} ({c.variety})</h4>
                       <span className="font-mono text-xs text-farmly-muted">{c.id}</span>
                       <StatusBadge status={c.status} size="sm" />
                     </div>
@@ -230,7 +230,7 @@ export default function HelperFarmerDetailPage() {
                 <Card hoverGlow className="p-5 border-farmly-border/70 flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-white text-base">{lot.crop}</h4>
+                      <h4 className="font-bold text-farmly-foreground text-base">{lot.crop}</h4>
                       <span className="font-mono text-xs text-emerald-300">{lot.id}</span>
                       <StatusBadge status={lot.status} size="sm" />
                     </div>
@@ -251,14 +251,14 @@ export default function HelperFarmerDetailPage() {
               <Card key={ev.id} className="p-5 border-farmly-border/70 flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h4 className="font-bold text-white text-sm">{ev.title}</h4>
+                    <h4 className="font-bold text-farmly-foreground text-sm">{ev.title}</h4>
                     <span className="text-xs px-2 py-0.5 rounded bg-farmly-surface-elevated text-farmly-accent">
                       {ev.category}
                     </span>
                     <StatusBadge status={ev.status} size="sm" />
                   </div>
                   <p className="text-xs text-farmly-muted mt-1">
-                    Value: <strong className="text-white">{ev.value}</strong> | Source: {ev.source} | {ev.timestamp}
+                    Value: <strong className="text-farmly-foreground">{ev.value}</strong> | Source: {ev.source} | {ev.timestamp}
                   </p>
                 </div>
               </Card>
@@ -273,7 +273,7 @@ export default function HelperFarmerDetailPage() {
                 <Card hoverGlow className="p-5 border-farmly-border/70 flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-white text-sm">{o.buyerName}</h4>
+                      <h4 className="font-bold text-farmly-foreground text-sm">{o.buyerName}</h4>
                       <span className="font-mono text-xs text-farmly-muted">{o.id}</span>
                       <StatusBadge status={o.status} size="sm" />
                     </div>
@@ -295,7 +295,7 @@ export default function HelperFarmerDetailPage() {
                 <Card hoverGlow className="p-5 border-farmly-border/70 flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-white text-sm">₹{p.amount.toLocaleString()}</h4>
+                      <h4 className="font-bold text-farmly-foreground text-sm">₹{p.amount.toLocaleString()}</h4>
                       <span className="font-mono text-xs text-farmly-muted">{p.id}</span>
                       <StatusBadge status={p.status} size="sm" />
                     </div>
@@ -317,7 +317,7 @@ export default function HelperFarmerDetailPage() {
                 <Card hoverGlow className="p-5 border-farmly-border/70 flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-white text-sm">{d.category}</h4>
+                      <h4 className="font-bold text-farmly-foreground text-sm">{d.category}</h4>
                       <span className="font-mono text-xs text-farmly-muted">{d.id}</span>
                       <StatusBadge status={d.status} size="sm" />
                     </div>
@@ -338,7 +338,7 @@ export default function HelperFarmerDetailPage() {
                   {act.timestamp}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm font-semibold text-white">{act.action}</p>
+                  <p className="text-xs sm:text-sm font-semibold text-farmly-foreground">{act.action}</p>
                   <p className="text-xs text-farmly-muted">{act.details}</p>
                 </div>
                 <StatusBadge status={act.badgeStatus} size="sm" />

@@ -13,7 +13,7 @@ export function AppLayout({ children, title }: AppLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-farmly-bg flex text-white font-sans antialiased">
+    <div className="min-h-screen bg-farmly-bg flex text-farmly-foreground font-sans antialiased">
       {/* Dynamic Role-Based Sidebar */}
       <Sidebar
         mobileOpen={mobileMenuOpen}

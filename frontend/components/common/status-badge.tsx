@@ -11,18 +11,18 @@ export function StatusBadge({ status, size = "md", className }: StatusBadgeProps
   const getStyles = (st: string) => {
     const s = st.toLowerCase();
     if (s.includes("active") || s.includes("completed") || s.includes("verified") || s.includes("accepted") || s.includes("delivered") || s.includes("received")) {
-      return "bg-emerald-950/60 text-emerald-300 border-emerald-500/40";
+      return "bg-emerald-100/80 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-500/40";
     }
     if (s.includes("pending") || s.includes("due") || s.includes("draft") || s.includes("transit") || s.includes("initiated")) {
-      return "bg-amber-950/60 text-amber-300 border-amber-500/40";
+      return "bg-amber-100/80 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-500/40";
     }
     if (s.includes("review") || s.includes("submitted") || s.includes("assisted") || s.includes("offer")) {
-      return "bg-sky-950/60 text-sky-300 border-sky-500/40";
+      return "bg-sky-100/80 text-sky-800 border-sky-300 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-500/40";
     }
     if (s.includes("rejected") || s.includes("overdue") || s.includes("dispute") || s.includes("failed")) {
-      return "bg-red-950/60 text-red-300 border-red-500/40";
+      return "bg-red-100/80 text-red-800 border-red-300 dark:bg-red-950/60 dark:text-red-300 dark:border-red-500/40";
     }
-    return "bg-farmly-surface-elevated text-farmly-muted border-farmly-border";
+    return "bg-farmly-surface-elevated text-farmly-foreground border-farmly-border";
   };
 
   return (

@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import {
   User,
   Shield,
-  Bell,
   MapPin,
   Phone,
   Mail,
@@ -70,12 +69,12 @@ export default function ProfilePage() {
 
           <div className="space-y-2 text-center sm:text-left flex-1">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-              <h1 className="text-2xl font-bold text-white">{fullName}</h1>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                {role} Account
+              <h1 className="text-2xl font-bold text-farmly-foreground">{fullName}</h1>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20">
+                {t(`role.${role}`, role)} {t("common.mode", "Account")}
               </span>
               {matchedFarmer && (
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-farmly-primary/20 text-emerald-300 border border-farmly-primary/40">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-farmly-primary/20 text-emerald-800 dark:text-emerald-300 border border-farmly-primary/40">
                   {matchedFarmer.id}
                 </span>
               )}
@@ -107,33 +106,33 @@ export default function ProfilePage() {
             onClick={() => setActiveTab("info")}
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 ${
               activeTab === "info"
-                ? "bg-farmly-surface-elevated text-emerald-300 border border-farmly-border"
-                : "text-farmly-muted hover:text-white"
+                ? "bg-farmly-surface-elevated text-emerald-800 dark:text-emerald-300 border border-farmly-border font-bold"
+                : "text-farmly-muted hover:text-farmly-foreground"
             }`}
           >
-            <User className="w-4 h-4" /> Personal Details
+            <User className="w-4 h-4" /> {t("profile.personalDetails", "Personal Details")}
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("security")}
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 ${
               activeTab === "security"
-                ? "bg-farmly-surface-elevated text-emerald-300 border border-farmly-border"
-                : "text-farmly-muted hover:text-white"
+                ? "bg-farmly-surface-elevated text-emerald-800 dark:text-emerald-300 border border-farmly-border font-bold"
+                : "text-farmly-muted hover:text-farmly-foreground"
             }`}
           >
-            <Shield className="w-4 h-4" /> Security & Passwords
+            <Shield className="w-4 h-4" /> {t("profile.security", "Security & Passwords")}
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("preferences")}
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 ${
               activeTab === "preferences"
-                ? "bg-farmly-surface-elevated text-emerald-300 border border-farmly-border"
-                : "text-farmly-muted hover:text-white"
+                ? "bg-farmly-surface-elevated text-emerald-800 dark:text-emerald-300 border border-farmly-border font-bold"
+                : "text-farmly-muted hover:text-farmly-foreground"
             }`}
           >
-            <Globe className="w-4 h-4" /> Language & Regional
+            <Globe className="w-4 h-4" /> {t("profile.language", "Language & Regional")}
           </button>
         </div>
 
@@ -141,20 +140,22 @@ export default function ProfilePage() {
         {activeTab === "info" && (
           <Card className="bg-farmly-surface border-farmly-border">
             <CardHeader>
-              <CardTitle className="text-white text-base">Account Information</CardTitle>
+              <CardTitle className="text-farmly-foreground text-base">
+                {t("profile.accountInfo", "Account Information")}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSave} className="space-y-4">
                 {savedSuccess && (
-                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-sm flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 shrink-0" />
-                    Profile changes saved successfully!
+                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-sm flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                    {t("profile.savedSuccess", "Profile changes saved successfully!")}
                   </div>
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label htmlFor="fullname">Full Name</Label>
+                    <Label htmlFor="fullname">{t("profile.fullName", "Full Name")}</Label>
                     <Input
                       id="fullname"
                       value={fullName}
@@ -163,7 +164,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="email">Email Address</Label>
+                    <Label htmlFor="email">{t("profile.email", "Email Address")}</Label>
                     <Input
                       id="email"
                       type="email"
@@ -173,7 +174,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="mobile">Mobile Number</Label>
+                    <Label htmlFor="mobile">{t("profile.mobile", "Mobile Number")}</Label>
                     <Input
                       id="mobile"
                       value={mobile}
@@ -182,7 +183,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="org">Organization / FPO</Label>
+                    <Label htmlFor="org">{t("profile.organization", "Organization / FPO")}</Label>
                     <Input
                       id="org"
                       value={organization}
@@ -190,7 +191,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="district">District</Label>
+                    <Label htmlFor="district">{t("profile.district", "District")}</Label>
                     <Input
                       id="district"
                       value={district}
@@ -198,7 +199,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="state">State</Label>
+                    <Label htmlFor="state">{t("profile.state", "State")}</Label>
                     <Input
                       id="state"
                       value={state}
@@ -209,21 +210,23 @@ export default function ProfilePage() {
 
                 {matchedFarmer && (
                   <div className="mt-4 p-4 rounded-xl bg-farmly-surface-elevated border border-farmly-border/70 space-y-2">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
-                      Farmer Identity Card Details
+                    <div className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                      {t("profile.farmerIdCard", "Farmer Identity Card Details")}
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
                       <div>
-                        <span className="text-farmly-muted">Verification:</span>{" "}
-                        <span className="text-white font-medium">{matchedFarmer.verificationLevel}</span>
+                        <span className="text-farmly-muted">{t("profile.verification", "Verification")}:</span>{" "}
+                        <span className="text-farmly-foreground font-medium">{matchedFarmer.verificationLevel}</span>
                       </div>
                       <div>
-                        <span className="text-farmly-muted">Farming:</span>{" "}
-                        <span className="text-white font-medium">{matchedFarmer.farmingCategory}</span>
+                        <span className="text-farmly-muted">{t("profile.farmingCategory", "Farming")}:</span>{" "}
+                        <span className="text-farmly-foreground font-medium">{matchedFarmer.farmingCategory}</span>
                       </div>
                       <div>
-                        <span className="text-farmly-muted">Assisted By:</span>{" "}
-                        <span className="text-white font-medium">{matchedFarmer.assistedBy?.helperName || "Self"}</span>
+                        <span className="text-farmly-muted">{t("common.assistedBy", "Assisted By")}:</span>{" "}
+                        <span className="text-farmly-foreground font-medium">
+                          {matchedFarmer.assistedBy?.helperName || "Self"}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -232,7 +235,7 @@ export default function ProfilePage() {
                 <div className="pt-2 flex justify-end">
                   <Button type="submit" className="bg-farmly-primary hover:bg-farmly-primary-hover text-white">
                     <Save className="w-4 h-4 mr-2" />
-                    Save Changes
+                    {t("common.save", "Save Changes")}
                   </Button>
                 </div>
               </form>
@@ -244,34 +247,40 @@ export default function ProfilePage() {
         {activeTab === "security" && (
           <Card className="bg-farmly-surface border-farmly-border">
             <CardHeader>
-              <CardTitle className="text-white text-base">Security & Authentication</CardTitle>
+              <CardTitle className="text-farmly-foreground text-base">
+                {t("profile.securityTitle", "Security & Authentication")}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="p-4 rounded-xl bg-farmly-surface-elevated border border-farmly-border space-y-3">
                 <div className="flex items-center gap-3">
                   <Lock className="w-5 h-5 text-farmly-accent" />
                   <div>
-                    <div className="font-semibold text-white text-sm">Demo Password</div>
-                    <div className="text-xs text-farmly-muted">Farmly@123 (Preset for prototype testing)</div>
+                    <div className="font-semibold text-farmly-foreground text-sm">
+                      {t("profile.demoPassword", "Demo Password")}
+                    </div>
+                    <div className="text-xs text-farmly-muted">
+                      Farmly@123 ({t("profile.presetTesting", "Preset for prototype testing")})
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div className="space-y-1.5">
-                  <Label>Current Password</Label>
+                  <Label>{t("profile.currentPassword", "Current Password")}</Label>
                   <Input type="password" placeholder="••••••••" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>New Password</Label>
+                  <Label>{t("profile.newPassword", "New Password")}</Label>
                   <Input type="password" placeholder="••••••••" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Confirm New Password</Label>
+                  <Label>{t("profile.confirmNewPassword", "Confirm New Password")}</Label>
                   <Input type="password" placeholder="••••••••" />
                 </div>
                 <Button className="bg-farmly-primary hover:bg-farmly-primary-hover text-white">
-                  Update Password
+                  {t("profile.updatePassword", "Update Password")}
                 </Button>
               </div>
             </CardContent>
@@ -282,11 +291,16 @@ export default function ProfilePage() {
         {activeTab === "preferences" && (
           <Card className="bg-farmly-surface border-farmly-border">
             <CardHeader>
-              <CardTitle className="text-white text-base">Preferred Regional Language</CardTitle>
+              <CardTitle className="text-farmly-foreground text-base">
+                {t("profile.prefLanguage", "Preferred Regional Language")}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-xs text-farmly-muted">
-                Select your preferred language. Farmly supports 11 Indian regional languages across all forms, lot records, and marketplace summaries.
+                {t(
+                  "profile.prefLanguageDesc",
+                  "Select your preferred language. Farmly supports 11 Indian regional languages across all forms, lot records, and marketplace summaries."
+                )}
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {SUPPORTED_LANGUAGES.map((lang) => (
@@ -296,12 +310,14 @@ export default function ProfilePage() {
                     onClick={() => setLanguage(lang.code)}
                     className={`p-3 rounded-xl border text-left transition-all ${
                       language === lang.code
-                        ? "bg-farmly-primary/30 border-farmly-accent text-white font-bold"
-                        : "bg-farmly-surface-elevated border-farmly-border text-farmly-muted hover:text-white"
+                        ? "bg-farmly-primary border-farmly-primary text-white font-bold shadow-sm"
+                        : "bg-farmly-surface-elevated border-farmly-border text-farmly-muted hover:text-farmly-foreground"
                     }`}
                   >
                     <div className="text-sm font-semibold">{lang.nativeName}</div>
-                    <div className="text-xs text-farmly-muted-dark">{lang.name}</div>
+                    <div className={`text-xs ${language === lang.code ? "text-emerald-100" : "text-farmly-muted-dark"}`}>
+                      {lang.name}
+                    </div>
                   </button>
                 ))}
               </div>

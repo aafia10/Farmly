@@ -50,7 +50,7 @@ export default function TransactionsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Agricultural Transaction Ledger</h1>
+            <h1 className="text-2xl font-bold text-farmly-foreground tracking-tight">Agricultural Transaction Ledger</h1>
             <p className="text-xs text-farmly-muted">
               Audited historical record of produce sales, purchase transfers, APMC levies, and digital escrow payouts.
             </p>
@@ -59,7 +59,7 @@ export default function TransactionsPage() {
             variant="outline"
             size="sm"
             onClick={() => alert("Statement export ready.")}
-            className="border-farmly-border text-white text-xs h-9 hover:bg-farmly-surface-elevated shrink-0"
+            className="border-farmly-border text-farmly-foreground text-xs h-9 hover:bg-farmly-surface-elevated shrink-0"
           >
             <Download className="w-4 h-4 mr-1.5 text-farmly-accent" />
             Download Statement
@@ -81,7 +81,7 @@ export default function TransactionsPage() {
             <span className="text-xs text-farmly-muted flex items-center gap-1">
               <ArrowUpRight className="w-3.5 h-3.5 text-red-400" /> Total Outflow (Procurement & Fees)
             </span>
-            <div className="text-2xl font-bold text-white font-mono">
+            <div className="text-2xl font-bold text-farmly-foreground font-mono">
               ₹{totalOut.toLocaleString("en-IN")}
             </div>
           </Card>
@@ -115,7 +115,7 @@ export default function TransactionsPage() {
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
                   filterType === tp
                     ? "bg-farmly-primary text-white"
-                    : "text-farmly-muted hover:text-white"
+                    : "text-farmly-muted hover:text-farmly-foreground"
                 }`}
               >
                 {tp}
@@ -143,7 +143,7 @@ export default function TransactionsPage() {
               <tbody className="divide-y divide-farmly-border/60 text-xs">
                 {filtered.map((tx) => (
                   <tr key={tx.id} className="hover:bg-farmly-surface-elevated/50 transition-colors">
-                    <td className="px-5 py-4 font-mono font-bold text-white">{tx.id}</td>
+                    <td className="px-5 py-4 font-mono font-bold text-farmly-foreground">{tx.id}</td>
                     <td className="px-5 py-4">
                       <span
                         className={`px-2 py-0.5 rounded-md font-semibold uppercase text-[10px] ${
@@ -156,16 +156,16 @@ export default function TransactionsPage() {
                       </span>
                     </td>
                     <td className="px-5 py-4">
-                      <div className="font-semibold text-white">{tx.crop}</div>
+                      <div className="font-semibold text-farmly-foreground">{tx.crop}</div>
                       <Link href={`/lots/${tx.lotId}`} className="font-mono text-farmly-muted hover:underline">
                         {tx.lotId}
                       </Link>
                     </td>
-                    <td className="px-5 py-4 font-medium text-white">{tx.counterparty}</td>
-                    <td className="px-5 py-4 font-mono text-white">
+                    <td className="px-5 py-4 font-medium text-farmly-foreground">{tx.counterparty}</td>
+                    <td className="px-5 py-4 font-mono text-farmly-foreground">
                       {tx.quantity > 0 ? `${tx.quantity} kg` : "—"}
                     </td>
-                    <td className="px-5 py-4 font-mono font-bold text-white">
+                    <td className="px-5 py-4 font-mono font-bold text-farmly-foreground">
                       ₹{tx.amount.toLocaleString("en-IN")}
                     </td>
                     <td className="px-5 py-4">

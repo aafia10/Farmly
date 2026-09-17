@@ -39,6 +39,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (dict && dict[key]) {
       return dict[key];
     }
+    if (process.env.NODE_ENV !== "production") {
+      // Diagnostic check for translation completeness without breaking the UI
+      // console.warn(`[Farmly i18n] Untranslated key: "${key}" in "${language}"`);
+    }
     // Fallback to English
     if (DICTIONARIES[DEFAULT_LANGUAGE] && DICTIONARIES[DEFAULT_LANGUAGE][key]) {
       return DICTIONARIES[DEFAULT_LANGUAGE][key];

@@ -21,10 +21,12 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { StatusBadge } from "@/components/common/status-badge";
 import { useMockData } from "@/contexts/mock-data-context";
+import { useTranslation } from "@/contexts/language-context";
 import { EvidenceItem } from "@/types";
 
 export default function HelperEvidencePage() {
   const { evidence, lots, farmers, addEvidence, updateEvidenceStatus } = useMockData();
+  const { t } = useTranslation();
 
   const [filterStatus, setFilterStatus] = useState<string>("All");
   const [selectedLotFilter, setSelectedLotFilter] = useState<string>("All");
@@ -66,46 +68,51 @@ export default function HelperEvidencePage() {
   };
 
   return (
-    <AppLayout title="Evidence Verification Workbench">
+    <AppLayout title={t("nav.evidence", "Evidence Verification Workbench")}>
       <div className="space-y-6 max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Field Evidence Workbench</h1>
+            <h1 className="text-2xl font-bold text-farmly-foreground tracking-tight">
+              {t("helper.evidenceWorkbenchTitle", "Field Evidence Workbench")}
+            </h1>
             <p className="text-xs text-farmly-muted">
-              Inspect, cross-verify, and approve physical proof artifacts: weighbridge printouts, moisture meter readings, and lab test sheets.
+              {t(
+                "helper.evidenceWorkbenchDesc",
+                "Inspect, cross-verify, and approve physical proof artifacts: weighbridge printouts, moisture meter readings, and lab test sheets."
+              )}
             </p>
           </div>
           <Button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-farmly-primary hover:bg-farmly-primary-hover text-white text-xs h-9 shrink-0"
+            className="bg-farmly-primary hover:bg-farmly-primary-hover text-white text-xs h-9 shrink-0 font-medium"
           >
             <Plus className="w-4 h-4 mr-1.5" />
-            {showAddForm ? "Close Form" : "Upload Evidence Artifact"}
+            {showAddForm ? t("common.cancel", "Close Form") : t("helper.uploadEvidence", "Upload Evidence Artifact")}
           </Button>
         </div>
 
         {/* 4 Stat Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Card className="bg-farmly-surface border-farmly-border p-4">
-            <div className="text-xs text-farmly-muted">Total Artifacts</div>
-            <div className="text-2xl font-bold text-white mt-1">{evidence.length}</div>
+            <div className="text-xs text-farmly-muted">{t("helper.totalArtifacts", "Total Artifacts")}</div>
+            <div className="text-2xl font-bold text-farmly-foreground mt-1">{evidence.length}</div>
           </Card>
           <Card className="bg-farmly-surface border-farmly-border p-4">
-            <div className="text-xs text-farmly-muted">Pending Review</div>
-            <div className="text-2xl font-bold text-amber-400 mt-1">
+            <div className="text-xs text-farmly-muted">{t("status.pending", "Pending Review")}</div>
+            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">
               {evidence.filter((e) => e.status === "Pending").length}
             </div>
           </Card>
           <Card className="bg-farmly-surface border-farmly-border p-4">
-            <div className="text-xs text-farmly-muted">Verified Badges</div>
-            <div className="text-2xl font-bold text-emerald-400 mt-1">
+            <div className="text-xs text-farmly-muted">{t("status.verified", "Verified Badges")}</div>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
               {evidence.filter((e) => e.status === "Verified").length}
             </div>
           </Card>
           <Card className="bg-farmly-surface border-farmly-border p-4">
-            <div className="text-xs text-farmly-muted">Needs Attention</div>
-            <div className="text-2xl font-bold text-red-400 mt-1">
+            <div className="text-xs text-farmly-muted">{t("status.needsReview", "Needs Attention")}</div>
+            <div className="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">
               {evidence.filter((e) => e.status === "Needs Review").length}
             </div>
           </Card>
@@ -114,14 +121,14 @@ export default function HelperEvidencePage() {
         {/* Add Evidence Expandable Form */}
         {showAddForm && (
           <Card className="bg-farmly-surface border-farmly-border p-6 space-y-4">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Upload className="w-4 h-4 text-emerald-400" />
-              Upload & Certify Physical Evidence Artifact
+            <h3 className="text-base font-bold text-farmly-foreground flex items-center gap-2">
+              <Upload className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              {t("helper.uploadEvidenceTitle", "Upload & Certify Physical Evidence Artifact")}
             </h3>
             <form onSubmit={handleAddSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <Label>Attach to Harvest Lot</Label>
+                  <Label>{t("helper.attachToLot", "Attach to Harvest Lot")}</Label>
                   <Select value={lotId} onChange={(e) => setLotId(e.target.value)}>
                     {lots.map((l) => (
                       <option key={l.id} value={l.id}>
@@ -131,7 +138,7 @@ export default function HelperEvidencePage() {
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Evidence Type</Label>
+                  <Label>{t("helper.evidenceType", "Evidence Type")}</Label>
                   <Select
                     value={type}
                     onChange={(e) => setType(e.target.value as EvidenceItem["type"])}
@@ -144,7 +151,7 @@ export default function HelperEvidencePage() {
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Verification Tier</Label>
+                  <Label>{t("helper.verificationTier", "Verification Tier")}</Label>
                   <Select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as EvidenceItem["category"])}
@@ -155,23 +162,23 @@ export default function HelperEvidencePage() {
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Artifact Title</Label>
+                  <Label>{t("helper.artifactTitle", "Artifact Title")}</Label>
                   <Input value={title} onChange={(e) => setTitle(e.target.value)} required />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Recorded Value / Result</Label>
+                  <Label>{t("helper.recordedValue", "Recorded Value / Result")}</Label>
                   <Input value={value} onChange={(e) => setValue(e.target.value)} required />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Hardware / Sensor Source</Label>
+                  <Label>{t("helper.sensorSource", "Hardware / Sensor Source")}</Label>
                   <Input value={source} onChange={(e) => setSource(e.target.value)} required />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Authorized Issuer</Label>
+                  <Label>{t("helper.authorizedIssuer", "Authorized Issuer")}</Label>
                   <Input value={issuer} onChange={(e) => setIssuer(e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Document / Certificate Ref #</Label>
+                  <Label>{t("helper.documentRef", "Document / Certificate Ref #")}</Label>
                   <Input value={documentRef} onChange={(e) => setDocumentRef(e.target.value)} />
                 </div>
               </div>
@@ -181,15 +188,15 @@ export default function HelperEvidencePage() {
                   type="button"
                   variant="outline"
                   onClick={() => setShowAddForm(false)}
-                  className="border-farmly-border text-white text-xs h-9 hover:bg-farmly-surface-elevated"
+                  className="border-farmly-border text-farmly-foreground text-xs h-9 hover:bg-farmly-surface-elevated font-medium"
                 >
-                  Cancel
+                  {t("common.cancel", "Cancel")}
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-farmly-primary hover:bg-farmly-primary-hover text-white text-xs h-9"
+                  className="bg-farmly-primary hover:bg-farmly-primary-hover text-white text-xs h-9 font-semibold"
                 >
-                  Commit & Verify Artifact
+                  {t("helper.commitArtifact", "Commit & Verify Artifact")}
                 </Button>
               </div>
             </form>
@@ -206,8 +213,8 @@ export default function HelperEvidencePage() {
                 onClick={() => setFilterStatus(st)}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
                   filterStatus === st
-                    ? "bg-farmly-primary text-white"
-                    : "text-farmly-muted hover:text-white"
+                    ? "bg-farmly-primary text-white font-bold"
+                    : "text-farmly-muted hover:text-farmly-foreground"
                 }`}
               >
                 {st}
@@ -216,13 +223,13 @@ export default function HelperEvidencePage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-farmly-muted">Lot:</span>
+            <span className="text-xs text-farmly-muted">{t("nav.lots", "Lot")}:</span>
             <Select
               value={selectedLotFilter}
               onChange={(e) => setSelectedLotFilter(e.target.value)}
               className="h-8 text-xs py-1"
             >
-              <option value="All">All Lots</option>
+              <option value="All">{t("common.all", "All Lots")}</option>
               {lots.map((l) => (
                 <option key={l.id} value={l.id}>
                   {l.id} ({l.crop})
@@ -241,17 +248,17 @@ export default function HelperEvidencePage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-mono text-xs font-bold text-farmly-accent">{item.id}</span>
                     <span className="text-xs text-farmly-muted">•</span>
-                    <span className="font-mono text-xs text-white">{item.lotId}</span>
+                    <span className="font-mono text-xs text-farmly-foreground">{item.lotId}</span>
                     <span className="text-xs text-farmly-muted">•</span>
-                    <span className="text-xs text-white font-medium">{item.farmerName}</span>
+                    <span className="text-xs text-farmly-foreground font-medium">{item.farmerName}</span>
                     <StatusBadge status={item.status} size="sm" />
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-farmly-surface-elevated border border-farmly-border font-mono text-farmly-muted">
                       {item.category}
                     </span>
                   </div>
 
-                  <h3 className="font-bold text-white text-base">{item.title}</h3>
-                  <div className="p-2.5 rounded-lg bg-farmly-surface-elevated border border-farmly-border/70 text-xs text-emerald-300 font-mono">
+                  <h3 className="font-bold text-farmly-foreground text-base">{item.title}</h3>
+                  <div className="p-2.5 rounded-lg bg-farmly-surface-elevated border border-farmly-border/70 text-xs text-emerald-800 dark:text-emerald-300 font-mono">
                     {item.value}
                   </div>
 
@@ -269,18 +276,18 @@ export default function HelperEvidencePage() {
                     <Button
                       size="sm"
                       onClick={() => updateEvidenceStatus(item.id, "Reviewed")}
-                      className="bg-sky-600 hover:bg-sky-500 text-white text-xs h-8"
+                      className="bg-sky-600 hover:bg-sky-500 text-white text-xs h-8 font-semibold"
                     >
-                      Mark Reviewed
+                      {t("common.markReviewed", "Mark Reviewed")}
                     </Button>
                   )}
                   {item.status !== "Verified" && (
                     <Button
                       size="sm"
                       onClick={() => updateEvidenceStatus(item.id, "Verified")}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs h-8"
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs h-8 font-semibold"
                     >
-                      Verify Artifact
+                      {t("common.verifyArtifact", "Verify Artifact")}
                     </Button>
                   )}
                   {item.status !== "Needs Review" && (
@@ -288,9 +295,9 @@ export default function HelperEvidencePage() {
                       variant="outline"
                       size="sm"
                       onClick={() => updateEvidenceStatus(item.id, "Needs Review")}
-                      className="border-red-500/30 text-red-400 hover:bg-red-950/20 text-xs h-8"
+                      className="border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 text-xs h-8"
                     >
-                      Flag Issue
+                      {t("common.flagIssue", "Flag Issue")}
                     </Button>
                   )}
                 </div>

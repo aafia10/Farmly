@@ -22,11 +22,13 @@ import { Select } from "@/components/ui/select";
 import { StatusBadge } from "@/components/common/status-badge";
 import { useMockData } from "@/contexts/mock-data-context";
 import { useAuth } from "@/contexts/auth-context";
+import { useTranslation } from "@/contexts/language-context";
 import { Lot } from "@/types";
 
 export default function HelperLotsPage() {
   const { user } = useAuth();
   const { farmers, lots, createLot } = useMockData();
+  const { t } = useTranslation();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selectedFarmerId, setSelectedFarmerId] = useState<string>(farmers[0]?.id || "");
@@ -66,13 +68,18 @@ export default function HelperLotsPage() {
   };
 
   return (
-    <AppLayout title="Lot Documentation Wizard">
+    <AppLayout title={t("lots.documentNew", "Lot Documentation Wizard")}>
       <div className="space-y-8 max-w-5xl mx-auto">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Harvest Lot Documentation</h1>
+          <h1 className="text-2xl font-bold text-farmly-foreground tracking-tight">
+            {t("helper.documentLotTitle", "Harvest Lot Documentation")}
+          </h1>
           <p className="text-xs text-farmly-muted">
-            Digitize and verify physical farm harvest lots with scale integration, moisture evidence, and tamper-evident identifiers.
+            {t(
+              "helper.documentLotSubtitle",
+              "Digitize and verify physical farm harvest lots with scale integration, moisture evidence, and tamper-evident identifiers."
+            )}
           </p>
         </div>
 
@@ -80,29 +87,29 @@ export default function HelperLotsPage() {
         {createdLotResult && (
           <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-3">
             <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <div>
-                <h3 className="font-bold text-white text-base">
-                  Lot Successfully Documented: {createdLotResult.id}
+                <h3 className="font-bold text-farmly-foreground text-base">
+                  {t("helper.lotSuccess", "Lot Successfully Documented")}: {createdLotResult.id}
                 </h3>
                 <p className="text-xs text-farmly-muted">
-                  Digitized for {createdLotResult.farmerName} • {createdLotResult.quantity} {createdLotResult.unit} of {createdLotResult.crop}
+                  {t("common.assistedBy", "Digitized for")} {createdLotResult.farmerName} • {createdLotResult.quantity} {createdLotResult.unit} of {createdLotResult.crop}
                 </p>
               </div>
             </div>
             <div className="flex gap-2 pt-2">
               <Link href={`/lots/${createdLotResult.id}`}>
                 <Button size="sm" className="bg-farmly-primary hover:bg-farmly-primary-hover text-white text-xs">
-                  View Lot & Add Evidence
+                  {t("helper.viewLotAddEvidence", "View Lot & Add Evidence")}
                 </Button>
               </Link>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setCreatedLotResult(null)}
-                className="border-farmly-border text-white text-xs hover:bg-farmly-surface-elevated"
+                className="border-farmly-border text-farmly-foreground text-xs hover:bg-farmly-surface-elevated"
               >
-                Create Another Lot
+                {t("helper.createAnotherLot", "Create Another Lot")}
               </Button>
             </div>
           </div>
@@ -122,8 +129,8 @@ export default function HelperLotsPage() {
               >
                 1
               </div>
-              <span className={`text-sm font-semibold ${step === 1 ? "text-white" : "text-farmly-muted"}`}>
-                Select Farmer
+              <span className={`text-sm font-semibold ${step === 1 ? "text-farmly-foreground" : "text-farmly-muted"}`}>
+                {t("helper.selectFarmer", "Select Farmer")}
               </span>
             </div>
 
@@ -139,8 +146,8 @@ export default function HelperLotsPage() {
               >
                 2
               </div>
-              <span className={`text-sm font-semibold ${step === 2 ? "text-white" : "text-farmly-muted"}`}>
-                Harvest Details
+              <span className={`text-sm font-semibold ${step === 2 ? "text-farmly-foreground" : "text-farmly-muted"}`}>
+                {t("helper.harvestDetails", "Harvest Details")}
               </span>
             </div>
 
@@ -156,8 +163,8 @@ export default function HelperLotsPage() {
               >
                 3
               </div>
-              <span className={`text-sm font-semibold ${step === 3 ? "text-white" : "text-farmly-muted"}`}>
-                Review & Confirm
+              <span className={`text-sm font-semibold ${step === 3 ? "text-farmly-foreground" : "text-farmly-muted"}`}>
+                {t("helper.reviewConfirm", "Review & Confirm")}
               </span>
             </div>
           </div>
@@ -166,8 +173,12 @@ export default function HelperLotsPage() {
           {step === 1 && (
             <div className="space-y-5">
               <div className="space-y-1">
-                <h3 className="text-base font-bold text-white">Choose Registered Farmer</h3>
-                <p className="text-xs text-farmly-muted">Select the verified grower for whom this harvest lot is being documented.</p>
+                <h3 className="text-base font-bold text-farmly-foreground">
+                  {t("helper.chooseRegisteredFarmer", "Choose Registered Farmer")}
+                </h3>
+                <p className="text-xs text-farmly-muted">
+                  {t("helper.chooseFarmerDesc", "Select the verified grower for whom this harvest lot is being documented.")}
+                </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -183,8 +194,8 @@ export default function HelperLotsPage() {
                   >
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="font-mono text-xs text-emerald-400 font-semibold">{farmer.id}</div>
-                        <div className="font-bold text-white text-sm">{farmer.name}</div>
+                        <div className="font-mono text-xs text-emerald-700 dark:text-emerald-400 font-semibold">{farmer.id}</div>
+                        <div className="font-bold text-farmly-foreground text-sm">{farmer.name}</div>
                         <div className="text-xs text-farmly-muted">{farmer.village}, {farmer.district}</div>
                       </div>
                       <StatusBadge status={farmer.status} size="sm" />
@@ -196,9 +207,9 @@ export default function HelperLotsPage() {
               <div className="flex justify-end pt-4">
                 <Button
                   onClick={() => setStep(2)}
-                  className="bg-farmly-primary hover:bg-farmly-primary-hover text-white text-xs h-9"
+                  className="bg-farmly-primary hover:bg-farmly-primary-hover text-white text-xs h-9 font-semibold"
                 >
-                  Continue to Details <ChevronRight className="w-4 h-4 ml-1" />
+                  {t("common.next", "Continue to Details")} <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </div>
@@ -208,25 +219,29 @@ export default function HelperLotsPage() {
           {step === 2 && (
             <div className="space-y-4">
               <div className="space-y-1">
-                <h3 className="text-base font-bold text-white">Harvest Lot Specifications</h3>
-                <p className="text-xs text-farmly-muted">Enter crop specifications, measured weights, and warehouse or field location.</p>
+                <h3 className="text-base font-bold text-farmly-foreground">
+                  {t("helper.lotSpecsTitle", "Harvest Lot Specifications")}
+                </h3>
+                <p className="text-xs text-farmly-muted">
+                  {t("helper.lotSpecsDesc", "Enter crop specifications, measured weights, and warehouse or field location.")}
+                </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label>Crop Name</Label>
+                  <Label>{t("common.crop", "Crop Name")}</Label>
                   <Input value={crop} onChange={(e) => setCrop(e.target.value)} required />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Crop Variety</Label>
+                  <Label>{t("cropAvailability.variety", "Crop Variety")}</Label>
                   <Input value={variety} onChange={(e) => setVariety(e.target.value)} required />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Measured Quantity</Label>
+                  <Label>{t("common.quantity", "Measured Quantity")}</Label>
                   <Input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} required />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Unit of Measurement</Label>
+                  <Label>{t("helper.unitOfMeasure", "Unit of Measurement")}</Label>
                   <Select value={unit} onChange={(e) => setUnit(e.target.value)}>
                     <option value="kg">Kilograms (kg)</option>
                     <option value="quintals">Quintals (qtl)</option>
@@ -234,7 +249,7 @@ export default function HelperLotsPage() {
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Quality Grade</Label>
+                  <Label>{t("common.qualityGrade", "Quality Grade")}</Label>
                   <Select
                     value={qualityGrade}
                     onChange={(e) => setQualityGrade(e.target.value as "Grade A" | "Grade B" | "Standard")}
@@ -245,11 +260,11 @@ export default function HelperLotsPage() {
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Physical Weighment Scale ID</Label>
+                  <Label>{t("helper.scaleId", "Physical Weighment Scale ID")}</Label>
                   <Input value={weighmentScaleId} onChange={(e) => setWeighmentScaleId(e.target.value)} />
                 </div>
                 <div className="sm:col-span-2 space-y-1.5">
-                  <Label>Weighment / Storage Location</Label>
+                  <Label>{t("helper.storageLocation", "Weighment / Storage Location")}</Label>
                   <Input value={location} onChange={(e) => setLocation(e.target.value)} required />
                 </div>
               </div>
@@ -258,15 +273,15 @@ export default function HelperLotsPage() {
                 <Button
                   variant="outline"
                   onClick={() => setStep(1)}
-                  className="border-farmly-border text-white text-xs h-9 hover:bg-farmly-surface-elevated"
+                  className="border-farmly-border text-farmly-foreground text-xs h-9 hover:bg-farmly-surface-elevated font-medium"
                 >
-                  <ArrowLeft className="w-4 h-4 mr-1" /> Back
+                  <ArrowLeft className="w-4 h-4 mr-1" /> {t("common.previous", "Back")}
                 </Button>
                 <Button
                   onClick={() => setStep(3)}
-                  className="bg-farmly-primary hover:bg-farmly-primary-hover text-white text-xs h-9"
+                  className="bg-farmly-primary hover:bg-farmly-primary-hover text-white text-xs h-9 font-semibold"
                 >
-                  Review Summary <ChevronRight className="w-4 h-4 ml-1" />
+                  {t("helper.reviewSummary", "Review Summary")} <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </div>
@@ -276,35 +291,39 @@ export default function HelperLotsPage() {
           {step === 3 && (
             <div className="space-y-5">
               <div className="space-y-1">
-                <h3 className="text-base font-bold text-white">Review & Create Verified Lot</h3>
-                <p className="text-xs text-farmly-muted">Verify all information before minting digital lot identity.</p>
+                <h3 className="text-base font-bold text-farmly-foreground">
+                  {t("helper.reviewLotTitle", "Review & Create Verified Lot")}
+                </h3>
+                <p className="text-xs text-farmly-muted">
+                  {t("helper.reviewLotDesc", "Verify all information before minting digital lot identity.")}
+                </p>
               </div>
 
               <div className="p-4 rounded-xl bg-farmly-surface-elevated border border-farmly-border space-y-3 text-sm">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   <div>
-                    <span className="text-xs text-farmly-muted block">Farmer</span>
-                    <span className="font-bold text-white">{selectedFarmer?.name} ({selectedFarmer?.id})</span>
+                    <span className="text-xs text-farmly-muted block">{t("role.farmer", "Farmer")}</span>
+                    <span className="font-bold text-farmly-foreground">{selectedFarmer?.name} ({selectedFarmer?.id})</span>
                   </div>
                   <div>
-                    <span className="text-xs text-farmly-muted block">Crop & Variety</span>
-                    <span className="font-bold text-white">{crop} ({variety})</span>
+                    <span className="text-xs text-farmly-muted block">{t("common.crop", "Crop & Variety")}</span>
+                    <span className="font-bold text-farmly-foreground">{crop} ({variety})</span>
                   </div>
                   <div>
-                    <span className="text-xs text-farmly-muted block">Quantity</span>
-                    <span className="font-bold text-emerald-400">{quantity} {unit}</span>
+                    <span className="text-xs text-farmly-muted block">{t("common.quantity", "Quantity")}</span>
+                    <span className="font-bold text-emerald-700 dark:text-emerald-400">{quantity} {unit}</span>
                   </div>
                   <div>
-                    <span className="text-xs text-farmly-muted block">Grade</span>
-                    <span className="font-bold text-white">{qualityGrade}</span>
+                    <span className="text-xs text-farmly-muted block">{t("common.qualityGrade", "Grade")}</span>
+                    <span className="font-bold text-farmly-foreground">{qualityGrade}</span>
                   </div>
                   <div>
-                    <span className="text-xs text-farmly-muted block">Weighment Scale</span>
-                    <span className="font-mono text-white text-xs">{weighmentScaleId || "Manual entry"}</span>
+                    <span className="text-xs text-farmly-muted block">{t("helper.scale", "Weighment Scale")}</span>
+                    <span className="font-mono text-farmly-foreground text-xs">{weighmentScaleId || "Manual entry"}</span>
                   </div>
                   <div>
-                    <span className="text-xs text-farmly-muted block">Location</span>
-                    <span className="text-white text-xs">{location}</span>
+                    <span className="text-xs text-farmly-muted block">{t("common.location", "Location")}</span>
+                    <span className="text-farmly-foreground text-xs">{location}</span>
                   </div>
                 </div>
               </div>
@@ -313,15 +332,15 @@ export default function HelperLotsPage() {
                 <Button
                   variant="outline"
                   onClick={() => setStep(2)}
-                  className="border-farmly-border text-white text-xs h-9 hover:bg-farmly-surface-elevated"
+                  className="border-farmly-border text-farmly-foreground text-xs h-9 hover:bg-farmly-surface-elevated font-medium"
                 >
-                  <ArrowLeft className="w-4 h-4 mr-1" /> Back
+                  <ArrowLeft className="w-4 h-4 mr-1" /> {t("common.previous", "Back")}
                 </Button>
                 <Button
                   onClick={handleSubmit}
                   className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs h-9"
                 >
-                  <CheckCircle2 className="w-4 h-4 mr-1.5" /> Mint Harvest Lot
+                  <CheckCircle2 className="w-4 h-4 mr-1.5" /> {t("helper.mintHarvestLot", "Mint Harvest Lot")}
                 </Button>
               </div>
             </div>
@@ -331,7 +350,9 @@ export default function HelperLotsPage() {
         {/* Existing Lots Directory */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-white">Documented Produce Lots</h2>
+            <h2 className="text-lg font-bold text-farmly-foreground">
+              {t("helper.documentedProduceLots", "Documented Produce Lots")}
+            </h2>
             <span className="text-xs text-farmly-muted font-mono">{lots.length} active lots</span>
           </div>
 
@@ -341,29 +362,29 @@ export default function HelperLotsPage() {
                 <thead className="bg-farmly-surface-elevated text-xs font-semibold text-farmly-muted uppercase border-b border-farmly-border">
                   <tr>
                     <th className="px-5 py-3.5">Lot ID</th>
-                    <th className="px-5 py-3.5">Farmer</th>
-                    <th className="px-5 py-3.5">Produce</th>
-                    <th className="px-5 py-3.5">Quantity</th>
-                    <th className="px-5 py-3.5">Quality</th>
-                    <th className="px-5 py-3.5">Status</th>
-                    <th className="px-5 py-3.5 text-right">Actions</th>
+                    <th className="px-5 py-3.5">{t("role.farmer", "Farmer")}</th>
+                    <th className="px-5 py-3.5">{t("common.crop", "Produce")}</th>
+                    <th className="px-5 py-3.5">{t("common.quantity", "Quantity")}</th>
+                    <th className="px-5 py-3.5">{t("common.qualityGrade", "Quality")}</th>
+                    <th className="px-5 py-3.5">{t("common.status", "Status")}</th>
+                    <th className="px-5 py-3.5 text-right">{t("common.actions", "Actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-farmly-border/60">
                   {lots.map((lot) => (
                     <tr key={lot.id} className="hover:bg-farmly-surface-elevated/50 transition-colors">
-                      <td className="px-5 py-4 font-mono font-bold text-white">{lot.id}</td>
+                      <td className="px-5 py-4 font-mono font-bold text-farmly-foreground">{lot.id}</td>
                       <td className="px-5 py-4">
-                        <div className="font-semibold text-white">{lot.farmerName}</div>
+                        <div className="font-semibold text-farmly-foreground">{lot.farmerName}</div>
                         <div className="text-xs text-farmly-muted font-mono">{lot.farmerId}</div>
                       </td>
                       <td className="px-5 py-4">
-                        <div className="font-semibold text-white">{lot.crop}</div>
+                        <div className="font-semibold text-farmly-foreground">{lot.crop}</div>
                         <div className="text-xs text-farmly-muted">{lot.variety}</div>
                       </td>
-                      <td className="px-5 py-4 font-medium text-white">{lot.quantity} {lot.unit}</td>
+                      <td className="px-5 py-4 font-medium text-farmly-foreground">{lot.quantity} {lot.unit}</td>
                       <td className="px-5 py-4">
-                        <span className="text-xs px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
+                        <span className="text-xs px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-semibold border border-emerald-500/20">
                           {lot.qualityGrade}
                         </span>
                       </td>
@@ -372,8 +393,8 @@ export default function HelperLotsPage() {
                       </td>
                       <td className="px-5 py-4 text-right">
                         <Link href={`/lots/${lot.id}`}>
-                          <Button variant="ghost" size="sm" className="text-xs text-farmly-accent hover:bg-farmly-primary/20 h-8">
-                            Inspect
+                          <Button variant="ghost" size="sm" className="text-xs text-farmly-accent hover:bg-farmly-primary/20 h-8 font-medium">
+                            {t("common.details", "Inspect")}
                           </Button>
                         </Link>
                       </td>

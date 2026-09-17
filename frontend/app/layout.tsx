@@ -56,7 +56,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-farmly-bg text-white font-sans antialiased selection:bg-farmly-primary selection:text-white">
+      <body className="min-h-screen bg-farmly-bg text-farmly-foreground font-sans antialiased selection:bg-farmly-primary selection:text-white">
         <ThemeProvider>
           <LanguageProvider>
             <MockDataProvider>

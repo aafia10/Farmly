@@ -79,7 +79,7 @@ export default function AddFarmerPage() {
         {/* Back link */}
         <Link
           href="/helper/farmers"
-          className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-farmly-muted hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-farmly-muted hover:text-farmly-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Farmers Directory</span>
@@ -93,7 +93,7 @@ export default function AddFarmerPage() {
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-farmly-foreground">
                 Farmer Successfully Registered
               </h2>
               <p className="text-sm text-farmly-muted">
@@ -111,11 +111,11 @@ export default function AddFarmerPage() {
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-farmly-muted">Farmer Name:</span>
-                <span className="font-bold text-white">{createdFarmer.name}</span>
+                <span className="font-bold text-farmly-foreground">{createdFarmer.name}</span>
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-farmly-muted">Village / District:</span>
-                <span className="text-white">{createdFarmer.village}, {createdFarmer.district}</span>
+                <span className="text-farmly-foreground">{createdFarmer.village}, {createdFarmer.district}</span>
               </div>
               <div className="flex items-center justify-between text-xs pt-2 border-t border-farmly-border/40">
                 <span className="text-farmly-muted">Registration Method:</span>
@@ -150,7 +150,7 @@ export default function AddFarmerPage() {
                 <UserPlus className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">Farmer Onboarding Form</h2>
+                <h2 className="text-xl font-bold text-farmly-foreground">Farmer Onboarding Form</h2>
                 <p className="text-xs sm:text-sm text-farmly-muted">
                   Record farm holding, location, consent, and verification level.
                 </p>
@@ -223,11 +223,11 @@ export default function AddFarmerPage() {
                   </label>
                   <select
                     id="preferredLanguage"
-                    className="w-full rounded-xl bg-farmly-surface-elevated px-4 py-3 text-sm text-white border border-farmly-border focus:border-farmly-accent outline-none"
+                    className="w-full rounded-xl bg-farmly-surface-elevated px-4 py-3 text-sm text-farmly-foreground border border-farmly-border focus:border-farmly-accent outline-none"
                     {...register("preferredLanguage")}
                   >
                     {SUPPORTED_LANGUAGES.map((l) => (
-                      <option key={l.code} value={l.nativeName} className="bg-farmly-surface text-white">
+                      <option key={l.code} value={l.nativeName} className="bg-farmly-surface text-farmly-foreground">
                         {l.nativeName} ({l.name})
                       </option>
                     ))}
@@ -259,12 +259,12 @@ export default function AddFarmerPage() {
                   </label>
                   <select
                     id="verificationLevel"
-                    className="w-full rounded-xl bg-farmly-surface-elevated px-4 py-3 text-sm text-white border border-farmly-border focus:border-farmly-accent outline-none"
+                    className="w-full rounded-xl bg-farmly-surface-elevated px-4 py-3 text-sm text-farmly-foreground border border-farmly-border focus:border-farmly-accent outline-none"
                     {...register("verificationLevel")}
                   >
-                    <option value="Basic" className="bg-farmly-surface text-white">Basic (Self-Declared)</option>
-                    <option value="Field Verified" className="bg-farmly-surface text-white">Field Verified (By Helper)</option>
-                    <option value="Identity Confirmed" className="bg-farmly-surface text-white">Identity Confirmed (Official Documents)</option>
+                    <option value="Basic" className="bg-farmly-surface text-farmly-foreground">Basic (Self-Declared)</option>
+                    <option value="Field Verified" className="bg-farmly-surface text-farmly-foreground">Field Verified (By Helper)</option>
+                    <option value="Identity Confirmed" className="bg-farmly-surface text-farmly-foreground">Identity Confirmed (Official Documents)</option>
                   </select>
                 </div>
               </div>

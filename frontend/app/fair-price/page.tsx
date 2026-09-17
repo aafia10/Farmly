@@ -14,6 +14,7 @@ import {
 import { AppLayout } from "@/components/layout/app-layout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "@/contexts/language-context";
 
 interface CropPriceBenchmark {
   crop: string;
@@ -38,6 +39,7 @@ const BENCHMARKS: CropPriceBenchmark[] = [
 ];
 
 export default function FairPricePage() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
 
   const filtered = BENCHMARKS.filter(
@@ -47,24 +49,32 @@ export default function FairPricePage() {
   );
 
   return (
-    <AppLayout title="Fair Price Reference Benchmarks">
+    <AppLayout title={t("nav.fairPrice", "Fair Price Reference Benchmarks")}>
       <div className="space-y-6 max-w-6xl mx-auto">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Fair Price Reference Benchmarks</h1>
+          <h1 className="text-2xl font-bold text-farmly-foreground tracking-tight">
+            {t("fairPrice.title", "Fair Price Reference Benchmarks")}
+          </h1>
           <p className="text-xs text-farmly-muted">
-            Aggregated government Minimum Support Price (MSP) announcements and regional APMC mandi spot rates.
+            {t(
+              "fairPrice.subtitle",
+              "Aggregated government Minimum Support Price (MSP) announcements and regional APMC mandi spot rates."
+            )}
           </p>
         </div>
 
         {/* MANDATORY PROMINENT DISCLAIMER */}
-        <div className="p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-500/40 text-amber-300 text-xs space-y-2">
-          <div className="flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-amber-400">
-            <AlertTriangle className="w-5 h-5 shrink-0" />
-            Mandatory Price Reference Disclaimer
+        <div className="p-5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border-2 border-amber-300 dark:border-amber-500/40 text-amber-950 dark:text-amber-200 text-xs space-y-2">
+          <div className="flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-amber-800 dark:text-amber-400">
+            <AlertTriangle className="w-5 h-5 shrink-0 text-amber-600 dark:text-amber-400" />
+            {t("fairPrice.disclaimerTitle", "Mandatory Price Reference Disclaimer")}
           </div>
-          <p className="leading-relaxed text-amber-200/90">
-            The prices displayed on this page are non-binding indicative benchmarks compiled from public APMC market bulletins and Government of India MSP notifications. <strong>Farmly does not set, guarantee, or legally mandate produce prices.</strong> Actual realized transaction prices are negotiated freely between buyers and sellers, subject to moisture content, foreign matter grading, bulk volume discounts, and local transport logistics. Always verify current rates with your local FPO or mandi yard committee prior to concluding sales.
+          <p className="leading-relaxed text-amber-900 dark:text-amber-200/90">
+            {t(
+              "fairPrice.disclaimerText",
+              "The prices displayed on this page are non-binding indicative benchmarks compiled from public APMC market bulletins and Government of India MSP notifications. Farmly does not set, guarantee, or legally mandate produce prices. Actual realized transaction prices are negotiated freely between buyers and sellers, subject to moisture content, foreign matter grading, bulk volume discounts, and local transport logistics. Always verify current rates with your local FPO or mandi yard committee prior to concluding sales."
+            )}
           </p>
         </div>
 
@@ -73,14 +83,14 @@ export default function FairPricePage() {
           <div className="relative w-full sm:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-farmly-muted" />
             <Input
-              placeholder="Search crop benchmarks..."
+              placeholder={t("fairPrice.searchPlaceholder", "Search crop benchmarks...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 h-9 text-xs"
             />
           </div>
           <div className="text-xs text-farmly-muted font-mono hidden sm:block">
-            Rates in INR per Quintal (100 kg)
+            {t("fairPrice.unitNote", "Rates in INR per Quintal (100 kg)")}
           </div>
         </div>
 
@@ -90,12 +100,12 @@ export default function FairPricePage() {
             <table className="w-full text-left text-sm">
               <thead className="bg-farmly-surface-elevated text-xs font-semibold text-farmly-muted uppercase border-b border-farmly-border">
                 <tr>
-                  <th className="px-5 py-3.5">Commodity & Variety</th>
-                  <th className="px-5 py-3.5">Govt. MSP (₹/qtl)</th>
-                  <th className="px-5 py-3.5">APMC Mandi Range</th>
-                  <th className="px-5 py-3.5">Modal Spot Rate</th>
-                  <th className="px-5 py-3.5">Spread vs MSP</th>
-                  <th className="px-5 py-3.5 text-right">Last Surveyed</th>
+                  <th className="px-5 py-3.5">{t("fairPrice.commodity", "Commodity & Variety")}</th>
+                  <th className="px-5 py-3.5">{t("fairPrice.msp", "Govt. MSP (₹/qtl)")}</th>
+                  <th className="px-5 py-3.5">{t("fairPrice.apmcRange", "APMC Mandi Range")}</th>
+                  <th className="px-5 py-3.5">{t("fairPrice.modalPrice", "Modal Spot Rate")}</th>
+                  <th className="px-5 py-3.5">{t("fairPrice.spread", "Spread vs MSP")}</th>
+                  <th className="px-5 py-3.5 text-right">{t("fairPrice.lastSurveyed", "Last Surveyed")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-farmly-border/60 text-xs">
@@ -106,24 +116,24 @@ export default function FairPricePage() {
                   return (
                     <tr key={idx} className="hover:bg-farmly-surface-elevated/50 transition-colors">
                       <td className="px-5 py-4">
-                        <div className="font-bold text-white text-sm">{item.crop}</div>
+                        <div className="font-bold text-farmly-foreground text-sm">{item.crop}</div>
                         <div className="text-farmly-muted text-xs">{item.variety}</div>
                       </td>
-                      <td className="px-5 py-4 font-mono font-bold text-sky-400">
+                      <td className="px-5 py-4 font-mono font-bold text-sky-600 dark:text-sky-400">
                         ₹{item.msp.toLocaleString("en-IN")}
                       </td>
-                      <td className="px-5 py-4 font-mono text-white">
+                      <td className="px-5 py-4 font-mono text-farmly-foreground">
                         ₹{item.apmcMin.toLocaleString("en-IN")} – ₹{item.apmcMax.toLocaleString("en-IN")}
                       </td>
-                      <td className="px-5 py-4 font-mono font-bold text-emerald-400 text-sm">
+                      <td className="px-5 py-4 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">
                         ₹{item.modalPrice.toLocaleString("en-IN")}
                       </td>
                       <td className="px-5 py-4">
                         <span
                           className={`px-2 py-0.5 rounded-md font-mono font-semibold text-[11px] ${
                             isAbove
-                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                              : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                              ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20"
+                              : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"
                           }`}
                         >
                           {isAbove ? `+₹${diff}` : `-₹${Math.abs(diff)}`}
@@ -139,14 +149,6 @@ export default function FairPricePage() {
             </table>
           </div>
         </Card>
-
-        {/* Informational Guidance Note */}
-        <div className="p-4 rounded-xl bg-farmly-surface border border-farmly-border flex items-start gap-3 text-xs text-farmly-muted">
-          <Info className="w-5 h-5 text-farmly-accent shrink-0 mt-0.5" />
-          <p>
-            <strong>How MSP benchmarks are calculated:</strong> Minimum Support Prices are established by the Commission for Agricultural Costs and Prices (CACP). Mandi spot prices reflect daily trading reports across Grade-1 APMC collection centers in Gujarat, Maharashtra, Punjab, and Madhya Pradesh.
-          </p>
-        </div>
       </div>
     </AppLayout>
   );

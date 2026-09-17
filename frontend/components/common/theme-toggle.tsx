@@ -43,7 +43,7 @@ export function ThemeToggle({ variant = "icon", className }: ThemeToggleProps) {
                 "flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent min-h-[36px]",
                 isSelected
                   ? "bg-farmly-primary text-white shadow-sm"
-                  : "text-farmly-muted hover:text-white hover:bg-farmly-surface-elevated"
+                  : "text-farmly-muted hover:text-farmly-foreground hover:bg-farmly-surface-elevated"
               )}
             >
               <Icon className="w-3.5 h-3.5" aria-hidden="true" />
@@ -60,7 +60,7 @@ export function ThemeToggle({ variant = "icon", className }: ThemeToggleProps) {
       type="button"
       onClick={() => setTheme(actualTheme === "dark" ? "light" : "dark")}
       className={cn(
-        "p-2 rounded-xl text-farmly-muted hover:text-white bg-farmly-surface border border-farmly-border transition-colors outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent min-h-[40px] min-w-[40px] flex items-center justify-center",
+        "p-2 rounded-xl text-farmly-muted hover:text-farmly-foreground bg-farmly-surface border border-farmly-border transition-colors outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent min-h-[40px] min-w-[40px] flex items-center justify-center",
         className
       )}
       aria-label={`Toggle theme. Current: ${theme}`}

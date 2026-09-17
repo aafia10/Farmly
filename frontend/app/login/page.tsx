@@ -110,7 +110,7 @@ export default function LoginPage() {
                   "flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border text-xs font-semibold transition-all min-h-[40px]",
                   isSelected
                     ? "bg-farmly-primary text-white border-farmly-accent shadow-sm"
-                    : "bg-farmly-surface-elevated text-farmly-muted border-farmly-border hover:border-farmly-accent/40 hover:text-white"
+                    : "bg-farmly-surface-elevated text-farmly-muted border-farmly-border hover:border-farmly-accent/40 hover:text-farmly-foreground"
                 )}
               >
                 <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -147,7 +147,7 @@ export default function LoginPage() {
 
         {/* Remember Me & Forgot Password Row */}
         <div className="flex items-center justify-between text-xs sm:text-sm">
-          <label className="flex items-center gap-2 cursor-pointer select-none text-farmly-muted hover:text-white">
+          <label className="flex items-center gap-2 cursor-pointer select-none text-farmly-muted hover:text-farmly-foreground">
             <input
               type="checkbox"
               className="w-4 h-4 rounded bg-farmly-surface-elevated border-farmly-border text-farmly-accent focus:ring-farmly-accent focus:ring-offset-farmly-bg"

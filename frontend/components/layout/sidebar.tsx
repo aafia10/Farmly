@@ -26,6 +26,15 @@ import {
   X,
   LogOut,
   LucideIcon,
+  Building,
+  Scale as ScaleIcon,
+  Award,
+  ShieldAlert,
+  ClipboardList,
+  Truck,
+  PlusCircle,
+  FileBadge,
+  Lock,
 } from "lucide-react";
 import { Logo } from "@/components/common/logo";
 import { useAuth } from "@/contexts/auth-context";
@@ -103,9 +112,48 @@ export function Sidebar({
           { label: "Dashboard", translationKey: "nav.dashboard", href: "/dashboard", icon: LayoutDashboard },
           { label: "Received Lots", translationKey: "nav.lots", href: "/lots", icon: Boxes },
           { label: "Traceability", translationKey: "nav.traceability", href: "/traceability", icon: ShieldCheck },
-          { label: "QR Verification", translationKey: "nav.qrVerification", href: "/verify/LT-20391", icon: QrCode },
+          { label: "QR Verification", translationKey: "nav.qrVerification", href: "/verify/KS-MH-NSK-WHT-20260910-00125", icon: QrCode },
           { label: "Payments", translationKey: "nav.payments", href: "/payments", icon: CreditCard },
           { label: "Profile", translationKey: "nav.profile", href: "/profile", icon: User },
+          { label: "Settings", translationKey: "nav.settings", href: "/settings", icon: Settings },
+        ];
+
+      case "fpo":
+        return [
+          { label: "FPO Dashboard", translationKey: "nav.fpoDashboard", href: "/fpo/dashboard", icon: Building },
+          { label: "Farmer Members", translationKey: "nav.fpoMembers", href: "/fpo/members", icon: Users },
+          { label: "Member Lots", translationKey: "nav.fpoLots", href: "/fpo/lots", icon: Boxes },
+          { label: "Quality Checks", translationKey: "nav.fpoQuality", href: "/fpo/quality", icon: Award },
+          { label: "Disputes", translationKey: "nav.disputes", href: "/fpo/disputes", icon: AlertTriangle },
+          { label: "Traceability", translationKey: "nav.traceability", href: "/traceability", icon: ShieldCheck },
+          { label: "Settings", translationKey: "nav.settings", href: "/settings", icon: Settings },
+        ];
+
+      case "collection_center":
+        return [
+          { label: "Center Dashboard", translationKey: "nav.collectionDashboard", href: "/collection/dashboard", icon: Truck },
+          { label: "Produce Arrivals", translationKey: "nav.arrivals", href: "/collection/arrivals", icon: ClipboardList },
+          { label: "Weighment Scales", translationKey: "nav.weighment", href: "/collection/weighment", icon: ScaleIcon },
+          { label: "Verified Lots", translationKey: "nav.collectionLots", href: "/collection/lots", icon: Boxes },
+          { label: "Custody Handover", translationKey: "nav.handover", href: "/collection/handover", icon: ArrowRightLeft },
+          { label: "Settings", translationKey: "nav.settings", href: "/settings", icon: Settings },
+        ];
+
+      case "quality_assessor":
+        return [
+          { label: "Assessor Dashboard", translationKey: "nav.qualityDashboard", href: "/quality/dashboard", icon: Award },
+          { label: "Assessments", translationKey: "nav.assessments", href: "/quality/assessments", icon: FileCheck2 },
+          { label: "Inspection Reports", translationKey: "nav.reports", href: "/quality/reports", icon: FileBadge },
+          { label: "Settings", translationKey: "nav.settings", href: "/settings", icon: Settings },
+        ];
+
+      case "admin":
+        return [
+          { label: "Admin Dashboard", translationKey: "nav.adminDashboard", href: "/admin/dashboard", icon: ShieldAlert },
+          { label: "User Management", translationKey: "nav.users", href: "/admin/users", icon: Users },
+          { label: "Fraud & Anomaly Alerts", translationKey: "nav.fraudAlerts", href: "/admin/fraud", icon: AlertTriangle },
+          { label: "Audit Ledger", translationKey: "nav.auditLedger", href: "/admin/audit", icon: Activity },
+          { label: "Dispute Review", translationKey: "nav.disputes", href: "/disputes", icon: Scale },
           { label: "Settings", translationKey: "nav.settings", href: "/settings", icon: Settings },
         ];
 
@@ -114,14 +162,16 @@ export function Sidebar({
         return [
           { label: "Dashboard", translationKey: "nav.dashboard", href: "/dashboard", icon: LayoutDashboard },
           { label: "Profile", translationKey: "nav.profile", href: "/profile", icon: User },
-          { label: "My Assets", translationKey: "nav.assets", href: "/assets", icon: Boxes },
-          { label: "My Lots", translationKey: "nav.lots", href: "/lots", icon: Wheat },
+          { label: "My Produce Lots", translationKey: "nav.lots", href: "/lots", icon: Wheat },
+          { label: "New Lot", translationKey: "nav.newLot", href: "/lots/new", icon: PlusCircle },
+          { label: "Crop Availability", translationKey: "nav.cropAvailability", href: "/crop-availability", icon: Wheat },
           { label: "Marketplace", translationKey: "nav.marketplace", href: "/marketplace", icon: Store },
           { label: "Offers", translationKey: "nav.offers", href: "/offers", icon: FileText },
           { label: "Payments", translationKey: "nav.payments", href: "/payments", icon: CreditCard },
-          { label: "Disputes", translationKey: "nav.disputes", href: "/disputes", icon: AlertTriangle },
-          { label: "Traceability", translationKey: "nav.traceability", href: "/traceability", icon: ShieldCheck },
+          { label: "Resolve Problems", translationKey: "nav.disputes", href: "/disputes", icon: AlertTriangle },
+          { label: "Product Journey", translationKey: "nav.traceability", href: "/traceability", icon: ShieldCheck },
           { label: "Fair Price", translationKey: "nav.fairPrice", href: "/fair-price", icon: Scale },
+          { label: "Privacy & Consent", translationKey: "nav.privacy", href: "/settings/privacy", icon: Lock },
           { label: "AgroSathi", translationKey: "nav.agrosathi", href: "/agrosathi", icon: Sparkles },
           {
             label: "Notifications",
@@ -147,7 +197,7 @@ export function Sidebar({
             <button
               type="button"
               onClick={onCloseMobile}
-              className="p-1.5 rounded-lg text-farmly-muted hover:text-white hover:bg-farmly-surface-elevated md:hidden"
+              className="p-1.5 rounded-lg text-farmly-muted hover:text-farmly-foreground hover:bg-farmly-surface-elevated md:hidden"
               aria-label="Close sidebar"
             >
               <X className="w-5 h-5" />
@@ -160,11 +210,13 @@ export function Sidebar({
           <div className="px-3 py-2 rounded-xl bg-farmly-surface-elevated border border-farmly-border/70 flex items-center justify-between text-xs">
             <div className="flex flex-col">
               <span className="text-[10px] text-farmly-muted-dark uppercase tracking-wider font-mono">
-                Workspace
+                {t("common.workspace", "Workspace")}
               </span>
-              <span className="font-bold text-white capitalize">{role} Mode</span>
+              <span className="font-bold text-farmly-foreground capitalize">
+                {t(`role.${role}`, role.replace("_", " "))} {t("common.mode", "Mode")}
+              </span>
             </div>
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           </div>
         </div>
 
@@ -172,7 +224,9 @@ export function Sidebar({
         <nav className="space-y-1 overflow-y-auto max-h-[calc(100vh-280px)] pr-1">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/dashboard" && pathname.startsWith(item.href));
 
             return (
               <Link
@@ -180,17 +234,17 @@ export function Sidebar({
                 href={item.href}
                 onClick={onCloseMobile}
                 className={cn(
-                  "flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-150 group outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent min-h-[42px]",
+                  "flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-150 group outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent min-h-[40px]",
                   isActive
                     ? "bg-farmly-primary text-white shadow-sm font-semibold"
-                    : "text-farmly-muted hover:bg-farmly-surface-elevated hover:text-white"
+                    : "text-farmly-muted hover:bg-farmly-surface-elevated hover:text-farmly-foreground"
                 )}
               >
                 <div className="flex items-center gap-3">
                   <Icon
                     className={cn(
                       "w-4 h-4 transition-colors",
-                      isActive ? "text-white" : "text-farmly-muted group-hover:text-emerald-300"
+                      isActive ? "text-white" : "text-farmly-muted group-hover:text-emerald-500"
                     )}
                   />
                   <span>{t(item.translationKey, item.label)}</span>
@@ -200,7 +254,9 @@ export function Sidebar({
                   <span
                     className={cn(
                       "text-[10px] px-1.5 py-0.5 rounded-full font-mono font-bold",
-                      isActive ? "bg-white text-farmly-dark-green" : "bg-farmly-primary text-emerald-200"
+                      isActive
+                        ? "bg-white text-farmly-dark-green"
+                        : "bg-farmly-primary text-emerald-100"
                     )}
                   >
                     {item.badge}
@@ -216,18 +272,22 @@ export function Sidebar({
       <div className="pt-4 border-t border-farmly-border/50 space-y-3">
         <div className="px-2 flex items-center justify-between">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-farmly-primary/40 border border-farmly-accent/40 flex items-center justify-center font-bold text-xs text-white shrink-0">
+            <div className="w-8 h-8 rounded-full bg-farmly-primary border border-farmly-accent/40 flex items-center justify-center font-bold text-xs text-white shrink-0">
               {user?.fullName?.charAt(0) || "U"}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xs font-bold text-white truncate">{user?.fullName || "Field User"}</div>
-              <div className="text-[10px] text-farmly-muted truncate">{user?.organization || user?.district || role}</div>
+              <div className="text-xs font-bold text-farmly-foreground truncate">
+                {user?.fullName || "Ramesh Patil"}
+              </div>
+              <div className="text-[10px] text-farmly-muted truncate">
+                {user?.organization || user?.district || role}
+              </div>
             </div>
           </div>
           <button
             type="button"
             onClick={logout}
-            className="p-1.5 rounded-lg text-farmly-muted hover:text-red-400 hover:bg-red-950/20 transition-colors"
+            className="p-1.5 rounded-lg text-farmly-muted hover:text-red-500 hover:bg-red-500/10 transition-colors"
             title="Log out"
             aria-label="Logout"
           >

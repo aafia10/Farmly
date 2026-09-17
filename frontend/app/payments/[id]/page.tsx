@@ -59,7 +59,7 @@ export default function PaymentDetailPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/payments">
-              <Button variant="outline" size="sm" className="h-9 w-9 p-0 border-farmly-border text-white hover:bg-farmly-surface-elevated">
+              <Button variant="outline" size="sm" className="h-9 w-9 p-0 border-farmly-border text-farmly-foreground hover:bg-farmly-surface-elevated">
                 <ArrowLeft className="w-4 h-4" />
               </Button>
             </Link>
@@ -68,7 +68,7 @@ export default function PaymentDetailPage() {
                 <span className="font-mono text-xs font-bold text-farmly-accent">{payment.id}</span>
                 <StatusBadge status={payment.status} size="sm" />
               </div>
-              <h1 className="text-2xl font-bold text-white tracking-tight">
+              <h1 className="text-2xl font-bold text-farmly-foreground tracking-tight">
                 7-Stage Escrow Timeline
               </h1>
             </div>
@@ -93,13 +93,13 @@ export default function PaymentDetailPage() {
                 ₹{payment.amount.toLocaleString("en-IN")}
               </div>
               <div className="text-xs text-farmly-muted mt-1">
-                Linked to Harvest Lot <Link href={`/lots/${payment.lotId}`} className="font-mono text-white underline">{payment.lotId}</Link>
+                Linked to Harvest Lot <Link href={`/lots/${payment.lotId}`} className="font-mono text-farmly-foreground underline">{payment.lotId}</Link>
               </div>
             </div>
 
             <div className="p-3 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-right text-xs">
               <div className="text-farmly-muted">Banking UTR / Reference</div>
-              <div className="font-mono font-bold text-white text-sm mt-0.5">
+              <div className="font-mono font-bold text-farmly-foreground text-sm mt-0.5">
                 {payment.transactionRef || "UTR-HDFC-992104-IN"}
               </div>
               <div className="text-[10px] text-emerald-400">Authenticated via NEFT / RTGS</div>
@@ -109,13 +109,13 @@ export default function PaymentDetailPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div className="p-4 rounded-xl bg-farmly-surface-elevated border border-farmly-border space-y-1">
               <span className="text-farmly-muted block">Purchaser / Payer</span>
-              <div className="text-sm font-bold text-white">{payment.payerName}</div>
+              <div className="text-sm font-bold text-farmly-foreground">{payment.payerName}</div>
               <div className="text-farmly-muted">Wholesale Logistics Escrow Account</div>
             </div>
 
             <div className="p-4 rounded-xl bg-farmly-surface-elevated border border-farmly-border space-y-1">
               <span className="text-farmly-muted block">Payee / Beneficiary Grower</span>
-              <div className="text-sm font-bold text-white">{payment.payeeName}</div>
+              <div className="text-sm font-bold text-farmly-foreground">{payment.payeeName}</div>
               <div className="text-farmly-muted">Verified Farmer Bank Account</div>
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function PaymentDetailPage() {
         {/* 7-Stage Interactive Stepper */}
         <Card className="bg-farmly-surface border-farmly-border p-6 lg:p-8 space-y-6">
           <div>
-            <h2 className="text-lg font-bold text-white">Settlement Verification Lifecycle</h2>
+            <h2 className="text-lg font-bold text-farmly-foreground">Settlement Verification Lifecycle</h2>
             <p className="text-xs text-farmly-muted">
               Every transition is verified with digital receipts, weighment slips, and farmer SMS confirmations.
             </p>
@@ -166,7 +166,7 @@ export default function PaymentDetailPage() {
                     <div className="flex items-center justify-between">
                       <h4
                         className={`text-sm font-bold ${
-                          isPast ? "text-white" : isCurrent ? "text-emerald-400" : "text-farmly-muted"
+                          isPast ? "text-farmly-foreground" : isCurrent ? "text-emerald-400" : "text-farmly-muted"
                         }`}
                       >
                         {st}

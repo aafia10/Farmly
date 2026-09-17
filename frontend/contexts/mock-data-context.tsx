@@ -12,6 +12,11 @@ import {
   TransactionRecord,
   NotificationItem,
   HelperActivity,
+  CollectionArrival,
+  QualityAssessment,
+  FPOMember,
+  AdminAuditAlert,
+  MixedLotComponent,
 } from "@/types";
 import {
   INITIAL_FARMERS,
@@ -24,7 +29,20 @@ import {
   INITIAL_TRANSACTIONS,
   INITIAL_NOTIFICATIONS,
   INITIAL_HELPER_ACTIVITIES,
+  INITIAL_COLLECTION_ARRIVALS,
+  INITIAL_QUALITY_ASSESSMENTS,
+  INITIAL_FPO_MEMBERS,
+  INITIAL_ADMIN_ALERTS,
+  INITIAL_MIXED_LOTS,
 } from "@/lib/mock-data";
+
+export interface MixedLotItem {
+  id: string;
+  name: string;
+  outputQuantity: number;
+  loss: number;
+  components: MixedLotComponent[];
+}
 
 interface MockDataContextType {
   farmers: Farmer[];
@@ -50,6 +68,14 @@ interface MockDataContextType {
   markAllNotificationsAsRead: () => void;
   helperActivities: HelperActivity[];
   addHelperActivity: (activity: Omit<HelperActivity, "id">) => void;
+  collectionArrivals: CollectionArrival[];
+  addCollectionArrival: (arrival: Omit<CollectionArrival, "id" | "timestamp">) => CollectionArrival;
+  qualityAssessments: QualityAssessment[];
+  addQualityAssessment: (assessment: Omit<QualityAssessment, "id" | "timestamp">) => QualityAssessment;
+  fpoMembers: FPOMember[];
+  adminAlerts: AdminAuditAlert[];
+  resolveAdminAlert: (id: string) => void;
+  mixedLots: MixedLotItem[];
   resetAllData: () => void;
 }
 
@@ -68,6 +94,11 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
   const [transactions, setTransactions] = useState<TransactionRecord[]>(INITIAL_TRANSACTIONS);
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
   const [helperActivities, setHelperActivities] = useState<HelperActivity[]>(INITIAL_HELPER_ACTIVITIES);
+  const [collectionArrivals, setCollectionArrivals] = useState<CollectionArrival[]>(INITIAL_COLLECTION_ARRIVALS);
+  const [qualityAssessments, setQualityAssessments] = useState<QualityAssessment[]>(INITIAL_QUALITY_ASSESSMENTS);
+  const [fpoMembers, setFpoMembers] = useState<FPOMember[]>(INITIAL_FPO_MEMBERS);
+  const [adminAlerts, setAdminAlerts] = useState<AdminAuditAlert[]>(INITIAL_ADMIN_ALERTS);
+  const [mixedLots, setMixedLots] = useState<MixedLotItem[]>(INITIAL_MIXED_LOTS);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -88,6 +119,11 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
       setTransactions(load("transactions", INITIAL_TRANSACTIONS));
       setNotifications(load("notifications", INITIAL_NOTIFICATIONS));
       setHelperActivities(load("activities", INITIAL_HELPER_ACTIVITIES));
+      setCollectionArrivals(load("arrivals", INITIAL_COLLECTION_ARRIVALS));
+      setQualityAssessments(load("quality", INITIAL_QUALITY_ASSESSMENTS));
+      setFpoMembers(load("fpo_members", INITIAL_FPO_MEMBERS));
+      setAdminAlerts(load("admin_alerts", INITIAL_ADMIN_ALERTS));
+      setMixedLots(load("mixed_lots", INITIAL_MIXED_LOTS));
     } catch {
       // Keep defaults on localStorage parse error
     }
@@ -296,6 +332,44 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
     save("activities", updated);
   };
 
+  const addCollectionArrival = (
+    arrival: Omit<CollectionArrival, "id" | "timestamp">
+  ): CollectionArrival => {
+    const newId = `ARR-${Math.floor(800 + Math.random() * 199)}`;
+    const newArrival: CollectionArrival = {
+      ...arrival,
+      id: newId,
+      timestamp: "Just now",
+    };
+    const updated = [newArrival, ...collectionArrivals];
+    setCollectionArrivals(updated);
+    save("arrivals", updated);
+    return newArrival;
+  };
+
+  const addQualityAssessment = (
+    assessment: Omit<QualityAssessment, "id" | "timestamp">
+  ): QualityAssessment => {
+    const newId = `QA-${Math.floor(100 + Math.random() * 899)}`;
+    const newAssessment: QualityAssessment = {
+      ...assessment,
+      id: newId,
+      timestamp: "Just now",
+    };
+    const updated = [newAssessment, ...qualityAssessments];
+    setQualityAssessments(updated);
+    save("quality", updated);
+    return newAssessment;
+  };
+
+  const resolveAdminAlert = (id: string) => {
+    const updated = adminAlerts.map((alert) =>
+      alert.id === id ? { ...alert, status: "Resolved" as const } : alert
+    );
+    setAdminAlerts(updated);
+    save("admin_alerts", updated);
+  };
+
   const resetAllData = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("farmly_farmers");
@@ -308,6 +382,11 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem("farmly_transactions");
       localStorage.removeItem("farmly_notifications");
       localStorage.removeItem("farmly_activities");
+      localStorage.removeItem("farmly_arrivals");
+      localStorage.removeItem("farmly_quality");
+      localStorage.removeItem("farmly_fpo_members");
+      localStorage.removeItem("farmly_admin_alerts");
+      localStorage.removeItem("farmly_mixed_lots");
     }
     setFarmers(INITIAL_FARMERS);
     setCropAvailabilities(INITIAL_CROP_AVAILABILITIES);
@@ -319,6 +398,11 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
     setTransactions(INITIAL_TRANSACTIONS);
     setNotifications(INITIAL_NOTIFICATIONS);
     setHelperActivities(INITIAL_HELPER_ACTIVITIES);
+    setCollectionArrivals(INITIAL_COLLECTION_ARRIVALS);
+    setQualityAssessments(INITIAL_QUALITY_ASSESSMENTS);
+    setFpoMembers(INITIAL_FPO_MEMBERS);
+    setAdminAlerts(INITIAL_ADMIN_ALERTS);
+    setMixedLots(INITIAL_MIXED_LOTS);
   };
 
   return (
@@ -347,6 +431,14 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
         markAllNotificationsAsRead,
         helperActivities: mounted ? helperActivities : INITIAL_HELPER_ACTIVITIES,
         addHelperActivity,
+        collectionArrivals: mounted ? collectionArrivals : INITIAL_COLLECTION_ARRIVALS,
+        addCollectionArrival,
+        qualityAssessments: mounted ? qualityAssessments : INITIAL_QUALITY_ASSESSMENTS,
+        addQualityAssessment,
+        fpoMembers: mounted ? fpoMembers : INITIAL_FPO_MEMBERS,
+        adminAlerts: mounted ? adminAlerts : INITIAL_ADMIN_ALERTS,
+        resolveAdminAlert,
+        mixedLots: mounted ? mixedLots : INITIAL_MIXED_LOTS,
         resetAllData,
       }}
     >

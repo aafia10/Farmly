@@ -63,7 +63,7 @@ export default function DisputeDetailPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/disputes">
-              <Button variant="outline" size="sm" className="h-9 w-9 p-0 border-farmly-border text-white hover:bg-farmly-surface-elevated">
+              <Button variant="outline" size="sm" className="h-9 w-9 p-0 border-farmly-border text-farmly-foreground hover:bg-farmly-surface-elevated">
                 <ArrowLeft className="w-4 h-4" />
               </Button>
             </Link>
@@ -72,7 +72,7 @@ export default function DisputeDetailPage() {
                 <span className="font-mono text-xs font-bold text-red-400">{dispute.id}</span>
                 <StatusBadge status={dispute.status} size="sm" />
               </div>
-              <h1 className="text-2xl font-bold text-white tracking-tight">
+              <h1 className="text-2xl font-bold text-farmly-foreground tracking-tight">
                 {dispute.category}
               </h1>
             </div>
@@ -84,7 +84,7 @@ export default function DisputeDetailPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setMediationRequested(true)}
-                className="border-farmly-border text-xs text-white hover:bg-farmly-surface-elevated"
+                className="border-farmly-border text-xs text-farmly-foreground hover:bg-farmly-surface-elevated"
               >
                 Request Mandi Mediation
               </Button>
@@ -116,12 +116,12 @@ export default function DisputeDetailPage() {
             <div className="flex items-center gap-4 text-sm">
               <div>
                 <span className="text-farmly-muted text-xs block">Grower (Claimant)</span>
-                <span className="font-bold text-white">{dispute.farmerName}</span>
+                <span className="font-bold text-farmly-foreground">{dispute.farmerName}</span>
               </div>
               <span className="text-farmly-muted font-bold">vs</span>
               <div>
                 <span className="text-farmly-muted text-xs block">Buyer (Counterparty)</span>
-                <span className="font-bold text-white">{dispute.buyerName}</span>
+                <span className="font-bold text-farmly-foreground">{dispute.buyerName}</span>
               </div>
             </div>
 
@@ -132,7 +132,7 @@ export default function DisputeDetailPage() {
 
           <div className="space-y-1">
             <span className="text-xs font-semibold uppercase tracking-wider text-farmly-muted">Dispute Statement</span>
-            <div className="p-4 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-xs text-white leading-relaxed">
+            <div className="p-4 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-xs text-farmly-foreground leading-relaxed">
               {dispute.description}
             </div>
           </div>
@@ -144,7 +144,7 @@ export default function DisputeDetailPage() {
               {dispute.evidence.map((ev, i) => (
                 <div key={i} className="p-2.5 rounded-lg bg-farmly-surface-elevated border border-farmly-border flex items-center gap-2 text-xs">
                   <FileCheck2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span className="text-white font-mono">{ev}</span>
+                  <span className="text-farmly-foreground font-mono">{ev}</span>
                 </div>
               ))}
             </div>
@@ -154,7 +154,7 @@ export default function DisputeDetailPage() {
         {/* Add Evidence Modal / Inline Form */}
         {showAddEvidence && (
           <Card className="bg-farmly-surface border-farmly-accent/40 p-6 space-y-4">
-            <h3 className="font-bold text-white text-base">Submit Additional Verification Evidence</h3>
+            <h3 className="font-bold text-farmly-foreground text-base">Submit Additional Verification Evidence</h3>
             <form onSubmit={handleAddEvidence} className="space-y-3">
               <Textarea
                 placeholder="Describe your supplementary evidence, weighbridge re-test ticket number, or moisture meter reading..."
@@ -169,7 +169,7 @@ export default function DisputeDetailPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => setShowAddEvidence(false)}
-                  className="border-farmly-border text-white text-xs"
+                  className="border-farmly-border text-farmly-foreground text-xs"
                 >
                   Cancel
                 </Button>
@@ -183,7 +183,7 @@ export default function DisputeDetailPage() {
 
         {/* Resolution Timeline */}
         <Card className="bg-farmly-surface border-farmly-border p-6 space-y-4">
-          <h3 className="font-bold text-white text-base">Arbitration Timeline</h3>
+          <h3 className="font-bold text-farmly-foreground text-base">Arbitration Timeline</h3>
           <div className="space-y-4 pl-2">
             {dispute.resolutionTimeline.map((item, idx) => (
               <div key={idx} className="flex items-start gap-3 relative">
@@ -195,7 +195,7 @@ export default function DisputeDetailPage() {
                 </div>
                 <div className="text-xs space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <strong className="text-white font-semibold">{item.actor}</strong>
+                    <strong className="text-farmly-foreground font-semibold">{item.actor}</strong>
                     <span className="text-farmly-muted font-mono text-[11px]">{item.date}</span>
                   </div>
                   <p className="text-farmly-muted">{item.action}</p>

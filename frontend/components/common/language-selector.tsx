@@ -11,7 +11,7 @@ interface LanguageSelectorProps {
 }
 
 export function LanguageSelector({ variant = "header", className }: LanguageSelectorProps) {
-  const { language, setLanguage, languages } = useTranslation();
+  const { language, setLanguage, languages, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -38,16 +38,16 @@ export function LanguageSelector({ variant = "header", className }: LanguageSele
         className={cn(
           "inline-flex items-center gap-2 rounded-xl transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent min-h-[40px] px-3 py-1.5",
           variant === "header" &&
-            "bg-farmly-surface-elevated/80 border border-farmly-border text-white hover:border-farmly-accent/40 text-xs sm:text-sm font-medium",
+            "bg-farmly-surface-elevated border border-farmly-border text-farmly-foreground hover:border-farmly-accent/40 text-xs sm:text-sm font-medium",
           variant === "compact" &&
-            "bg-transparent text-farmly-muted hover:text-white p-1.5 text-xs",
+            "bg-transparent text-farmly-muted hover:text-farmly-foreground p-1.5 text-xs",
           variant === "settings" &&
-            "w-full justify-between bg-farmly-surface-elevated border border-farmly-border text-white px-4 py-2.5 text-sm"
+            "w-full justify-between bg-farmly-surface-elevated border border-farmly-border text-farmly-foreground px-4 py-2.5 text-sm"
         )}
       >
         <div className="flex items-center gap-2 truncate">
           <Globe className="w-4 h-4 text-farmly-accent shrink-0" aria-hidden="true" />
-          <span className="font-medium truncate">{currentLang.nativeName}</span>
+          <span className="font-medium truncate text-farmly-foreground">{currentLang.nativeName}</span>
         </div>
         <ChevronDown
           className={cn(
@@ -64,7 +64,7 @@ export function LanguageSelector({ variant = "header", className }: LanguageSele
           className="absolute right-0 z-50 mt-1.5 w-52 max-h-72 overflow-y-auto rounded-2xl bg-farmly-surface border border-farmly-border shadow-2xl p-1.5 animate-fade-in backdrop-blur-md"
         >
           <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-farmly-muted-dark border-b border-farmly-border/40 mb-1">
-            Choose Language
+            {t("common.chooseLanguage", "Choose Language")}
           </div>
           {languages.map((lang) => {
             const isSelected = lang.code === language;
@@ -81,12 +81,12 @@ export function LanguageSelector({ variant = "header", className }: LanguageSele
                 className={cn(
                   "w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm transition-colors text-left",
                   isSelected
-                    ? "bg-farmly-primary/30 text-emerald-300 font-semibold"
-                    : "text-farmly-muted hover:bg-farmly-surface-elevated hover:text-white"
+                    ? "bg-farmly-primary/20 text-emerald-700 dark:text-emerald-300 font-semibold"
+                    : "text-farmly-muted hover:bg-farmly-surface-elevated hover:text-farmly-foreground"
                 )}
               >
                 <div className="flex flex-col">
-                  <span className="text-white font-medium">{lang.nativeName}</span>
+                  <span className="font-medium text-farmly-foreground">{lang.nativeName}</span>
                   <span className="text-[10px] text-farmly-muted-dark">{lang.name}</span>
                 </div>
                 {isSelected && (

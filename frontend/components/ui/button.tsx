@@ -11,13 +11,13 @@ const buttonVariants = cva(
         default:
           "bg-farmly-primary text-white hover:bg-farmly-primary-hover shadow-sm border border-farmly-accent/30",
         secondary:
-          "bg-farmly-surface-elevated text-white hover:bg-farmly-surface border border-farmly-border hover:border-farmly-accent/50",
+          "bg-farmly-surface-elevated text-farmly-foreground hover:bg-farmly-surface border border-farmly-border hover:border-farmly-accent/50",
         accent:
           "bg-farmly-accent text-white hover:bg-farmly-accent-light shadow-md shadow-farmly-accent/20",
         outline:
-          "border border-farmly-border bg-transparent text-farmly-muted hover:text-white hover:bg-farmly-surface-elevated hover:border-farmly-accent/40",
+          "border border-farmly-border bg-transparent text-farmly-foreground hover:bg-farmly-surface-elevated hover:border-farmly-accent/40",
         ghost:
-          "text-farmly-muted hover:text-white hover:bg-farmly-surface-elevated",
+          "text-farmly-foreground hover:bg-farmly-surface-elevated",
         link:
           "text-farmly-accent underline-offset-4 hover:underline p-0 h-auto font-medium",
       },

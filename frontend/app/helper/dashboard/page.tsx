@@ -78,7 +78,7 @@ export default function HelperDashboardPage() {
               </span>
               <span className="text-xs text-farmly-muted-dark">● Operational</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-bold text-farmly-foreground tracking-tight">
               Namaste, {user?.fullName || "Priya Sharma"}
             </h2>
             <p className="text-sm text-farmly-muted max-w-2xl leading-relaxed">
@@ -118,7 +118,7 @@ export default function HelperDashboardPage() {
                     </div>
                   </div>
                   <div className="mt-4">
-                    <div className="text-3xl font-extrabold text-white font-mono tracking-tight">
+                    <div className="text-3xl font-extrabold text-farmly-foreground font-mono tracking-tight">
                       {card.value}
                     </div>
                     <div className="text-xs text-farmly-muted-dark mt-1 flex items-center justify-between">
@@ -138,7 +138,7 @@ export default function HelperDashboardPage() {
           <div className="lg:col-span-7 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-bold text-white tracking-tight">Recent Assisted Farmers</h3>
+                <h3 className="text-lg font-bold text-farmly-foreground tracking-tight">Recent Assisted Farmers</h3>
                 <p className="text-xs text-farmly-muted">Growers supported with digital onboarding and lot creation</p>
               </div>
               <Link href="/helper/farmers">
@@ -163,7 +163,7 @@ export default function HelperDashboardPage() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="font-bold text-white group-hover:text-emerald-300 transition-colors text-sm sm:text-base">
+                          <h4 className="font-bold text-farmly-foreground group-hover:text-emerald-300 transition-colors text-sm sm:text-base">
                             {f.name}
                           </h4>
                           <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-farmly-surface-elevated border border-farmly-border text-farmly-muted">
@@ -194,7 +194,7 @@ export default function HelperDashboardPage() {
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-bold text-white tracking-tight">Today&apos;s Field Log</h3>
+                <h3 className="text-lg font-bold text-farmly-foreground tracking-tight">Today&apos;s Field Log</h3>
                 <p className="text-xs text-farmly-muted">Timestamped audit record of helper assistance</p>
               </div>
               <Link href="/helper/activity">
@@ -215,7 +215,7 @@ export default function HelperDashboardPage() {
                     {act.timestamp}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm font-semibold text-white leading-tight">
+                    <p className="text-xs sm:text-sm font-semibold text-farmly-foreground leading-tight">
                       {act.action}
                     </p>
                     <p className="text-[11px] text-farmly-muted-dark mt-0.5 truncate">

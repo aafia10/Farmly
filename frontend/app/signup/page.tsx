@@ -192,11 +192,11 @@ export default function SignupPage() {
                   </div>
                   <select
                     id="preferredLanguage"
-                    className="w-full rounded-xl bg-farmly-surface-elevated pl-10 pr-4 py-3 text-sm text-white border border-farmly-border hover:border-farmly-accent/40 focus:border-farmly-accent outline-none"
+                    className="w-full rounded-xl bg-farmly-surface-elevated pl-10 pr-4 py-3 text-sm text-farmly-foreground border border-farmly-border hover:border-farmly-accent/40 focus:border-farmly-accent outline-none"
                     {...register("preferredLanguage")}
                   >
                     {SUPPORTED_LANGUAGES.map((l) => (
-                      <option key={l.code} value={l.code} className="bg-farmly-surface text-white">
+                      <option key={l.code} value={l.code} className="bg-farmly-surface text-farmly-foreground">
                         {l.nativeName} ({l.name})
                       </option>
                     ))}

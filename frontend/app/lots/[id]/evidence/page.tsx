@@ -38,7 +38,7 @@ export default function LotEvidencePage() {
         {/* Navigation Breadcrumb */}
         <div className="flex items-center gap-3">
           <Link href={`/lots/${lot?.id}`}>
-            <Button variant="outline" size="sm" className="h-9 w-9 p-0 border-farmly-border text-white hover:bg-farmly-surface-elevated">
+            <Button variant="outline" size="sm" className="h-9 w-9 p-0 border-farmly-border text-farmly-foreground hover:bg-farmly-surface-elevated">
               <ArrowLeft className="w-4 h-4" />
             </Button>
           </Link>
@@ -48,9 +48,9 @@ export default function LotEvidencePage() {
               <span>/</span>
               <Link href={`/lots/${lot?.id}`} className="font-mono hover:underline">{lot?.id}</Link>
               <span>/</span>
-              <span className="text-white">3-Tier Evidence</span>
+              <span className="text-farmly-foreground">3-Tier Evidence</span>
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl font-bold text-farmly-foreground tracking-tight">
               3-Tier Evidence & Provenance Verification
             </h1>
           </div>
@@ -74,7 +74,7 @@ export default function LotEvidencePage() {
                   <Award className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-white">Tier 3 — Externally Verified</h2>
+                  <h2 className="text-base font-bold text-farmly-foreground">Tier 3 — Externally Verified</h2>
                   <p className="text-xs text-emerald-400">Certified by accredited third-party labs & APMC inspectors</p>
                 </div>
               </div>
@@ -94,7 +94,7 @@ export default function LotEvidencePage() {
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="font-mono text-xs text-emerald-400 font-bold">{item.id}</div>
-                        <h3 className="font-bold text-white text-base mt-0.5">{item.title}</h3>
+                        <h3 className="font-bold text-farmly-foreground text-base mt-0.5">{item.title}</h3>
                       </div>
                       <StatusBadge status={item.status} size="sm" />
                     </div>
@@ -104,10 +104,10 @@ export default function LotEvidencePage() {
                     </div>
 
                     <div className="space-y-1 text-xs text-farmly-muted">
-                      <div><strong className="text-white">Issuer:</strong> {item.issuer || "National Testing House"}</div>
-                      <div><strong className="text-white">Source:</strong> {item.source}</div>
+                      <div><strong className="text-farmly-foreground">Issuer:</strong> {item.issuer || "National Testing House"}</div>
+                      <div><strong className="text-farmly-foreground">Source:</strong> {item.source}</div>
                       {item.documentRef && (
-                        <div><strong className="text-white">Certificate Ref:</strong> <span className="font-mono text-emerald-300">{item.documentRef}</span></div>
+                        <div><strong className="text-farmly-foreground">Certificate Ref:</strong> <span className="font-mono text-emerald-300">{item.documentRef}</span></div>
                       )}
                     </div>
                   </Card>
@@ -124,7 +124,7 @@ export default function LotEvidencePage() {
                   <Scale className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-white">Tier 2 — Evidence Backed</h2>
+                  <h2 className="text-base font-bold text-farmly-foreground">Tier 2 — Evidence Backed</h2>
                   <p className="text-xs text-amber-400">Captured through calibrated weighbridges, digital meters, and photos</p>
                 </div>
               </div>
@@ -144,7 +144,7 @@ export default function LotEvidencePage() {
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="font-mono text-xs text-amber-400 font-bold">{item.id}</div>
-                        <h3 className="font-bold text-white text-base mt-0.5">{item.title}</h3>
+                        <h3 className="font-bold text-farmly-foreground text-base mt-0.5">{item.title}</h3>
                       </div>
                       <StatusBadge status={item.status} size="sm" />
                     </div>
@@ -154,8 +154,8 @@ export default function LotEvidencePage() {
                     </div>
 
                     <div className="space-y-1 text-xs text-farmly-muted">
-                      <div><strong className="text-white">Hardware Source:</strong> {item.source}</div>
-                      <div><strong className="text-white">Timestamp:</strong> {item.timestamp}</div>
+                      <div><strong className="text-farmly-foreground">Hardware Source:</strong> {item.source}</div>
+                      <div><strong className="text-farmly-foreground">Timestamp:</strong> {item.timestamp}</div>
                     </div>
                   </Card>
                 ))
@@ -171,7 +171,7 @@ export default function LotEvidencePage() {
                   <FileText className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-white">Tier 1 — Farmer Declared</h2>
+                  <h2 className="text-base font-bold text-farmly-foreground">Tier 1 — Farmer Declared</h2>
                   <p className="text-xs text-sky-400">Initial harvest estimations self-reported by grower at harvest</p>
                 </div>
               </div>
@@ -191,7 +191,7 @@ export default function LotEvidencePage() {
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="font-mono text-xs text-sky-400 font-bold">{item.id}</div>
-                        <h3 className="font-bold text-white text-base mt-0.5">{item.title}</h3>
+                        <h3 className="font-bold text-farmly-foreground text-base mt-0.5">{item.title}</h3>
                       </div>
                       <StatusBadge status={item.status} size="sm" />
                     </div>
@@ -201,8 +201,8 @@ export default function LotEvidencePage() {
                     </div>
 
                     <div className="text-xs text-farmly-muted">
-                      <div><strong className="text-white">Reporting Farmer:</strong> {item.farmerName}</div>
-                      <div><strong className="text-white">Recorded:</strong> {item.timestamp}</div>
+                      <div><strong className="text-farmly-foreground">Reporting Farmer:</strong> {item.farmerName}</div>
+                      <div><strong className="text-farmly-foreground">Recorded:</strong> {item.timestamp}</div>
                     </div>
                   </Card>
                 ))

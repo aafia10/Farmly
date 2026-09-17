@@ -5,6 +5,22 @@ import { useRouter } from "next/navigation";
 import { AuthUser, UserRole } from "@/types";
 
 export const DEMO_CREDENTIALS: Record<UserRole, { email: string; pass: string; user: AuthUser; dashboard: string }> = {
+  farmer: {
+    email: "farmer@farmly.demo",
+    pass: "Farmly@123",
+    dashboard: "/dashboard",
+    user: {
+      id: "FMR-MH-000421",
+      fullName: "Ramesh Patil",
+      email: "farmer@farmly.demo",
+      mobile: "9876543210",
+      role: "farmer",
+      district: "Nashik",
+      state: "Maharashtra",
+      preferredLanguage: "mr",
+      organization: "Sahyadri Farmers Producer Co-op",
+    },
+  },
   helper: {
     email: "helper@farmly.demo",
     pass: "Farmly@123",
@@ -15,26 +31,10 @@ export const DEMO_CREDENTIALS: Record<UserRole, { email: string; pass: string; u
       email: "helper@farmly.demo",
       mobile: "9876500001",
       role: "helper",
-      district: "Anand",
-      state: "Gujarat",
-      preferredLanguage: "gu",
-      organization: "Kheda District FPO Assistance Desk",
-    },
-  },
-  farmer: {
-    email: "farmer@farmly.demo",
-    pass: "Farmly@123",
-    dashboard: "/dashboard",
-    user: {
-      id: "usr_farmer_01",
-      fullName: "Ramesh Patel",
-      email: "farmer@farmly.demo",
-      mobile: "9876543210",
-      role: "farmer",
-      district: "Anand",
-      state: "Gujarat",
-      preferredLanguage: "gu",
-      organization: "Kheda District Farmers Producer Co.",
+      district: "Nashik",
+      state: "Maharashtra",
+      preferredLanguage: "mr",
+      organization: "Sinnar FPO Field Assistance Desk",
     },
   },
   distributor: {
@@ -43,14 +43,14 @@ export const DEMO_CREDENTIALS: Record<UserRole, { email: string; pass: string; u
     dashboard: "/dashboard",
     user: {
       id: "usr_dist_01",
-      fullName: "Kisan Logistics (Wholesale)",
+      fullName: "GreenHarvest Distributors",
       email: "distributor@farmly.demo",
       mobile: "9898012345",
       role: "distributor",
-      district: "Vadodara",
-      state: "Gujarat",
+      district: "Nashik",
+      state: "Maharashtra",
       preferredLanguage: "en",
-      organization: "Western Agri-Logistics Network",
+      organization: "GreenHarvest Wholesale Logistics",
     },
   },
   retailer: {
@@ -63,10 +63,74 @@ export const DEMO_CREDENTIALS: Record<UserRole, { email: string; pass: string; u
       email: "retailer@farmly.demo",
       mobile: "9825098765",
       role: "retailer",
-      district: "Ahmedabad",
-      state: "Gujarat",
+      district: "Mumbai",
+      state: "Maharashtra",
       preferredLanguage: "en",
       organization: "Gramin Retail Agri-Outlets",
+    },
+  },
+  fpo: {
+    email: "fpo@farmly.demo",
+    pass: "Farmly@123",
+    dashboard: "/fpo/dashboard",
+    user: {
+      id: "usr_fpo_01",
+      fullName: "Sahyadri Farmers Producer Co-op",
+      email: "fpo@farmly.demo",
+      mobile: "9822011223",
+      role: "fpo",
+      district: "Nashik",
+      state: "Maharashtra",
+      preferredLanguage: "mr",
+      organization: "Sahyadri Agro Federation",
+    },
+  },
+  collection_center: {
+    email: "collection@farmly.demo",
+    pass: "Farmly@123",
+    dashboard: "/collection/dashboard",
+    user: {
+      id: "usr_coll_01",
+      fullName: "Sinnar Mandi Collection Center",
+      email: "collection@farmly.demo",
+      mobile: "9850022334",
+      role: "collection_center",
+      district: "Nashik",
+      state: "Maharashtra",
+      preferredLanguage: "mr",
+      organization: "Nashik APMC Aggregation Hub",
+    },
+  },
+  quality_assessor: {
+    email: "quality@farmly.demo",
+    pass: "Farmly@123",
+    dashboard: "/quality/dashboard",
+    user: {
+      id: "usr_qa_01",
+      fullName: "Suresh Deshmukh (FPO Assessor)",
+      email: "quality@farmly.demo",
+      mobile: "9860033445",
+      role: "quality_assessor",
+      district: "Nashik",
+      state: "Maharashtra",
+      preferredLanguage: "mr",
+      organization: "Maharashtra Quality Certification Bureau",
+    },
+  },
+  admin: {
+    email: "admin@farmly.demo",
+    pass: "Farmly@123",
+    dashboard: "/admin/dashboard",
+    user: {
+      id: "usr_admin_01",
+      fullName: "KisanSetu Platform Auditor",
+      email: "admin@farmly.demo",
+      mobile: "9890099887",
+      role: "admin",
+      district: "Pune",
+      state: "Maharashtra",
+      preferredLanguage: "en",
+      organization: "Farmly National Audit Committee",
     },
   },
 };
@@ -94,9 +158,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const saved = localStorage.getItem("farmly_session");
       if (saved) {
         setUser(JSON.parse(saved));
+      } else {
+        // Default to canonical Ramesh Patil
+        setUser(DEMO_CREDENTIALS.farmer.user);
       }
     } catch {
-      // Clear corrupt session
       localStorage.removeItem("farmly_session");
     }
   }, []);
@@ -106,7 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password?: string,
     roleHint?: UserRole
   ): Promise<{ success: boolean; error?: string }> => {
-    await new Promise((r) => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 300));
 
     const cleanId = identifier.trim().toLowerCase();
 
@@ -130,29 +196,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Dynamic mock login fallback
     const selectedRole: UserRole = roleHint || (cleanId.includes("helper") ? "helper" : "farmer");
     const dynamicUser: AuthUser = {
-      id: `usr_${Date.now()}`,
+      id: `FMR-${Date.now().toString().slice(-6)}`,
       fullName: cleanId.includes("@") ? cleanId.split("@")[0] : `User ${cleanId.slice(-4)}`,
       email: cleanId.includes("@") ? cleanId : `${cleanId}@farmly.demo`,
       mobile: cleanId.includes("@") ? "9876543210" : cleanId,
       role: selectedRole,
-      district: "Anand",
-      state: "Gujarat",
-      preferredLanguage: "en",
+      district: "Nashik",
+      state: "Maharashtra",
+      preferredLanguage: "mr",
     };
 
     setUser(dynamicUser);
     localStorage.setItem("farmly_session", JSON.stringify(dynamicUser));
-    const target = selectedRole === "helper" ? "/helper/dashboard" : "/dashboard";
+    const target = DEMO_CREDENTIALS[selectedRole]?.dashboard || "/dashboard";
     router.push(target);
     return { success: true };
   };
 
   const signup = async (userData: AuthUser): Promise<{ success: boolean; error?: string }> => {
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 400));
     setUser(userData);
     localStorage.setItem("farmly_session", JSON.stringify(userData));
 
-    const target = userData.role === "helper" ? "/helper/dashboard" : "/dashboard";
+    const target = DEMO_CREDENTIALS[userData.role]?.dashboard || "/dashboard";
     router.push(target);
     return { success: true };
   };
@@ -163,8 +229,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/login");
   };
 
-  const quickDemoLogin = (role: UserRole) => {
-    const demo = DEMO_CREDENTIALS[role];
+  const quickDemoLogin = (roleToSelect: UserRole) => {
+    const demo = DEMO_CREDENTIALS[roleToSelect];
     if (demo) {
       setUser(demo.user);
       localStorage.setItem("farmly_session", JSON.stringify(demo.user));

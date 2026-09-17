@@ -65,13 +65,13 @@ export default function HelperProfilePage() {
       <div className="space-y-6 max-w-4xl mx-auto">
         {/* Banner */}
         <div className="bg-farmly-surface border border-farmly-border rounded-2xl p-6 lg:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 border-2 border-emerald-400/40 flex items-center justify-center text-3xl font-extrabold text-white shadow-lg shrink-0">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 border-2 border-emerald-400/40 flex items-center justify-center text-3xl font-extrabold text-farmly-foreground shadow-lg shrink-0">
             {fullName.charAt(0)}
           </div>
 
           <div className="space-y-2 text-center sm:text-left flex-1">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-              <h1 className="text-2xl font-bold text-white">{fullName}</h1>
+              <h1 className="text-2xl font-bold text-farmly-foreground">{fullName}</h1>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
                 <HeartHandshake className="w-3.5 h-3.5" /> Certified Field Assistant
               </span>
@@ -103,7 +103,7 @@ export default function HelperProfilePage() {
               <Users className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-white">{assistedFarmersCount}</div>
+              <div className="text-2xl font-bold text-farmly-foreground">{assistedFarmersCount}</div>
               <div className="text-xs text-farmly-muted">Farmers Registered</div>
             </div>
           </Card>
@@ -113,7 +113,7 @@ export default function HelperProfilePage() {
               <Wheat className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-white">{cropAvailabilities.length}</div>
+              <div className="text-2xl font-bold text-farmly-foreground">{cropAvailabilities.length}</div>
               <div className="text-xs text-farmly-muted">Crop Declarations</div>
             </div>
           </Card>
@@ -123,7 +123,7 @@ export default function HelperProfilePage() {
               <Activity className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-white">{helperActivities.length}</div>
+              <div className="text-2xl font-bold text-farmly-foreground">{helperActivities.length}</div>
               <div className="text-xs text-farmly-muted">Assistance Logs</div>
             </div>
           </Card>
@@ -137,7 +137,7 @@ export default function HelperProfilePage() {
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 ${
               activeTab === "info"
                 ? "bg-farmly-surface-elevated text-emerald-300 border border-farmly-border"
-                : "text-farmly-muted hover:text-white"
+                : "text-farmly-muted hover:text-farmly-foreground"
             }`}
           >
             <User className="w-4 h-4" /> Personal Details
@@ -148,7 +148,7 @@ export default function HelperProfilePage() {
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 ${
               activeTab === "activities"
                 ? "bg-farmly-surface-elevated text-emerald-300 border border-farmly-border"
-                : "text-farmly-muted hover:text-white"
+                : "text-farmly-muted hover:text-farmly-foreground"
             }`}
           >
             <Activity className="w-4 h-4" /> Recent Field Activities
@@ -159,7 +159,7 @@ export default function HelperProfilePage() {
         {activeTab === "info" && (
           <Card className="bg-farmly-surface border-farmly-border">
             <CardHeader>
-              <CardTitle className="text-white text-base">Field Representative Details</CardTitle>
+              <CardTitle className="text-farmly-foreground text-base">Field Representative Details</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSave} className="space-y-4">
@@ -211,12 +211,12 @@ export default function HelperProfilePage() {
         {/* Tab 2: Activity Summary */}
         {activeTab === "activities" && (
           <Card className="bg-farmly-surface border-farmly-border p-6 space-y-4">
-            <h3 className="font-bold text-white text-base">Field Assistance Audit Trail</h3>
+            <h3 className="font-bold text-farmly-foreground text-base">Field Assistance Audit Trail</h3>
             <div className="space-y-3">
               {helperActivities.map((act) => (
                 <div key={act.id} className="p-3 rounded-xl bg-farmly-surface-elevated border border-farmly-border/70 flex items-start justify-between gap-4">
                   <div className="space-y-0.5">
-                    <div className="text-sm font-semibold text-white">{act.action}</div>
+                    <div className="text-sm font-semibold text-farmly-foreground">{act.action}</div>
                     <div className="text-xs text-farmly-muted">{act.details}</div>
                     <div className="text-[11px] text-farmly-muted-dark font-mono">{act.timestamp}</div>
                   </div>
