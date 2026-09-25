@@ -28,9 +28,9 @@ export default function QualityAssessmentsPage() {
 
     const newQa = addQualityAssessment({
       lotId,
-      crop: matched.crop,
-      moisturePercent: Number(moisture),
-      foreignMatterPercent: Number(foreignMatter),
+      crop: matched?.crop || "Wheat",
+      moisturePercent: Number(moisture) || 12,
+      foreignMatterPercent: Number(foreignMatter) || 1,
       visibleSpoilage,
       assignedGrade,
       method,

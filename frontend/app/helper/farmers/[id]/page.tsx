@@ -34,14 +34,28 @@ export default function HelperFarmerDetailPage() {
     "overview" | "cropAvailability" | "lots" | "evidence" | "offers" | "payments" | "disputes" | "activities"
   >("overview");
 
-  const farmer = farmers.find((f) => f.id === farmerId) || farmers[0];
+  const farmer = farmers.find((f) => f.id === farmerId) || farmers[0] || {
+    id: farmerId || "FMR-MH-000421",
+    name: "Ramesh Patil",
+    mobile: "9876543210",
+    village: "Sinnar",
+    taluka: "Sinnar",
+    district: "Nashik",
+    state: "Maharashtra",
+    language: "Marathi",
+    farmingCategory: "Crops",
+    consent: true,
+    verificationLevel: "Field Verified",
+    status: "Active",
+    lastActivity: "Today",
+  };
 
   const farmerCropAvail = cropAvailabilities.filter((c) => c.farmerId === farmer.id || c.farmerName === farmer.name);
   const farmerLots = lots.filter((l) => l.farmerId === farmer.id || l.farmerName === farmer.name);
   const farmerEvidence = evidence.filter((e) => e.farmerId === farmer.id || e.farmerName === farmer.name);
   const farmerOffers = offers.filter((o) => farmerLots.some((l) => l.id === o.lotId));
   const farmerPayments = payments.filter((p) => farmerOffers.some((o) => o.id === p.offerId));
-  const farmerDisputes = disputes.filter((d) => d.farmerName.includes(farmer.name));
+  const farmerDisputes = disputes.filter((d) => d.farmerName?.includes(farmer.name));
 
   const tabs = [
     { id: "overview", label: "Overview", icon: User },

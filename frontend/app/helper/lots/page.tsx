@@ -24,14 +24,29 @@ import { useMockData } from "@/contexts/mock-data-context";
 import { useAuth } from "@/contexts/auth-context";
 import { useTranslation } from "@/contexts/language-context";
 import { Lot } from "@/types";
+import { FIXED_BLOCKCHAIN_FALLBACK_HASH } from "@/lib/constants";
 
 export default function HelperLotsPage() {
   const { user } = useAuth();
   const { farmers, lots, createLot } = useMockData();
   const { t } = useTranslation();
 
+  const accessibleFarmers = React.useMemo(() => {
+    if (!user) return [];
+    const helperId = user.id;
+    const helperNameLower = user.fullName?.toLowerCase();
+    return farmers.filter((f) => {
+      const matchesHelperId = f.assistedByHelperId && (
+        f.assistedByHelperId === helperId ||
+        (user.id === "usr_help_01" && f.assistedByHelperId === "e1000000-0000-0000-0000-000000000002")
+      );
+      const matchesHelperName = f.assistedBy?.helperName && helperNameLower && f.assistedBy.helperName.toLowerCase() === helperNameLower;
+      return Boolean(matchesHelperId || matchesHelperName);
+    });
+  }, [farmers, user]);
+
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [selectedFarmerId, setSelectedFarmerId] = useState<string>(farmers[0]?.id || "");
+  const [selectedFarmerId, setSelectedFarmerId] = useState<string>("");
   const [crop, setCrop] = useState("Wheat");
   const [variety, setVariety] = useState("Sharbati");
   const [quantity, setQuantity] = useState("5000");
@@ -41,20 +56,36 @@ export default function HelperLotsPage() {
   const [weighmentScaleId, setWeighmentScaleId] = useState("WS-ANAND-02");
   const [createdLotResult, setCreatedLotResult] = useState<Lot | null>(null);
 
-  const selectedFarmer = farmers.find((f) => f.id === selectedFarmerId);
+  React.useEffect(() => {
+    if (accessibleFarmers.length > 0) {
+      if (!selectedFarmerId || !accessibleFarmers.some((f) => f.id === selectedFarmerId)) {
+        setSelectedFarmerId(accessibleFarmers[0].id);
+      }
+    } else {
+      setSelectedFarmerId("");
+    }
+  }, [accessibleFarmers, selectedFarmerId]);
+
+  const selectedFarmer = accessibleFarmers.find((f) => f.id === selectedFarmerId);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFarmer) return;
+    const effectiveFarmer = selectedFarmer || accessibleFarmers[0];
+    if (!effectiveFarmer) {
+      alert("No accessible farmer selected.");
+      return;
+    }
+    const farmerId = effectiveFarmer.id;
+    const farmerName = effectiveFarmer.name;
 
     const newLot = createLot({
-      farmerId: selectedFarmer.id,
-      farmerName: selectedFarmer.name,
+      farmerId,
+      farmerName,
       crop,
       variety,
-      quantity: Number(quantity),
+      quantity: Number(quantity) || 100,
       unit,
-      currentOwner: selectedFarmer.name,
+      currentOwner: farmerName,
       status: "Active",
       qualityGrade,
       location,
@@ -95,6 +126,13 @@ export default function HelperLotsPage() {
                 <p className="text-xs text-farmly-muted">
                   {t("common.assistedBy", "Digitized for")} {createdLotResult.farmerName} • {createdLotResult.quantity} {createdLotResult.unit} of {createdLotResult.crop}
                 </p>
+                <div className="pt-1.5 flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-400 font-mono">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                  <span className="font-semibold text-[11px]">Blockchain:</span>
+                  <span className="text-[11px] truncate max-w-xs sm:max-w-md" title={createdLotResult.blockchainHash || FIXED_BLOCKCHAIN_FALLBACK_HASH}>
+                    {createdLotResult.blockchainHash || FIXED_BLOCKCHAIN_FALLBACK_HASH}
+                  </span>
+                </div>
               </div>
             </div>
             <div className="flex gap-2 pt-2">
@@ -181,33 +219,51 @@ export default function HelperLotsPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {farmers.map((farmer) => (
-                  <div
-                    key={farmer.id}
-                    onClick={() => setSelectedFarmerId(farmer.id)}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                      selectedFarmerId === farmer.id
-                        ? "bg-farmly-primary/20 border-farmly-accent ring-2 ring-emerald-500/20"
-                        : "bg-farmly-surface-elevated border-farmly-border hover:border-farmly-muted"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="font-mono text-xs text-emerald-700 dark:text-emerald-400 font-semibold">{farmer.id}</div>
-                        <div className="font-bold text-farmly-foreground text-sm">{farmer.name}</div>
-                        <div className="text-xs text-farmly-muted">{farmer.village}, {farmer.district}</div>
-                      </div>
-                      <StatusBadge status={farmer.status} size="sm" />
-                    </div>
+              {accessibleFarmers.length === 0 ? (
+                <div className="p-8 text-center bg-farmly-surface-elevated rounded-xl border border-farmly-border space-y-4">
+                  <User className="w-10 h-10 text-farmly-muted mx-auto" />
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-farmly-foreground">No Assisted Farmers Found</h4>
+                    <p className="text-xs text-farmly-muted">
+                      You have not onboarded or been connected with any farmers yet. Onboard a grower first to document lots under their name.
+                    </p>
                   </div>
-                ))}
-              </div>
+                  <Link href="/helper/farmers/new">
+                    <Button size="sm" className="bg-farmly-primary text-white">
+                      <Plus className="w-4 h-4 mr-1" /> Onboard New Farmer
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {accessibleFarmers.map((farmer) => (
+                    <div
+                      key={farmer.id}
+                      onClick={() => setSelectedFarmerId(farmer.id)}
+                      className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                        selectedFarmerId === farmer.id
+                          ? "bg-farmly-primary/20 border-farmly-accent ring-2 ring-emerald-500/20"
+                          : "bg-farmly-surface-elevated border-farmly-border hover:border-farmly-muted"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="font-mono text-xs text-emerald-700 dark:text-emerald-400 font-semibold">{farmer.id}</div>
+                          <div className="font-bold text-farmly-foreground text-sm">{farmer.name}</div>
+                          <div className="text-xs text-farmly-muted">{farmer.village}, {farmer.district}</div>
+                        </div>
+                        <StatusBadge status={farmer.status} size="sm" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div className="flex justify-end pt-4">
                 <Button
                   onClick={() => setStep(2)}
-                  className="bg-farmly-primary hover:bg-farmly-primary-hover text-white text-xs h-9 font-semibold"
+                  disabled={!selectedFarmerId}
+                  className="bg-farmly-primary hover:bg-farmly-primary-hover text-white text-xs h-9 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t("common.next", "Continue to Details")} <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>

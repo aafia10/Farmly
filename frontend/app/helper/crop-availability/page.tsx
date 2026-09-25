@@ -10,13 +10,40 @@ import { AuthInput } from "@/components/auth/auth-input";
 import { StatusBadge } from "@/components/common/status-badge";
 import { useMockData } from "@/contexts/mock-data-context";
 import { useTranslation } from "@/contexts/language-context";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function HelperCropAvailabilityPage() {
   const { cropAvailabilities, addCropAvailability, farmers } = useMockData();
+  const { user } = useAuth();
   const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
 
-  const [selectedFarmerId, setSelectedFarmerId] = useState(farmers[0]?.id || "");
+  const accessibleFarmers = React.useMemo(() => {
+    if (!user) return [];
+    const helperId = user.id;
+    const helperNameLower = user.fullName?.toLowerCase();
+    return farmers.filter((f) => {
+      const matchesHelperId = f.assistedByHelperId && (
+        f.assistedByHelperId === helperId ||
+        (user.id === "usr_help_01" && f.assistedByHelperId === "e1000000-0000-0000-0000-000000000002")
+      );
+      const matchesHelperName = f.assistedBy?.helperName && helperNameLower && f.assistedBy.helperName.toLowerCase() === helperNameLower;
+      return Boolean(matchesHelperId || matchesHelperName);
+    });
+  }, [farmers, user]);
+
+  const [selectedFarmerId, setSelectedFarmerId] = useState<string>("");
+
+  React.useEffect(() => {
+    if (accessibleFarmers.length > 0) {
+      if (!selectedFarmerId || !accessibleFarmers.some((f) => f.id === selectedFarmerId)) {
+        setSelectedFarmerId(accessibleFarmers[0].id);
+      }
+    } else {
+      setSelectedFarmerId("");
+    }
+  }, [accessibleFarmers, selectedFarmerId]);
+
   const [crop, setCrop] = useState("");
   const [variety, setVariety] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -29,23 +56,30 @@ export default function HelperCropAvailabilityPage() {
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    const farmer = farmers.find((f) => f.id === selectedFarmerId) || farmers[0];
+    const farmer = accessibleFarmers.find((f) => f.id === selectedFarmerId) || accessibleFarmers[0];
+    if (!farmer) {
+      alert("No accessible farmer found.");
+      return;
+    }
+    const fId = farmer.id;
+    const fName = farmer.name;
+    const fVillage = farmer.village || "Nashik";
 
     const newAvail = addCropAvailability({
-      farmerId: farmer.id,
-      farmerName: farmer.name,
+      farmerId: fId,
+      farmerName: fName,
       crop: crop || "Wheat",
       variety: variety || "Standard Variety",
       estimatedQuantity: Number(quantity) || 500,
       unit,
       expectedHarvestDate: harvestDate || "15 Oct 2026",
-      location: location || `${farmer.village} Farm Field`,
+      location: location || `${fVillage} Farm Field`,
       notes,
       status,
     });
 
     setSuccessNotice(
-      `${t("nav.cropAvailability", "Crop availability")} ${newAvail.id} ${t("helper.recordedFor", "recorded for")} ${farmer.name}.`
+      `${t("nav.cropAvailability", "Crop availability")} ${newAvail.id} ${t("helper.recordedFor", "recorded for")} ${fName}.`
     );
     setShowForm(false);
     setCrop("");
@@ -125,13 +159,18 @@ export default function HelperCropAvailabilityPage() {
                     id="selectFarmer"
                     value={selectedFarmerId}
                     onChange={(e) => setSelectedFarmerId(e.target.value)}
-                    className="w-full rounded-xl bg-farmly-surface px-4 py-3 text-sm text-farmly-foreground border border-farmly-border focus:border-farmly-accent outline-none"
+                    disabled={accessibleFarmers.length === 0}
+                    className="w-full rounded-xl bg-farmly-surface px-4 py-3 text-sm text-farmly-foreground border border-farmly-border focus:border-farmly-accent outline-none disabled:opacity-50"
                   >
-                    {farmers.map((f) => (
-                      <option key={f.id} value={f.id} className="bg-farmly-surface text-farmly-foreground">
-                        {f.name} ({f.id} — {f.village})
-                      </option>
-                    ))}
+                    {accessibleFarmers.length === 0 ? (
+                      <option value="">No assisted farmers found</option>
+                    ) : (
+                      accessibleFarmers.map((f) => (
+                        <option key={f.id} value={f.id} className="bg-farmly-surface text-farmly-foreground">
+                          {f.name} ({f.id} — {f.village})
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
 

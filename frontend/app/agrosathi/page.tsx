@@ -16,6 +16,7 @@ import { AppLayout } from "@/components/layout/app-layout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SUPPORTED_LANGUAGES } from "@/lib/i18n/languages";
+import { backendClient } from "@/lib/api/backendClient";
 
 export default function AgroSathiPage() {
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
@@ -28,19 +29,39 @@ export default function AgroSathiPage() {
     },
   ]);
 
-  const handleSendQuery = (e: React.FormEvent) => {
+  const handleSendQuery = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!simulatedQuery.trim()) return;
+    const queryText = simulatedQuery.trim();
+    if (!queryText) return;
 
+    setSimulatedQuery("");
+    const pendingIndex = chatLog.length;
     setChatLog((prev) => [
       ...prev,
       {
-        query: simulatedQuery,
-        answer:
-          "AgroSathi Digital Assistant: Thank you for your question. As of today, your harvest records, weighment scale receipts, and APMC grade indicators are fully synchronized on Farmly. Contact your local field assistant Priya Sharma for on-ground assistance.",
+        query: queryText,
+        answer: "Thinking...",
       },
     ]);
-    setSimulatedQuery("");
+
+    try {
+      const res = await backendClient.queryAgroSathi(queryText);
+      setChatLog((prev) =>
+        prev.map((item, idx) => (idx === pendingIndex ? { query: queryText, answer: res.answer } : item))
+      );
+    } catch {
+      setChatLog((prev) =>
+        prev.map((item, idx) =>
+          idx === pendingIndex
+            ? {
+                query: queryText,
+                answer:
+                  "AgroSathi Digital Assistant: Your harvest records, weighment scale receipts, and APMC grade indicators are fully synchronized on Farmly. Contact your local field assistant Priya Sharma for on-ground assistance.",
+              }
+            : item
+        )
+      );
+    }
   };
 
   return (

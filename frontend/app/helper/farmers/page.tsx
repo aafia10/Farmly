@@ -9,20 +9,36 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/common/status-badge";
 import { useMockData } from "@/contexts/mock-data-context";
 import { useTranslation } from "@/contexts/language-context";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function HelperFarmersListPage() {
   const { farmers } = useMockData();
+  const { user } = useAuth();
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [districtFilter, setDistrictFilter] = useState("all");
   const [languageFilter, setLanguageFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const districts = useMemo(() => Array.from(new Set(farmers.map((f) => f.district))), [farmers]);
-  const languages = useMemo(() => Array.from(new Set(farmers.map((f) => f.language))), [farmers]);
+  const accessibleFarmers = useMemo(() => {
+    if (!user) return [];
+    const helperId = user.id;
+    const helperNameLower = user.fullName?.toLowerCase();
+    return farmers.filter((f) => {
+      const matchesHelperId = f.assistedByHelperId && (
+        f.assistedByHelperId === helperId ||
+        (user.id === "usr_help_01" && f.assistedByHelperId === "e1000000-0000-0000-0000-000000000002")
+      );
+      const matchesHelperName = f.assistedBy?.helperName && helperNameLower && f.assistedBy.helperName.toLowerCase() === helperNameLower;
+      return Boolean(matchesHelperId || matchesHelperName);
+    });
+  }, [farmers, user]);
+
+  const districts = useMemo(() => Array.from(new Set(accessibleFarmers.map((f) => f.district))), [accessibleFarmers]);
+  const languages = useMemo(() => Array.from(new Set(accessibleFarmers.map((f) => f.language))), [accessibleFarmers]);
 
   const filteredFarmers = useMemo(() => {
-    return farmers.filter((f) => {
+    return accessibleFarmers.filter((f) => {
       const matchesSearch =
         f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         f.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -35,7 +51,7 @@ export default function HelperFarmersListPage() {
 
       return matchesSearch && matchesDistrict && matchesLanguage && matchesStatus;
     });
-  }, [farmers, searchQuery, districtFilter, languageFilter, statusFilter]);
+  }, [accessibleFarmers, searchQuery, districtFilter, languageFilter, statusFilter]);
 
   return (
     <AppLayout title={t("nav.farmers", "Assisted Farmers Directory")}>

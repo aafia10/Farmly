@@ -24,6 +24,21 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/common/status-badge";
 import { useMockData } from "@/contexts/mock-data-context";
 
+function formatDeadline(deadline?: string): string {
+  if (!deadline) return "3 days remaining";
+  const parsed = Date.parse(deadline);
+  if (!isNaN(parsed)) {
+    const d = new Date(parsed);
+    const diffHours = Math.round((d.getTime() - Date.now()) / (1000 * 60 * 60));
+    if (diffHours > 0 && diffHours <= 72) {
+      const days = Math.ceil(diffHours / 24);
+      return `${days} day${days > 1 ? "s" : ""} remaining (${d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" })})`;
+    }
+    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  }
+  return deadline;
+}
+
 export default function OfferDetailPage() {
   const params = useParams<{ id: string }>();
   const { offers, lots, payments, acceptOffer, rejectOffer } = useMockData();
@@ -108,7 +123,7 @@ export default function OfferDetailPage() {
             <div className="text-lg font-bold text-farmly-foreground">{offer.buyerName}</div>
             <div className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">{offer.buyerType}</div>
             <div className="text-[11px] text-farmly-muted pt-2 border-t border-farmly-border">
-              Submitted on {offer.createdAt} &bull; Valid until {offer.offerDeadline}
+              Submitted on {offer.createdAt} &bull; Valid until {formatDeadline(offer.offerDeadline)}
             </div>
           </Card>
 

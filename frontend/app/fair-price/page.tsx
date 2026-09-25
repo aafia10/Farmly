@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Scale,
   Search,
@@ -15,6 +15,7 @@ import { AppLayout } from "@/components/layout/app-layout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/contexts/language-context";
+import { backendClient } from "@/lib/api/backendClient";
 
 interface CropPriceBenchmark {
   crop: string;
@@ -41,8 +42,17 @@ const BENCHMARKS: CropPriceBenchmark[] = [
 export default function FairPricePage() {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
+  const [benchmarks, setBenchmarks] = useState<CropPriceBenchmark[]>(BENCHMARKS);
 
-  const filtered = BENCHMARKS.filter(
+  useEffect(() => {
+    backendClient.getMandiBenchmarks().then((data: any) => {
+      if (Array.isArray(data) && data.length > 0) {
+        setBenchmarks(data);
+      }
+    }).catch(() => {});
+  }, []);
+
+  const filtered = benchmarks.filter(
     (b) =>
       b.crop.toLowerCase().includes(search.toLowerCase()) ||
       b.variety.toLowerCase().includes(search.toLowerCase())

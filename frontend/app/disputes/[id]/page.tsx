@@ -23,7 +23,7 @@ import { useMockData } from "@/contexts/mock-data-context";
 
 export default function DisputeDetailPage() {
   const params = useParams<{ id: string }>();
-  const { disputes } = useMockData();
+  const { disputes, addDisputeEvidence } = useMockData();
 
   const disputeId = params?.id || "DP-401";
   const dispute = disputes.find((d) => d.id === disputeId) || disputes[0];
@@ -45,11 +45,9 @@ export default function DisputeDetailPage() {
 
   const handleAddEvidence = (e: React.FormEvent) => {
     e.preventDefault();
-    dispute.resolutionTimeline.push({
-      date: "Just now",
-      actor: "Authorized Representative",
-      action: `Submitted supplementary evidence: "${evidenceNote.slice(0, 40)}..."`,
-    });
+    if (dispute) {
+      addDisputeEvidence(dispute.id, evidenceNote);
+    }
     setSubmittedEvidenceSuccess(true);
     setEvidenceNote("");
     setShowAddEvidence(false);

@@ -46,14 +46,27 @@ export default function DashboardPage() {
   const formatINR = (amt: number) =>
     new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amt);
 
+  // Demo farmer check
+  const isDemoFarmer = !user?.id || user.id === "FMR-MH-000421" || user.email?.includes("farmer@farmly.demo");
+
   // Farmer metrics
-  const activeLots = lots.filter((l) => l.status === "Active" || l.status === "Under Offer");
-  const openOffers = offers.filter((o) => o.status === "Pending");
-  const completedTx = transactions.filter((tx) => tx.status === "Completed");
+  const myFarmerLots = isDemoFarmer
+    ? lots
+    : lots.filter((l) => l.farmerId === user.id || (user.fullName && l.farmerName?.toLowerCase() === user.fullName.toLowerCase()));
+  const activeLots = myFarmerLots.filter((l) => l.status === "Active" || l.status === "Under Offer");
+  const myLotIds = new Set(myFarmerLots.map((l) => l.id));
+
+  const myOffers = isDemoFarmer ? offers : offers.filter((o) => myLotIds.has(o.lotId));
+  const openOffers = myOffers.filter((o) => o.status === "Pending");
+
+  const myTransactions = isDemoFarmer ? transactions : transactions.filter((tx) => myLotIds.has(tx.lotId) || tx.counterparty === user?.fullName);
+  const completedTx = myTransactions.filter((tx) => tx.status === "Completed");
   const totalFarmerEarnings = completedTx
     .filter((tx) => tx.type === "Sale" || tx.type === "Settlement")
     .reduce((acc, curr) => acc + curr.amount, 0);
-  const pendingEv = evidence.filter((e) => e.status === "Pending");
+
+  const myEvidence = isDemoFarmer ? evidence : evidence.filter((e) => myLotIds.has(e.lotId) || e.farmerId === user.id);
+  const pendingEv = myEvidence.filter((e) => e.status === "Pending");
 
   // Distributor metrics
   const mktLots = lots.filter((l) => l.status === "Active");
@@ -72,7 +85,7 @@ export default function DashboardPage() {
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              {t("dashboard.farmerBadge", "Farmer Verified Account")} &bull; FMR-MH-000421
+              {t("dashboard.farmerBadge", "Farmer Verified Account")} &bull; {user?.id || "FMR-MH-000421"}
             </div>
             <h1 className="text-2xl lg:text-3xl font-bold text-farmly-foreground tracking-tight">
               {t("dashboard.welcome", "Welcome back")}, {user?.fullName || "Ramesh Patil"}
@@ -171,7 +184,7 @@ export default function DashboardPage() {
               <p className="text-xs text-farmly-muted">{t("dashboard.recentLotsSub", "Active and recent produce registered on Farmly")}</p>
             </div>
             <Link href="/lots" className="text-xs text-farmly-primary hover:underline flex items-center gap-1">
-              {t("common.viewAll", "View all")} ({lots.length}) <ArrowRight className="w-3.5 h-3.5" />
+              {t("common.viewAll", "View all")} ({myFarmerLots.length}) <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
@@ -189,33 +202,41 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-farmly-border">
-                  {lots.slice(0, 4).map((lot) => (
-                    <tr key={lot.id} className="hover:bg-farmly-table-hover transition-colors">
-                      <td className="px-5 py-4 font-mono font-bold text-farmly-foreground">{lot.id}</td>
-                      <td className="px-5 py-4">
-                        <div className="font-semibold text-farmly-foreground">{lot.crop}</div>
-                        <div className="text-xs text-farmly-muted">{lot.variety}</div>
-                      </td>
-                      <td className="px-5 py-4 font-medium text-farmly-foreground">
-                        {lot.quantity} {lot.unit}
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className="text-xs px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-medium">
-                          {lot.qualityGrade}
-                        </span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <StatusBadge status={lot.status} size="sm" />
-                      </td>
-                      <td className="px-5 py-4 text-right">
-                        <Link href={`/lots/${lot.id}`}>
-                          <Button variant="ghost" size="sm" className="text-xs text-farmly-primary hover:bg-farmly-primary/10 h-8">
-                            {t("common.details", "Details")}
-                          </Button>
-                        </Link>
+                  {myFarmerLots.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-5 py-8 text-center text-farmly-muted text-sm">
+                        {t("lots.noLotsFound", "No harvest lots found.")}
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    myFarmerLots.slice(0, 4).map((lot) => (
+                      <tr key={lot.id} className="hover:bg-farmly-table-hover transition-colors">
+                        <td className="px-5 py-4 font-mono font-bold text-farmly-foreground">{lot.id}</td>
+                        <td className="px-5 py-4">
+                          <div className="font-semibold text-farmly-foreground">{lot.crop}</div>
+                          <div className="text-xs text-farmly-muted">{lot.variety}</div>
+                        </td>
+                        <td className="px-5 py-4 font-medium text-farmly-foreground">
+                          {lot.quantity} {lot.unit}
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="text-xs px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-medium">
+                            {lot.qualityGrade}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <StatusBadge status={lot.status} size="sm" />
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                          <Link href={`/lots/${lot.id}`}>
+                            <Button variant="ghost" size="sm" className="text-xs text-farmly-primary hover:bg-farmly-primary/10 h-8">
+                              {t("common.details", "Details")}
+                            </Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -230,12 +251,17 @@ export default function DashboardPage() {
               <p className="text-xs text-farmly-muted">{t("dashboard.incomingOffersSub", "Direct buyer bids requiring action")}</p>
             </div>
             <Link href="/offers" className="text-xs text-farmly-primary hover:underline flex items-center gap-1">
-              {t("common.all", "All")} ({offers.length}) <ArrowRight className="w-3.5 h-3.5" />
+              {t("common.all", "All")} ({myOffers.length}) <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           <div className="space-y-3">
-            {offers.slice(0, 3).map((offer) => (
+            {myOffers.length === 0 ? (
+              <Card className="bg-farmly-surface border-farmly-border p-6 text-center text-farmly-muted text-xs">
+                {t("dashboard.noOffers", "No incoming offers yet.")}
+              </Card>
+            ) : (
+              myOffers.slice(0, 3).map((offer) => (
               <Card key={offer.id} className="bg-farmly-surface border-farmly-border p-4 space-y-3">
                 <div className="flex items-start justify-between">
                   <div>
@@ -281,7 +307,7 @@ export default function DashboardPage() {
                   </Link>
                 )}
               </Card>
-            ))}
+            )))}
           </div>
         </div>
       </div>

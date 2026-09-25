@@ -20,7 +20,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { useTranslation } from "@/contexts/language-context";
 
 export default function LotsPage() {
-  const { role } = useAuth();
+  const { user, role } = useAuth();
   const { lots } = useMockData();
   const { t } = useTranslation();
 
@@ -37,7 +37,13 @@ export default function LotsPage() {
     { value: "Delivered", label: t("lots.statusDelivered", "Delivered") },
   ];
 
-  const filteredLots = lots.filter((lot) => {
+  const isDemoFarmer = !user?.id || user.id === "FMR-MH-000421" || user.email?.includes("farmer@farmly.demo");
+
+  const scopedLots = role === "farmer" && !isDemoFarmer
+    ? lots.filter((lot) => lot.farmerId === user?.id || (user?.fullName && lot.farmerName?.toLowerCase() === user.fullName.toLowerCase()))
+    : lots;
+
+  const filteredLots = scopedLots.filter((lot) => {
     const query = search.toLowerCase();
     const matchSearch =
       lot.id.toLowerCase().includes(query) ||

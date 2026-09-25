@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 export default function LoginPage() {
   const { login, quickDemoLogin } = useAuth();
   const { t } = useTranslation();
-  const [selectedRole, setSelectedRole] = useState<UserRole>("helper");
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
   const {
@@ -33,8 +33,8 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      identifier: "helper@farmly.demo",
-      password: "Farmly@123",
+      identifier: "",
+      password: "",
       rememberMe: true,
     },
   });
@@ -51,12 +51,13 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormData) => {
     setFormError(null);
     try {
-      const res = await login(data.identifier, data.password, selectedRole);
+      // Only pass roleHint if the user specifically clicked a demo tab
+      const res = await login(data.identifier, data.password, selectedRole || undefined);
       if (!res.success && res.error) {
         setFormError(res.error);
       }
     } catch {
-      setFormError("An unexpected error occurred during demo login.");
+      setFormError("An unexpected error occurred during login.");
     }
   };
 
@@ -92,10 +93,10 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Role Tabs for Login */}
+      {/* Role Tabs for Quick Demo Autofill */}
       <div className="mb-6">
         <label className="block text-xs font-semibold text-farmly-muted mb-2">
-          {t("auth.selectRole", "Select Your Role")}
+          {t("auth.demoRoleLabel", "Quick Demo Logins (1-Click Autofill)")}
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {rolesList.map((r) => {
@@ -170,8 +171,8 @@ export default function LoginPage() {
 
         {/* Submit Button */}
         <AuthButton
-          label={`Sign In as ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}`}
-          loadingLabel="Verifying demo session..."
+          label={selectedRole ? `Sign In as ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}` : "Sign In"}
+          loadingLabel="Verifying session..."
           isLoading={isSubmitting}
         />
 

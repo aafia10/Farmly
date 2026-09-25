@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AuthUser, UserRole } from "@/types";
+import { supabase } from "@/lib/supabase";
+import { backendClient } from "@/lib/api/backendClient";
 
 export const DEMO_CREDENTIALS: Record<UserRole, { email: string; pass: string; user: AuthUser; dashboard: string }> = {
   farmer: {
@@ -140,7 +142,7 @@ interface AuthContextType {
   role: UserRole;
   isAuthenticated: boolean;
   login: (identifier: string, password?: string, roleHint?: UserRole) => Promise<{ success: boolean; error?: string }>;
-  signup: (userData: AuthUser) => Promise<{ success: boolean; error?: string }>;
+  signup: (userData: AuthUser, password?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   quickDemoLogin: (role: UserRole) => void;
 }
@@ -161,6 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         // Default to canonical Ramesh Patil
         setUser(DEMO_CREDENTIALS.farmer.user);
+        localStorage.setItem("farmly_token", "demo_farmer");
       }
     } catch {
       localStorage.removeItem("farmly_session");
@@ -172,20 +175,95 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password?: string,
     roleHint?: UserRole
   ): Promise<{ success: boolean; error?: string }> => {
-    await new Promise((r) => setTimeout(r, 300));
-
     const cleanId = identifier.trim().toLowerCase();
 
-    // Check against demo accounts
+    // 1. Attempt Backend API Login
+    try {
+      const res = await backendClient.login({
+        email: cleanId,
+        password: password || undefined,
+        role: roleHint,
+      });
+
+      if (res && res.token && res.user) {
+        localStorage.setItem("farmly_token", res.token);
+        setUser(res.user);
+        localStorage.setItem("farmly_session", JSON.stringify(res.user));
+        const userRole = (res.user.role || "farmer") as UserRole;
+        const target = DEMO_CREDENTIALS[userRole]?.dashboard || "/dashboard";
+        router.push(target);
+        return { success: true };
+      }
+    } catch (apiErr: any) {
+      console.warn("Backend auth login notice:", apiErr?.message);
+    }
+
+    // 2. Direct Supabase Auth (for registered real users if backend is bypassed)
+    if (password) {
+      try {
+        const { data: supaAuth, error: supaErr } = await supabase.auth.signInWithPassword({
+          email: cleanId,
+          password,
+        });
+
+        if (supaAuth?.session && supaAuth.user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("*")
+            .or(`user_id.eq.${supaAuth.user.id},id.eq.${supaAuth.user.id},email.eq.${cleanId}`)
+            .maybeSingle();
+
+          const realRole = (profile?.user_type || profile?.role || supaAuth.user.user_metadata?.role || roleHint || "farmer") as UserRole;
+          const realUser: AuthUser = {
+            id: profile?.id || supaAuth.user.id,
+            fullName: profile?.full_name || supaAuth.user.user_metadata?.full_name || cleanId.split("@")[0],
+            email: profile?.email || cleanId,
+            mobile: profile?.phone || supaAuth.user.user_metadata?.mobile || "",
+            role: realRole,
+            state: profile?.state || "Maharashtra",
+            district: profile?.district || "Nashik",
+            preferredLanguage: profile?.preferred_language || "mr",
+            organization: profile?.organization || "",
+          };
+
+          localStorage.setItem("farmly_token", supaAuth.session.access_token);
+          setUser(realUser);
+          localStorage.setItem("farmly_session", JSON.stringify(realUser));
+          const target = DEMO_CREDENTIALS[realRole]?.dashboard || "/dashboard";
+          router.push(target);
+          return { success: true };
+        }
+      } catch (directAuthErr: any) {
+        console.warn("Direct Supabase login attempt notice:", directAuthErr?.message);
+      }
+    }
+
+    // 3. Check against demo accounts
     for (const [key, demo] of Object.entries(DEMO_CREDENTIALS)) {
       const matchEmail = demo.email.toLowerCase() === cleanId;
       const matchMobile = demo.user.mobile === cleanId;
-      const matchRole = roleHint ? key === roleHint : true;
+      const matchRole = roleHint ? key === roleHint : false;
 
-      if ((matchEmail || matchMobile) && matchRole) {
+      if (matchEmail || matchMobile || (matchRole && !password)) {
         if (password && password !== demo.pass) {
           return { success: false, error: "Invalid password. (For demo accounts, password is 'Farmly@123')" };
         }
+
+        // Attempt direct Supabase Auth login
+        try {
+          const { data } = await supabase.auth.signInWithPassword({
+            email: demo.email,
+            password: password || demo.pass,
+          });
+          if (data?.session?.access_token) {
+            localStorage.setItem("farmly_token", data.session.access_token);
+          } else {
+            localStorage.setItem("farmly_token", `demo_${key}`);
+          }
+        } catch {
+          localStorage.setItem("farmly_token", `demo_${key}`);
+        }
+
         setUser(demo.user);
         localStorage.setItem("farmly_session", JSON.stringify(demo.user));
         router.push(demo.dashboard);
@@ -193,7 +271,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // Dynamic mock login fallback
+    // 4. Dynamic mock login fallback
     const selectedRole: UserRole = roleHint || (cleanId.includes("helper") ? "helper" : "farmer");
     const dynamicUser: AuthUser = {
       id: `FMR-${Date.now().toString().slice(-6)}`,
@@ -206,6 +284,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       preferredLanguage: "mr",
     };
 
+    localStorage.setItem("farmly_token", `demo_${selectedRole}`);
     setUser(dynamicUser);
     localStorage.setItem("farmly_session", JSON.stringify(dynamicUser));
     const target = DEMO_CREDENTIALS[selectedRole]?.dashboard || "/dashboard";
@@ -213,25 +292,176 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { success: true };
   };
 
-  const signup = async (userData: AuthUser): Promise<{ success: boolean; error?: string }> => {
-    await new Promise((r) => setTimeout(r, 400));
-    setUser(userData);
-    localStorage.setItem("farmly_session", JSON.stringify(userData));
+  const signup = async (userData: AuthUser, password?: string): Promise<{ success: boolean; error?: string }> => {
+    let authCreated = false;
+    let registeredToken: string | null = null;
+    let registeredUser: AuthUser = userData;
+    let lastError: string | null = null;
 
-    const target = DEMO_CREDENTIALS[userData.role]?.dashboard || "/dashboard";
+    // 1. Primary: Register via Express Backend REST API
+    try {
+      const res = await backendClient.signup({
+        email: userData.email,
+        password: password || "Farmly@123",
+        fullName: userData.fullName,
+        mobile: userData.mobile,
+        role: userData.role,
+        state: userData.state,
+        district: userData.district,
+        preferredLanguage: userData.preferredLanguage,
+        organization: userData.organization,
+      });
+
+      if (res && res.token) {
+        registeredToken = res.token;
+        if (res.user) {
+          registeredUser = { ...userData, ...res.user };
+        }
+        authCreated = true;
+      }
+    } catch (apiErr: any) {
+      console.warn("Backend signup API notice:", apiErr?.message);
+      lastError = apiErr?.message || "Backend registration error";
+    }
+
+    // 2. Direct Supabase Auth Fallback (if backend endpoint was unreachable from browser)
+    if (!authCreated && password) {
+      try {
+        const { data: supaAuth, error: supaErr } = await supabase.auth.signUp({
+          email: userData.email,
+          password: password,
+          options: {
+            data: {
+              full_name: userData.fullName,
+              mobile: userData.mobile || "",
+              role: userData.role,
+            },
+          },
+        });
+
+        if (supaAuth?.user) {
+          authCreated = true;
+          registeredToken = supaAuth.session?.access_token || `demo_${userData.role}`;
+          registeredUser = {
+            ...userData,
+            id: supaAuth.user.id,
+          };
+
+          // Upsert into public.profiles directly from browser client
+          await supabase.from("profiles").upsert({
+            id: supaAuth.user.id,
+            user_id: supaAuth.user.id,
+            full_name: userData.fullName,
+            email: userData.email,
+            phone: userData.mobile || null,
+            user_type: userData.role,
+            state: userData.state || "Maharashtra",
+            district: userData.district || "Nashik",
+            preferred_language: userData.preferredLanguage || "en",
+            organization: userData.organization || null,
+          }, { onConflict: "id" });
+
+          if (userData.role === "farmer") {
+            const fId = `FM-${Date.now().toString().slice(-6)}`;
+            await supabase.from("farmers").upsert({
+              id: fId,
+              profile_id: supaAuth.user.id,
+              name: userData.fullName,
+              mobile: userData.mobile || "9876500000",
+              village: userData.district || "Nashik",
+              district: userData.district || "Nashik",
+              state: userData.state || "Maharashtra",
+              farming_category: "Crops",
+              consent: true,
+              verification_level: "Field Verified",
+              status: "Active",
+            }, { onConflict: "id" });
+          }
+        } else if (supaErr) {
+          console.error("Direct Supabase Auth notice:", supaErr.message);
+          lastError = supaErr.message;
+        }
+      } catch (directErr: any) {
+        console.error("Direct Supabase signup error:", directErr);
+        lastError = directErr.message || "Database registration error";
+      }
+    }
+
+    if (!authCreated) {
+      return {
+        success: false,
+        error: lastError || "Failed to create account in Supabase database. Please check your network and try again.",
+      };
+    }
+
+    // Clear previous demo cache from localStorage so newly registered user starts with 0 data
+    [
+      "crop_avail",
+      "lots",
+      "evidence",
+      "offers",
+      "payments",
+      "disputes",
+      "transactions",
+      "notifications",
+      "activities",
+      "arrivals",
+      "quality",
+      "admin_alerts",
+    ].forEach((k) => {
+      try {
+        localStorage.removeItem(`farmly_${k}`);
+      } catch {}
+    });
+
+    // Save active session
+    localStorage.setItem("farmly_token", registeredToken || `demo_${registeredUser.role}`);
+    setUser(registeredUser);
+    localStorage.setItem("farmly_session", JSON.stringify(registeredUser));
+
+    const target = DEMO_CREDENTIALS[registeredUser.role]?.dashboard || "/dashboard";
     router.push(target);
     return { success: true };
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("farmly_session");
+    try {
+      localStorage.removeItem("farmly_session");
+      localStorage.removeItem("farmly_token");
+      [
+        "crop_avail",
+        "lots",
+        "evidence",
+        "offers",
+        "payments",
+        "disputes",
+        "transactions",
+        "notifications",
+        "activities",
+        "arrivals",
+        "quality",
+        "admin_alerts",
+      ].forEach((k) => localStorage.removeItem(`farmly_${k}`));
+    } catch {}
+    supabase.auth.signOut().catch(() => {});
     router.push("/login");
   };
 
   const quickDemoLogin = (roleToSelect: UserRole) => {
+    backendClient.login({ role: roleToSelect }).then((res) => {
+      if (res?.token && res?.user) {
+        localStorage.setItem("farmly_token", res.token);
+        setUser(res.user);
+        localStorage.setItem("farmly_session", JSON.stringify(res.user));
+        router.push(DEMO_CREDENTIALS[roleToSelect]?.dashboard || "/dashboard");
+        return;
+      }
+    }).catch(() => {});
+
     const demo = DEMO_CREDENTIALS[roleToSelect];
     if (demo) {
+      localStorage.setItem("farmly_token", `demo_${roleToSelect}`);
       setUser(demo.user);
       localStorage.setItem("farmly_session", JSON.stringify(demo.user));
       router.push(demo.dashboard);

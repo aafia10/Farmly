@@ -3,20 +3,99 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Boxes, Scale, CheckCircle2, ArrowRight, Info, AlertTriangle } from "lucide-react";
+import { Boxes, Scale, CheckCircle2, ArrowRight, Info, AlertTriangle, ShieldCheck } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMockData } from "@/contexts/mock-data-context";
 import { useAuth } from "@/contexts/auth-context";
+import { FIXED_BLOCKCHAIN_FALLBACK_HASH } from "@/lib/constants";
 
 export default function NewPhysicalLotPage() {
   const router = useRouter();
   const { farmers, createLot, addEvidence } = useMockData();
   const { user } = useAuth();
 
-  const [farmerId, setFarmerId] = useState("FMR-MH-000421");
+  const accessibleFarmers = React.useMemo(() => {
+    if (!user) return [];
+
+    if (user.role === "farmer") {
+      const selfFarmer = farmers.find(
+        (f) =>
+          f.id === user.id ||
+          f.profileId === user.id ||
+          (user.mobile && f.mobile === user.mobile) ||
+          (user.fullName && f.name.toLowerCase() === user.fullName.toLowerCase())
+      );
+      if (selfFarmer) {
+        return [selfFarmer];
+      }
+      return [
+        {
+          id: user.id || "FMR-MH-000421",
+          profileId: user.id,
+          name: user.fullName || "Registered Farmer",
+          mobile: user.mobile || "",
+          village: user.district || "Nashik",
+          district: user.district || "Nashik",
+          state: user.state || "Maharashtra",
+          language: user.preferredLanguage || "English",
+          farmingCategory: "Crops",
+          consent: true,
+          verificationLevel: "Field Verified" as const,
+          status: "Active" as const,
+          lastActivity: "Today",
+        },
+      ];
+    }
+
+    if (user.role === "helper") {
+      const helperId = user.id;
+      const helperNameLower = user.fullName?.toLowerCase();
+      return farmers.filter((f) => {
+        const matchesHelperId = f.assistedByHelperId && (
+          f.assistedByHelperId === helperId ||
+          (user.id === "usr_help_01" && f.assistedByHelperId === "e1000000-0000-0000-0000-000000000002")
+        );
+        const matchesHelperName = f.assistedBy?.helperName && helperNameLower && f.assistedBy.helperName.toLowerCase() === helperNameLower;
+        return Boolean(matchesHelperId || matchesHelperName);
+      });
+    }
+
+    if (user.role === "fpo") {
+      return farmers.filter((f) => {
+        if (!user.organization && !user.district) return true;
+        const matchesOrg = user.organization && f.fpo && f.fpo.toLowerCase().includes(user.organization.toLowerCase());
+        const matchesDistrict = user.district && f.district.toLowerCase() === user.district.toLowerCase();
+        return Boolean(matchesOrg || matchesDistrict);
+      });
+    }
+
+    if (user.role === "collection_center") {
+      return farmers.filter((f) => {
+        if (!user.district) return true;
+        return f.district.toLowerCase() === user.district.toLowerCase();
+      });
+    }
+
+    if (user.role === "admin") {
+      return farmers;
+    }
+
+    return [];
+  }, [farmers, user]);
+
+  const [farmerId, setFarmerId] = useState<string>("");
+
+  React.useEffect(() => {
+    if (accessibleFarmers.length > 0) {
+      if (!farmerId || !accessibleFarmers.some((f) => f.id === farmerId)) {
+        setFarmerId(accessibleFarmers[0].id);
+      }
+    }
+  }, [accessibleFarmers, farmerId]);
+
   const [crop, setCrop] = useState("Sharbati Wheat");
   const [variety, setVariety] = useState("Lokwan C-306");
   const [declaredWeight, setDeclaredWeight] = useState("500");
@@ -33,20 +112,26 @@ export default function NewPhysicalLotPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const selectedFarmer = farmers.find((f) => f.id === farmerId) || farmers[0];
+    const selectedFarmer = accessibleFarmers.find((f) => f.id === farmerId) || accessibleFarmers[0];
+    if (!selectedFarmer && user?.role !== "farmer") {
+      alert("No accessible farmer found for lot creation.");
+      return;
+    }
+    const resolvedFarmerId = user?.role === "farmer" ? (selectedFarmer?.id || user.id) : (selectedFarmer?.id || farmerId || "FMR-MH-000421");
+    const resolvedFarmerName = user?.role === "farmer" ? (selectedFarmer?.name || user.fullName || "Registered Farmer") : (selectedFarmer?.name || "Ramesh Patil");
 
     const newLot = createLot({
-      farmerId: selectedFarmer.id,
-      farmerName: selectedFarmer.name,
+      farmerId: resolvedFarmerId,
+      farmerName: resolvedFarmerName,
       crop,
       variety,
       quantity: measuredNum,
       unit,
-      currentOwner: `${selectedFarmer.name} (Farmer)`,
+      currentOwner: `${resolvedFarmerName} (Farmer)`,
       status: "Active",
       qualityGrade,
       location,
-      assistedBy: user?.role === "helper" ? `${user.fullName} (Field Helper)` : "Priya Sharma (Field Helper)",
+      assistedBy: user?.role === "helper" ? `${user.fullName} (Field Helper)` : undefined,
       weighmentScaleId: scaleId,
       certificateRef: `QC-MH-NSK-2026-${Math.floor(1000 + Math.random() * 9000)}`,
     });
@@ -54,8 +139,8 @@ export default function NewPhysicalLotPage() {
     // Record initial weighment evidence
     addEvidence({
       lotId: newLot.id,
-      farmerId: selectedFarmer.id,
-      farmerName: selectedFarmer.name,
+      farmerId: resolvedFarmerId,
+      farmerName: resolvedFarmerName,
       type: "Weighment",
       category: "Farmer Declared",
       title: "Farmer Harvest Self-Declaration",
@@ -66,8 +151,8 @@ export default function NewPhysicalLotPage() {
 
     addEvidence({
       lotId: newLot.id,
-      farmerId: selectedFarmer.id,
-      farmerName: selectedFarmer.name,
+      farmerId: resolvedFarmerId,
+      farmerName: resolvedFarmerName,
       type: "Scale Receipt",
       category: "Evidence Backed",
       title: "Digital Platform Scale Weighment",
@@ -107,8 +192,20 @@ export default function NewPhysicalLotPage() {
               </p>
             </div>
 
-            <div className="p-3 bg-farmly-surface rounded-xl border border-farmly-border inline-block font-mono font-bold text-sm text-farmly-primary">
-              Lot ID: {createdLotId}
+            <div className="p-3 bg-farmly-surface rounded-xl border border-farmly-border space-y-1.5 text-left text-xs max-w-md mx-auto">
+              <div className="flex justify-between items-center">
+                <span className="text-farmly-muted font-medium">Lot ID:</span>
+                <span className="font-mono font-bold text-farmly-primary">{createdLotId}</span>
+              </div>
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-farmly-muted font-medium shrink-0 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  Blockchain Anchor:
+                </span>
+                <span className="font-mono text-[11px] text-emerald-600 dark:text-emerald-400 truncate" title={FIXED_BLOCKCHAIN_FALLBACK_HASH}>
+                  {FIXED_BLOCKCHAIN_FALLBACK_HASH}
+                </span>
+              </div>
             </div>
 
             <div className="flex justify-center gap-3 pt-2">
@@ -138,13 +235,18 @@ export default function NewPhysicalLotPage() {
                 <select
                   value={farmerId}
                   onChange={(e) => setFarmerId(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-farmly-input-bg border border-farmly-input-border text-farmly-foreground text-sm"
+                  disabled={user?.role === "farmer" || accessibleFarmers.length <= 1}
+                  className="w-full px-3 py-2.5 rounded-xl bg-farmly-input-bg border border-farmly-input-border text-farmly-foreground text-sm disabled:opacity-85 disabled:cursor-not-allowed"
                 >
-                  {farmers.map((f) => (
-                    <option key={f.id} value={f.id}>
-                      {f.name} ({f.id}) — {f.village}, {f.district}
-                    </option>
-                  ))}
+                  {accessibleFarmers.length === 0 ? (
+                    <option value="">No farmers found under your jurisdiction</option>
+                  ) : (
+                    accessibleFarmers.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.name} ({f.id}) — {f.village}, {f.district}
+                      </option>
+                    ))
+                  )}
                 </select>
               </div>
 

@@ -1,0 +1,15 @@
+{
+  "name": "farmly-monorepo",
+  "version": "1.0.0",
+  "description": "Farmly Digital Agriculture Platform",
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,green\" \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend",
+    "type-check": "npm run type-check --prefix backend && npm run type-check --prefix frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.4"
+  }
+}

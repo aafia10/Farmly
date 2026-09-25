@@ -14,6 +14,21 @@ import { StatusBadge } from "@/components/common/status-badge";
 import { useMockData } from "@/contexts/mock-data-context";
 import { useTranslation } from "@/contexts/language-context";
 
+function formatDeadline(deadline?: string): string {
+  if (!deadline) return "3 days remaining";
+  const parsed = Date.parse(deadline);
+  if (!isNaN(parsed)) {
+    const d = new Date(parsed);
+    const diffHours = Math.round((d.getTime() - Date.now()) / (1000 * 60 * 60));
+    if (diffHours > 0 && diffHours <= 72) {
+      const days = Math.ceil(diffHours / 24);
+      return `${days} day${days > 1 ? "s" : ""} remaining (${d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" })})`;
+    }
+    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  }
+  return deadline;
+}
+
 export default function OffersPage() {
   const { offers, acceptOffer, rejectOffer } = useMockData();
   const { t } = useTranslation();
@@ -124,7 +139,7 @@ export default function OffersPage() {
                   <div className="text-xs text-farmly-muted flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-farmly-muted-dark" />
                     <span>
-                      {t("offers.responseDeadline", "Response Deadline")}: {offer.offerDeadline}
+                      {t("offers.responseDeadline", "Response Deadline")}: {formatDeadline(offer.offerDeadline)}
                     </span>
                   </div>
                 </div>

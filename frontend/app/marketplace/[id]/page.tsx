@@ -28,7 +28,7 @@ import { useAuth } from "@/contexts/auth-context";
 export default function MarketplaceLotDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { lots, evidence } = useMockData();
+  const { lots, evidence, createOffer } = useMockData();
   const { user } = useAuth();
 
   const lotId = params?.id || "LT-20391";
@@ -49,6 +49,25 @@ export default function MarketplaceLotDetailPage() {
 
   const handleMakeOffer = (e: React.FormEvent) => {
     e.preventDefault();
+    if (lot) {
+      createOffer({
+        lotId: lot.id,
+        crop: lot.crop,
+        buyerName: user?.fullName || "GreenHarvest Wholesale Logistics",
+        buyerType: user?.role === "retailer" ? "Retailer" : "Distributor",
+        offeredQuantity: qtyNum,
+        unit: lot.unit || "kg",
+        pricePerKg: priceNum,
+        deductions: {
+          transport: Math.round(estimatedDeductions * 0.5),
+          loading: Math.round(estimatedDeductions * 0.25),
+          commission: 0,
+          platformFee: Math.round(estimatedDeductions * 0.25),
+          other: 0,
+        },
+        offerDeadline: new Date(Date.now() + 86400000 * 3).toISOString(),
+      });
+    }
     setOfferSubmitted(true);
   };
 

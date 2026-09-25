@@ -38,11 +38,11 @@ export default function SignupPage() {
       email: "",
       password: "",
       confirmPassword: "",
-      role: "helper",
-      state: "Gujarat",
-      district: "Anand",
-      preferredLanguage: "gu",
-      organization: "Kheda District FPO Assistance Desk",
+      role: "farmer",
+      state: "Maharashtra",
+      district: "Nashik",
+      preferredLanguage: "mr",
+      organization: "",
       acceptTerms: undefined,
     },
   });
@@ -63,7 +63,7 @@ export default function SignupPage() {
         district: data.district,
         preferredLanguage: data.preferredLanguage,
         organization: data.organization,
-      });
+      }, data.password);
 
       if (!res.success && res.error) {
         setFormError(res.error);

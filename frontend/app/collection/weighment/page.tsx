@@ -33,10 +33,12 @@ export default function CollectionWeighmentPage() {
   const handleRecordWeighment = (e: React.FormEvent) => {
     e.preventDefault();
     const farmer = farmers.find((f) => f.id === selectedFarmerId) || farmers[0];
+    const fId = farmer?.id || selectedFarmerId || "FMR-MH-000421";
+    const fName = farmer?.name || "Ramesh Patil";
 
     const newArr = addCollectionArrival({
-      farmerId: farmer.id,
-      farmerName: farmer.name,
+      farmerId: fId,
+      farmerName: fName,
       crop,
       variety,
       declaredQuantity: Number(grossWeight),

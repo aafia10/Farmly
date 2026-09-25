@@ -86,6 +86,7 @@ export interface AuthUser {
 
 export interface Farmer {
   id: string; // e.g. "FM-10294"
+  profileId?: string;
   name: string;
   mobile: string;
   village: string;
@@ -99,6 +100,7 @@ export interface Farmer {
   verificationLevel: "Basic" | "Field Verified" | "Identity Confirmed";
   status: "Active" | "Pending" | "Needs Review";
   lastActivity: string;
+  assistedByHelperId?: string;
   assistedBy?: {
     helperName: string;
     date: string;
@@ -138,6 +140,7 @@ export interface Lot {
   childLots?: string[];
   weighmentScaleId?: string;
   certificateRef?: string;
+  blockchainHash?: string;
 }
 
 export interface EvidenceItem {
