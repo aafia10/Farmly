@@ -1,0 +1,56 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[a4paper,left=20mm,right=20mm,top=28mm,bottom=30mm,footskip=10mm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric,shapes.multipart,calc,fit,backgrounds,patterns}
+\usepackage{ragged2e}
+\usepackage{array}
+% Left-aligned paragraph column for tables (avoids stretched justified text in narrow cells).
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\usepackage{eso-pic}
+\usepackage{setspace}
+\usepackage{csquotes}
+\AtBeginDocument{\renewcommand{\bibname}{References}}
+\begin{document}
+
+\pagestyle{plain}
+\include{firstpage}
+
+\include{certificate_new}
+\include{approvalpage}
+\include{declaration}
+
+\pagenumbering{roman} 
+\include{abstract}
+ \addcontentsline{toc}{chapter}{\listfigurename}
+ \addcontentsline{toc}{chapter}{\listtablename}
+\tableofcontents
+\listoffigures
+\listoftables
+
+\clearpage
+\pagestyle{plain}
+
+\pagenumbering{arabic} 
+\include{chapter1}
+\include{chapter2}
+\include{chapter3}
+\include{chapter4}
+\include{chapter5}
+\include{chapter6}
+
+\include{references}
+\appendix
+\newpage
+\chapter{Plagiarism Report}\thispagestyle{plain}
+\chapter{List of Publications}
+\begin{figure}[h]
+	\centering
+	%\includegraphics[width=10cm, height=5cm]{rait-dypu-logo.png}
+	%\caption[Internship Completion Certificate]{Plagiarism Repo}
+	\label{fig:my_label}
+\end{figure}
+\include{acknowledgment}
+
+\end{document}

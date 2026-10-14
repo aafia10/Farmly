@@ -1,0 +1,347 @@
+\chapter{Planning and System Design}
+This chapter presents the schedule followed during this phase of the project and the design of the system using structured analysis and design tools: a use case diagram, data flow diagrams, an entity relationship diagram, sequence diagrams, the database design and the API design. It ends with the plan for the next semester.
+
+\section{Schedule for Project}
+The project was planned in phases: requirements and architecture, the core web application, the backend and database, and finally the role, interface and certificate-chain work. The implementation dates in Figure~\ref{fig:gantt} are taken from the project's version-control history, which began on 17 September 2026. The requirements and architecture phase preceded the first commit. The helper calling module is scheduled for the remainder of this semester and is shown hatched.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[x=1.45cm, y=0.62cm, font=\scriptsize]
+	% week columns
+	\foreach \i/\lab in {0/{Before 17 Sep}, 1/{17--23 Sep}, 2/{24--30 Sep}, 3/{1--7 Oct}, 4/{8--15 Oct}, 5/{From 16 Oct (planned)}} {
+		\node[align=center, text width=1.35cm] at (\i*1.2+4.1, 0.9) {\lab};
+		\draw[gray!50] (\i*1.2+3.5, 0.4) -- (\i*1.2+3.5, -9.4);
+	}
+	\draw[gray!50] (10.7, 0.4) -- (10.7, -9.4);
+	% Helper calling module: in progress, shown hatched
+	\node[anchor=east, align=right] at (3.4, -8.5) {Helper calling module};
+	\draw[green!45!black!60, pattern=north east lines, pattern color=green!45!black!60] (4.8*1.2+3.5, -8.2) rectangle (6*1.2+3.5, -8.8);
+	\foreach \y/\task/\s/\e in {
+		0/{Requirements and architecture}/0/1,
+		1/{Frontend foundation}/1/1.6,
+		2/{Pages and role workflows}/1/1.8,
+		3/{Multilingual interface}/1.5/2,
+		4/{Backend API and database}/2/3,
+		5/{Roles, dashboards, theme}/4/5,
+		6/{Contract, IPFS, certificates}/4/5,
+		7/{Testing and documentation}/4.3/5
+	} {
+		\node[anchor=east, align=right] at (3.4, -\y-0.5) {\task};
+		\fill[green!45!black!60] (\s*1.2+3.5, -\y-0.2) rectangle (\e*1.2+3.5, -\y-0.8);
+	}
+\end{tikzpicture}
+\caption{Project schedule (Gantt chart)}
+\label{fig:gantt}
+\end{figure}
+
+\section{System Design}
+
+\subsection*{Use case diagram}
+Figure~\ref{fig:usecase} shows the main use cases of the system. Farmers and field helpers register farmers and crop lots and upload origin certificates. Distributors and retailers inspect batches and purchase them. Any user, including a consumer without an account, can view the public traceability page and verify a certificate. Calling a field helper, used by farmers and helpers, is part of the module in progress and is shown dashed.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[
+	actor/.style={draw, rounded corners=8pt, minimum width=2.3cm, minimum height=0.8cm, font=\small, fill=gray!10},
+	uc/.style={draw, ellipse, minimum width=4.4cm, minimum height=0.75cm, font=\scriptsize, align=center},
+	link/.style={thin}
+]
+\node[draw, thick, minimum width=6.4cm, minimum height=12.4cm, label={[font=\small\bfseries]above:Farmly}] (sys) at (0,-0.6) {};
+\node[uc] (u1) at (0, 4.8) {Register / sign in};
+\node[uc] (u2) at (0, 3.6) {Register farmer};
+\node[uc] (u3) at (0, 2.4) {Register crop lot};
+\node[uc] (u4) at (0, 1.2) {Upload origin certificate};
+\node[uc] (u5) at (0, 0.0) {Inspect batch and certificates};
+\node[uc] (u6) at (0,-1.2) {Purchase (full or partial)};
+\node[uc] (u7) at (0,-2.4) {Retry / revoke certificate};
+\node[uc] (u8) at (0,-3.6) {Verify certificate};
+\node[uc] (u9) at (0,-4.8) {View public journey (QR)};
+\node[uc, dashed] (u10) at (0,-6.0) {Call a field helper (in progress)};
+
+\node[actor] (farmer) at (-5.2, 3.6) {Farmer};
+\node[actor] (helper) at (-5.2, 1.2) {Field Helper};
+\node[actor] (dist) at (5.2, 1.2) {Distributor};
+\node[actor] (ret) at (5.2, -1.2) {Retailer};
+\node[actor] (cons) at (-5.2, -4.2) {Consumer};
+
+\foreach \u in {u1,u3,u4,u5,u7,u8} \draw[link] (farmer.east) -- (\u.west);
+\foreach \u in {u1,u2,u3,u4} \draw[link] (helper.east) -- (\u.west);
+\foreach \u in {u1,u5,u6,u7,u8} \draw[link] (dist.west) -- (\u.east);
+\foreach \u in {u1,u5,u6,u8,u9} \draw[link] (ret.west) -- (\u.east);
+\foreach \u in {u8,u9} \draw[link] (cons.east) -- (\u.west);
+\draw[link, dashed] (farmer.west) -- ++(-0.35,0) |- ([yshift=1.5mm]u10.west);
+\draw[link, dashed] (helper.east) -- ++(0.45,0) |- ([yshift=-1.5mm]u10.west);
+\end{tikzpicture}
+\caption{Use case diagram}
+\label{fig:usecase}
+\end{figure}
+
+\subsection*{Data flow diagrams}
+Figure~\ref{fig:dfd0} is the context-level (Level 0) data flow diagram. It shows Farmly as a single process exchanging data with its users and with the two external services.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[
+	ent/.style={draw, minimum width=2.6cm, minimum height=0.9cm, font=\small, align=center},
+	proc/.style={draw, circle, minimum size=2.8cm, align=center, font=\small, fill=gray!10},
+	arr/.style={-{Stealth[length=2mm]}, thin},
+	lb/.style={font=\scriptsize, fill=white, inner sep=1pt, align=center}
+]
+\node[proc] (p) at (0,0) {\textbf{0}\\Farmly\\System};
+\node[ent] (f) at (-6, 2.6) {Farmer /\\Field Helper};
+\node[ent] (d) at (6, 2.6) {Distributor /\\Retailer};
+\node[ent] (c) at (6,-2.6) {Consumer};
+\node[ent] (i) at (-6,-2.6) {IPFS\\(Pinata)};
+\node[ent] (b) at (0,-4.8) {Blockchain\\registry};
+% Each pair of flows uses two separate straight arrows with labels on opposite sides.
+\draw[arr] (f.east) -- node[lb, above, sloped]{lot details, certificate file} (p.148);
+\draw[arr] (p.170) -- node[lb, below, sloped, pos=0.55]{lot and certificate status} (f.south east);
+\draw[arr] (d.west) -- node[lb, above, sloped]{purchase request} (p.32);
+\draw[arr] (p.12) -- node[lb, below, sloped, pos=0.55]{batch history, transfer certificate} (d.south west);
+\draw[arr] (c.west) -- node[lb, below, sloped]{QR scan} (p.328);
+\draw[arr] (p.348) -- node[lb, above, sloped, pos=0.55]{public journey, verification} (c.north west);
+\draw[arr] (p.190) -- node[lb, above, sloped, pos=0.55]{certificate document} (i.north east);
+\draw[arr] (i.east) -- node[lb, below, sloped]{CID, stored file} (p.212);
+\draw[arr] ([xshift=-7pt]p.south) -- node[lb, left]{hash, CID, IDs} ([xshift=-7pt]b.north);
+\draw[arr] ([xshift=7pt]b.north) -- node[lb, right]{tx hash, record} ([xshift=7pt]p.south);
+\end{tikzpicture}
+\caption{Data flow diagram -- Level 0}
+\label{fig:dfd0}
+\end{figure}
+
+Figure~\ref{fig:dfd1} decomposes the system into its main processes and data stores.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[
+	proc/.style={draw, rounded corners=6pt, minimum width=3.0cm, minimum height=1.1cm, align=center, font=\scriptsize, fill=gray!10},
+	store/.style={draw, minimum width=2.7cm, minimum height=0.65cm, font=\scriptsize, align=center},
+	ent/.style={draw, minimum width=2.3cm, minimum height=0.7cm, font=\scriptsize, align=center},
+	arr/.style={-{Stealth[length=1.8mm]}, thin}
+]
+% Processes sit next to the data stores they read and write.
+\node[ent] (users) at (0, 4.8) {Users};
+\node[proc] (p1) at (0, 3.1) {1.0\\Authenticate \&\\authorise};
+\node[proc] (p2) at (-3.4, 1.0) {2.0\\Register farmer\\and crop lot};
+\node[proc] (p4) at (3.4, 1.0) {4.0\\Process\\purchase};
+\node[proc] (p3) at (-3.4, -1.3) {3.0\\Create origin\\certificate};
+\node[proc] (p5) at (3.4, -1.3) {5.0\\Generate transfer\\certificate};
+\node[proc] (p6) at (0, -3.6) {6.0\\Verify and show\\public journey};
+
+\node[store] (d1) at (-4.2, 3.1) {D1 \textbar{} Profiles};
+\node[store] (d2) at (0, 1.0) {D2 \textbar{} Farmers, Batches};
+\node[store] (d3) at (6.8, 1.0) {D3 \textbar{} Purchases};
+\node[store] (d4) at (0, -1.3) {D4 \textbar{} Certificates};
+\node[store] (d5) at (6.8, -1.3) {D5 \textbar{} Events};
+
+\node[ent] (ipfs) at (-3.4, -3.6) {IPFS};
+\node[ent] (chain) at (3.4, -3.6) {Blockchain};
+
+\draw[arr] (users) -- (p1);
+\draw[arr] (p1) -- (d1);
+\draw[arr] (p1) -- (p2);
+\draw[arr] (p1) -- (p4);
+\draw[arr] (p2) -- (d2);
+\draw[arr] (d2) -- (p4);
+\draw[arr] (p4) -- (d3);
+\draw[arr] (p2) -- (p3);
+\draw[arr] (p4) -- (p5);
+\draw[arr] (p3) -- (d4);
+\draw[arr] (p5) -- (d4);
+\draw[arr] (p5) -- (d5);
+\draw[arr] (p3) -- (ipfs);
+\draw[arr] (p5) -- (chain);
+\draw[arr] (p3.south east) -- (chain.north west);
+\draw[arr] (p5.south west) -- (ipfs.north east);
+\draw[arr] (d4) -- (p6);
+\draw[arr] (chain) -- (p6);
+\end{tikzpicture}
+\caption{Data flow diagram -- Level 1}
+\label{fig:dfd1}
+\end{figure}
+
+\subsection*{Database design}
+Figure~\ref{fig:er} shows the entity relationship diagram of the core entities. A farmer has many batches; a batch may have a parent batch, forming the lineage created by partial purchases; a purchase links a source batch to the child batch it creates; and a certificate belongs to a batch, may be created by a purchase, and references its source certificate.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[
+	ent/.style={draw, rectangle split, rectangle split parts=2, font=\scriptsize, align=left, rectangle split part fill={green!12, white}, text width=3.5cm},
+	rel/.style={thin},
+	card/.style={font=\scriptsize}
+]
+\node[ent] (prof) at (-5.5, 3.5) {\textbf{PROFILES}\nodepart{two}id (PK)\\full\_name, email, phone\\user\_type (role)\\district, state};
+\node[ent] (farm) at (-5.5, -0.5) {\textbf{FARMERS}\nodepart{two}id (PK)\\profile\_id (FK)\\name, village\\district, state};
+\node[ent, text width=4.3cm] (batch) at (0, 1.5) {\textbf{BATCHES}\nodepart{two}id (PK)\\farmer\_registry\_id (FK)\\parent\_lot\_id (FK to BATCHES)\\crop, variety, unit\\original\_quantity, quantity\\owner\_id, owner\_role\\root\_batch\_id, lineage\_path};
+\node[ent, text width=4.1cm] (pur) at (5.6, 3.5) {\textbf{PURCHASES}\nodepart{two}id (PK)\\idempotency\_key (UQ)\\source\_batch\_id (FK)\\child\_batch\_id (FK)\\buyer\_id, seller\_id\\quantity, price\_per\_unit\\status};
+\node[ent, text width=4.1cm] (cert) at (5.6, -1.5) {\textbf{CERTIFICATES}\nodepart{two}id (PK)\\batch\_id (FK)\\transaction\_id (FK, UQ)\\source\_certificate\_id (FK)\\sha256, ipfs\_cid\\storage\_status, chain\_status\\chain\_tx\_hash, revoked\_at};
+\node[ent, text width=4.4cm] (ev) at (0, -4.2) {\textbf{TRACEABILITY\_EVENTS}\nodepart{two}id (PK)\\entity\_type, entity\_id\\event\_type, details\\created\_at};
+
+\draw[rel] (prof) -- node[card, left]{1 : N} (farm);
+\draw[rel] (farm) -- node[card, above]{1 : N} (batch);
+\draw[rel] (batch.north east) -- node[card, above, sloped]{1 : N} (pur.west);
+\draw[rel] (batch.south east) -- node[card, below, sloped]{1 : N} (cert.west);
+\draw[rel] (pur) -- node[card, right]{1 : 1} (cert);
+\draw[rel] ([xshift=-6mm]batch.north) -- ++(0,0.5) -| node[card, above, pos=0.25]{parent (1 : N)} ([xshift=6mm]batch.north);
+\draw[rel, dashed] (cert) -- node[card, below, sloped]{logs} (ev);
+\end{tikzpicture}
+\caption{Entity relationship diagram of the core entities}
+\label{fig:er}
+\end{figure}
+
+The base schema contains 28 tables covering users, farmers, crop availability forecasts, batches, evidence, quality assessments, collection arrivals, offers, payments, disputes, notifications and transactions. The traceability migration adds three tables, described in Table~\ref{tab:dd}. The helper calling module uses two tables that are already in the base schema: \texttt{voicegenie\_\allowbreak{}calls}, which stores each call's provider identifier, phone number, language, duration, transcript, detected intent and status, and \texttt{voicegenie\_\allowbreak{}submissions}, which stores the crop details extracted from a call together with the reviewing helper, the review outcome and the resulting batch.
+
+\begin{table}[!ht]
+	\caption{Data dictionary of the traceability tables}
+	\label{tab:dd}
+	\centering
+	\small
+	\begin{tabular}{|L{3.2cm}|L{11.8cm}|}
+		\hline
+		\textbf{Table} & \textbf{Purpose and key rules} \\ \hline
+		purchases & One row per transfer. Server-generated transaction ID, unique idempotency key with a request fingerprint, source and child batch, buyer and seller, quantity, private price, lifecycle status. Rows cannot be deleted; quantities and parties cannot be changed. \\ \hline
+		certificates & One row per certificate: type (farmer origin, distributor or retailer transfer), batch, transaction, source and upstream certificate IDs, version, SHA-256 hash, IPFS CID, storage and blockchain status, revocation. Content is immutable; only status fields can progress. \\ \hline
+		traceability\_events & Append-only audit trail of every step: creation, IPFS storage, blockchain submission and confirmation, failures, retries and revocations. \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsection*{Sequence diagrams}
+Figure~\ref{fig:seqbuy} shows the sequence of a distributor purchase. The quantity is reserved in a single database transaction before any external service is called, so a failure in IPFS or the blockchain never loses the purchase.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[
+	part/.style={draw, minimum width=2.1cm, minimum height=0.7cm, font=\scriptsize, fill=gray!10},
+	msg/.style={-{Stealth[length=1.8mm]}, thin},
+	ret/.style={-{Stealth[length=1.8mm]}, thin, dashed},
+	m/.style={font=\scriptsize, above, fill=white, inner sep=1pt}
+]
+\foreach \n/\x/\t in {u/0/Distributor, w/2.6/Web app, a/5.2/API, d/7.8/Database, i/10.4/IPFS, c/13.0/Blockchain} {
+	\node[part] (\n) at (\x, 0) {\t};
+	\draw[gray] (\x, -0.35) -- (\x, -9.4);
+}
+\draw[msg] (0,-1.0) -- node[m]{inspect batch} (2.6,-1.0);
+\draw[msg] (2.6,-1.6) -- node[m]{GET trace} (5.2,-1.6);
+\draw[ret] (5.2,-2.1) -- node[m]{certificates} (2.6,-2.1);
+\draw[msg] (0,-2.8) -- node[m]{confirm 250 kg} (2.6,-2.8);
+\draw[msg] (2.6,-3.4) -- node[m]{POST /purchases + key} (5.2,-3.4);
+\draw[msg] (5.2,-4.0) -- node[m]{purchase\_batch()} (7.8,-4.0);
+\draw[ret] (7.8,-4.6) -- node[m]{purchase, child batch} (5.2,-4.6);
+\draw[msg] (5.2,-5.3) -- node[m]{upload certificate} (10.4,-5.3);
+\draw[ret] (10.4,-5.8) -- node[m]{CID} (5.2,-5.8);
+\draw[msg] (5.2,-6.5) -- node[m]{registerCertificate(hash, CID)} (13.0,-6.5);
+\draw[ret] (13.0,-7.0) -- node[m]{tx confirmed} (5.2,-7.0);
+\draw[msg] (5.2,-7.7) -- node[m]{save status} (7.8,-7.7);
+\draw[ret] (5.2,-8.4) -- node[m]{transaction + certificate} (2.6,-8.4);
+\draw[ret] (2.6,-9.0) -- node[m]{purchase recorded} (0,-9.0);
+\end{tikzpicture}
+\caption{Sequence diagram -- distributor purchase and certificate generation}
+\label{fig:seqbuy}
+\end{figure}
+
+Figure~\ref{fig:seqqr} shows how a consumer verifies a product by scanning its QR code.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[
+	part/.style={draw, minimum width=2.2cm, minimum height=0.7cm, font=\scriptsize, fill=gray!10},
+	msg/.style={-{Stealth[length=1.8mm]}, thin},
+	ret/.style={-{Stealth[length=1.8mm]}, thin, dashed},
+	m/.style={font=\scriptsize, above, fill=white, inner sep=1pt}
+]
+\foreach \n/\x/\t in {u/0/Consumer, w/2.8/Public page, a/5.6/API, i/8.4/IPFS, c/11.2/Blockchain} {
+	\node[part] (\n) at (\x, 0) {\t};
+	\draw[gray] (\x, -0.35) -- (\x, -6.4);
+}
+\draw[msg] (0,-1.0) -- node[m]{scan QR} (2.8,-1.0);
+\draw[msg] (2.8,-1.6) -- node[m]{GET public trace} (5.6,-1.6);
+\draw[ret] (5.6,-2.1) -- node[m]{public-safe journey} (2.8,-2.1);
+\draw[msg] (0,-2.8) -- node[m]{verify} (2.8,-2.8);
+\draw[msg] (2.8,-3.4) -- node[m]{POST verify} (5.6,-3.4);
+\draw[msg] (5.6,-4.0) -- node[m]{download document} (8.4,-4.0);
+\draw[ret] (8.4,-4.4) -- node[m]{bytes} (5.6,-4.4);
+\draw[msg] (5.6,-5.0) -- node[m]{getCertificate()} (11.2,-5.0);
+\draw[ret] (11.2,-5.4) -- node[m]{hash, refs, revoked} (5.6,-5.4);
+\draw[ret] (5.6,-6.0) -- node[m]{status + 4 checks} (2.8,-6.0);
+\end{tikzpicture}
+\caption{Sequence diagram -- QR verification by a consumer}
+\label{fig:seqqr}
+\end{figure}
+
+Figure~\ref{fig:seqcall} shows the planned sequence of the helper calling module (in progress). The telephony provider bridges the call so that neither party's number is revealed, and crop details given by phone become a pending submission that the helper must review.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[
+	part/.style={draw, minimum width=2.2cm, minimum height=0.7cm, font=\scriptsize, fill=gray!10},
+	msg/.style={-{Stealth[length=1.8mm]}, thin},
+	ret/.style={-{Stealth[length=1.8mm]}, thin, dashed},
+	m/.style={font=\scriptsize, above, fill=white, inner sep=1pt}
+]
+\foreach \n/\x/\t in {f/0/Farmer, t/2.8/Telephony, a/5.6/API, d/8.4/Database, h/11.2/Field Helper} {
+	\node[part] (\n) at (\x, 0) {\t};
+	\draw[gray] (\x, -0.35) -- (\x, -7.0);
+}
+\draw[msg] (0,-1.0) -- node[m]{calls Farmly number} (2.8,-1.0);
+\draw[msg] (2.8,-1.6) -- node[m]{incoming-call webhook} (5.6,-1.6);
+\draw[msg] (5.6,-2.2) -- node[m]{find farmer and helper} (8.4,-2.2);
+\draw[ret] (8.4,-2.7) -- node[m]{assigned helper} (5.6,-2.7);
+\draw[ret] (5.6,-3.3) -- node[m]{connect to helper} (2.8,-3.3);
+\draw[msg] (2.8,-3.9) -- node[m]{masked call bridged} (11.2,-3.9);
+\draw[msg] (2.8,-4.6) -- node[m]{call ended, details} (5.6,-4.6);
+\draw[msg] (5.6,-5.2) -- node[m]{save call, pending submission} (8.4,-5.2);
+\draw[msg] (11.2,-5.9) -- node[m]{review and approve} (5.6,-5.9);
+\draw[msg] (5.6,-6.5) -- node[m]{register crop lot} (8.4,-6.5);
+\end{tikzpicture}
+\caption{Sequence diagram -- helper calling (in progress)}
+\label{fig:seqcall}
+\end{figure}
+
+\subsection*{API design}
+The REST API exposes 62 route handlers under \texttt{/api/v1}. Table~\ref{tab:api} summarises the endpoints added for the certificate chain.
+
+\begin{table}[!ht]
+	\caption{Certificate and traceability API endpoints}
+	\label{tab:api}
+	\centering
+	\small
+	\begin{tabular}{|L{6.3cm}|L{2.6cm}|L{6cm}|}
+		\hline
+		\textbf{Endpoint} & \textbf{Access} & \textbf{Purpose} \\ \hline
+		POST /certificates/origin & Farmer, helper & Upload an origin certificate \\ \hline
+		GET /certificates/:id & Public / signed in & Certificate detail and history \\ \hline
+		GET /certificates/:id/document & Public / signed in & Document link (signed URL if private) \\ \hline
+		POST /certificates/:id/verify & Public & Run the four verification checks \\ \hline
+		POST /certificates/:id/retry & Holder & Resume pending storage or registration \\ \hline
+		POST /certificates/:id/revoke & Holder & Revoke with a reason \\ \hline
+		POST /purchases & Distributor, retailer & Purchase with an idempotency key \\ \hline
+		GET /traceability/batches/:id & Signed in & Full chain for a batch \\ \hline
+		GET /traceability/public/:id & Public & Public-safe product journey \\ \hline
+		GET /traceability/qr/:id & Public & QR code image \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsection*{User interface design}
+The interface was designed to be calm and readable: a sidebar with only the items each role needs (for a farmer: Dashboard, My Produce Lots and Marketplace), a top bar with language, theme and notification controls, and dashboards with three summary cards followed by clearly separated lists. Colours are defined as theme variables so that every page works in both light and dark mode, and layouts adapt from mobile to desktop widths.
+
+\section{Implementation Plan for Next Semester}
+The next semester extends the platform as shown in Table~\ref{tab:next}.
+
+\begin{table}[!ht]
+	\caption{Implementation plan for the next semester}
+	\label{tab:next}
+	\centering
+	\small
+	\begin{tabular}{|L{4.2cm}|L{10.8cm}|}
+		\hline
+		\textbf{Module} & \textbf{Planned work} \\ \hline
+		Production deployment & Configure the hosted database, deploy the contract to the Sepolia testnet, deploy the frontend and API, and run the full farmer-to-retailer workflow end to end. \\ \hline
+		Payments & Link confirmed purchases to the payment tracking workflow (due, initiated, reference submitted, received). \\ \hline
+		Issuer verification & Allow trusted organisations to confirm the issuer of an uploaded certificate. \\ \hline
+		AgroSathi voice assistant & Build on the telephony layer of the helper calling module to replace the current rule-based assistant with a multilingual voice interface for farmers. \\ \hline
+		Fair-price engine & Use live market price data instead of the static benchmark table. \\ \hline
+		Allied farming & Extend the asset model to dairy, poultry or fisheries batches. \\ \hline
+		AI and IoT & Evaluate AI-assisted quality observations and sensor data (for example temperature) as additional evidence. \\ \hline
+		Security and scale & Rate limiting, removal of the development database policy, caching and load testing. \\ \hline
+	\end{tabular}
+\end{table}

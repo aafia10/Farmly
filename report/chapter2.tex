@@ -1,0 +1,53 @@
+\chapter{Literature Survey}
+This chapter reviews the literature and existing systems that informed the design of Farmly. It covers electronic agricultural marketplaces, blockchain-based traceability systems for agri-food supply chains, and the underlying technologies of decentralised storage and cryptographic hashing. The chapter ends with the limitations of existing solutions and the research gap that this project addresses. The survey is based on published research and publicly documented systems; no field survey of users was conducted in this phase.
+
+\section{Survey of Existing System}
+
+\subsection*{Electronic agricultural marketplaces}
+The National Agriculture Market (e-NAM) is a pan-India electronic trading portal launched by the Government of India in 2016 that networks existing Agricultural Produce Market Committee (APMC) mandis to create a unified national market for agricultural commodities \cite{enam}. e-NAM provides online bidding, price discovery and payment for commodities traded through registered mandis. Its focus is on the trading event at the mandi; it does not follow a lot after the sale, does not maintain a certificate history for the produce, and does not offer consumers a way to verify origin.
+
+\subsection*{Blockchain-based traceability in agri-food supply chains}
+Tian \cite{tian2016} proposed an agri-food supply chain traceability system for China that combines RFID and blockchain technology to improve the reliability of information about food production, processing, warehousing, distribution and sale. Building on this, Tian \cite{tian2017} described a real-time traceability system based on HACCP, blockchain and the Internet of Things, with the aim of providing information to all supply-chain members with openness and transparency.
+
+Caro et al. \cite{caro2018} presented AgriBlockIoT, a fully decentralised blockchain-based traceability solution for agri-food supply chain management that integrates IoT devices producing and consuming digital data along the chain. They implemented the system on both Ethereum and Hyperledger Sawtooth and compared the two in terms of latency, CPU and network usage.
+
+Salah et al. \cite{salah2019} proposed a blockchain-based approach for soybean traceability that uses Ethereum smart contracts to govern transactions and events among supply-chain participants, and stores large documents on IPFS while keeping only their hashes on the blockchain. This separation of on-chain proofs and off-chain storage is directly relevant to Farmly's design.
+
+Lin et al. \cite{lin2018} proposed a food traceability system for smart agriculture that combines blockchain with IoT data collection, while Leng et al. \cite{leng2018} proposed a double-chain architecture for the agricultural supply chain in which one chain records user information and another records transactions, to address the efficiency and privacy limitations of a single public chain.
+
+Commercial systems also exist. IBM Food Trust, built on Hyperledger Fabric, is a permissioned blockchain network that allows food-supply participants to share traceability data \cite{ibmfoodtrust}. It is designed for large enterprises and requires membership of the network.
+
+\subsection*{Reviews and enabling technologies}
+Kamilaris et al. \cite{kamilaris2019} reviewed blockchain initiatives in agriculture and food supply chains and concluded that, although the technology is promising, most projects were at an early stage and faced barriers including the cost of adoption, the lack of standards and the difficulty of linking digital records to physical products. Galvez et al. \cite{galvez2018} discussed the future challenges of blockchain for food traceability analysis and noted that the trustworthiness of a blockchain record is limited by the trustworthiness of the data entered into it.
+
+Farmly builds on several enabling technologies. Bitcoin \cite{nakamoto2008} introduced a public ledger in which records cannot be altered without redoing the proof of work, and Ethereum \cite{wood2014} generalised this into a platform for smart contracts. The InterPlanetary File System (IPFS) \cite{benet2014} is a content-addressed, peer-to-peer file system in which every file is identified by a hash of its content (a CID), so that a stored file cannot be changed without its identifier changing. The SHA-256 algorithm, standardised in FIPS 180-4 \cite{fips180}, produces a 256-bit digest of a document; any change to the document produces a different digest. Finally, the OWASP API Security Top 10 \cite{owasp2023} identifies broken object-level and property-level authorisation among the most serious risks for web APIs, which motivated Farmly's server-side enforcement of roles and field-level price visibility.
+
+Table~\ref{tab:survey} summarises the surveyed systems.
+
+\begin{table}[!ht]
+	\caption{Comparison of existing systems}
+	\label{tab:survey}
+	\centering
+	\small
+	\begin{tabular}{|L{3.3cm}|L{3.6cm}|L{3.6cm}|L{4.3cm}|}
+		\hline
+		\textbf{System} & \textbf{Approach} & \textbf{Strengths} & \textbf{Limitations} \\ \hline
+		e-NAM \cite{enam} & Government electronic mandi trading portal & National reach, online price discovery and payment & No lot traceability after sale, no certificate history, no consumer verification \\ \hline
+		Tian \cite{tian2016,tian2017} & RFID / IoT with blockchain & End-to-end visibility of food data & Relies on RFID and IoT hardware; certificate documents not addressed \\ \hline
+		AgriBlockIoT \cite{caro2018} & IoT data on Ethereum and Hyperledger Sawtooth & Fully decentralised; performance compared on two platforms & Focus on sensor data; no marketplace or partial-quantity handling \\ \hline
+		Salah et al. \cite{salah2019} & Ethereum smart contracts with IPFS & Hashes on-chain, documents on IPFS & Single commodity; no user-facing marketplace or price confidentiality \\ \hline
+		Leng et al. \cite{leng2018} & Double-chain architecture & Separates user and transaction data & Conceptual architecture; no implemented application \\ \hline
+		IBM Food Trust \cite{ibmfoodtrust} & Permissioned Hyperledger Fabric network & Enterprise adoption & Requires network membership; not designed for small farmers \\ \hline
+	\end{tabular}
+\end{table}
+
+\section{Limitations of Existing System or Research Gap}
+From the survey, the following limitations of existing solutions were identified:
+\begin{enumerate}
+	\item \textbf{Trading and traceability are separate.} Marketplaces such as e-NAM support the sale but not the journey of the produce afterwards, while traceability research prototypes rarely include a usable marketplace.
+	\item \textbf{Partial quantities are not modelled.} Real lots are split: a distributor buys part of a lot and sells part of that onwards. Most systems record a single product moving along the chain and do not guarantee that the same quantity cannot be sold twice.
+	\item \textbf{Integrity is often over-claimed.} A record on a blockchain proves that data has not changed since it was written, not that the data was true. Few systems distinguish between file integrity, issuer authenticity and the validity of a certification claim when presenting results to users \cite{galvez2018}.
+	\item \textbf{Commercial confidentiality is ignored.} Systems tend to make all transaction data visible to every participant, whereas downstream buyers should not see upstream prices.
+	\item \textbf{Accessibility for small farmers is limited.} Enterprise solutions require network membership and technical expertise, and research prototypes rarely provide assisted workflows or local-language interfaces.
+\end{enumerate}
+Farmly addresses this gap by combining a marketplace with an append-only certificate chain that supports partial purchases, by separating the checks performed during verification, by enforcing price visibility on the server, and by providing assisted, multilingual workflows on a standard web platform.

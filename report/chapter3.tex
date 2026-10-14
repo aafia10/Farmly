@@ -1,0 +1,238 @@
+\chapter{Proposed System}
+
+Farmly is designed as a layered web platform. The user-facing application and the API handle day-to-day work such as registering lots and recording purchases, while two additional layers provide trust: IPFS stores certificate documents in a content-addressed form, and a smart contract on a blockchain stores a permanent fingerprint of every certificate. This chapter describes the problem being solved, the architecture of the system, the techniques used and the setup in which the system was tested.
+
+\section{Problem Statement}
+To design and implement a secure, role-based digital platform on which farmers register crop lots with supporting certificates, distributors and retailers can inspect and purchase full or partial quantities of those lots, and every transfer automatically produces a new certificate linked to all earlier certificates, such that:
+\begin{itemize}
+	\item the integrity of every certificate document can be verified by recomputing its SHA-256 hash and comparing it with a hash registered on a blockchain;
+	\item quantities are conserved, so that the same quantity of produce can never be sold twice, even when requests are retried;
+	\item the complete journey of a product, from the farmer's original certificate to the latest retail transfer, can be viewed by a consumer through a QR code;
+	\item commercial prices and personal information are visible only to the parties entitled to see them; and
+	\item failures in external services (IPFS or the blockchain) never cause a certificate to be shown as complete or verified when it is not.
+\end{itemize}
+
+The salient features of the proposed system are role-based access for four user types, a unified farmer and crop lot identity, a marketplace with an inspection view, atomic partial purchases with child batches, an append-only certificate bucket for each batch, decentralised document storage, blockchain anchoring, structured verification and a public traceability page.
+
+\section{System Architecture}
+Figure~\ref{fig:arch} shows the architecture of the system. It consists of six main components; the telephony component, drawn dashed, belongs to the helper calling module that is in progress.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[
+	box/.style={draw, rounded corners=3pt, align=center, minimum height=1.1cm, font=\footnotesize, inner sep=4pt},
+	ext/.style={box, fill=green!8, minimum width=4.6cm, minimum height=1.4cm},
+	core/.style={box, fill=gray!10},
+	arr/.style={-{Stealth[length=2.2mm]}, thick},
+	lbl/.style={font=\scriptsize, fill=white, inner sep=1pt}
+]
+% Fixed coordinates keep the diagram inside the 17 cm text width; line breaks are explicit.
+\node[box, minimum width=4.6cm] (users) at (-3.8, 0) {Farmer \textbullet{} Field Helper\\Distributor \textbullet{} Retailer};
+\node[box, minimum width=3.4cm] (consumer) at (4.6, 0) {Consumer\\(no account)};
+\node[core, minimum width=6.0cm] (web) at (-3.8, -2.3) {\textbf{Web Application}\\Next.js 15, React 19, Tailwind CSS\\Dashboards, marketplace, certificates};
+\node[core, minimum width=3.4cm, minimum height=1.4cm] (public) at (4.6, -2.3) {\textbf{Public QR page}\\/verify/\{id\}};
+\node[core, minimum width=14.4cm] (api) at (0, -5.0) {\textbf{REST API} (Node.js, Express)\\Authentication and RBAC \textbullet{} Lot service \textbullet{} Certificate service\\Purchase service \textbullet{} Verification \textbullet{} QR codes};
+\node[ext] (db) at (-5.2, -7.7) {\textbf{Supabase PostgreSQL}\\profiles, farmers, batches,\\purchases, certificates, events};
+\node[ext] (ipfs) at (0, -7.7) {\textbf{IPFS via Pinata}\\Certificate documents\\(content-addressed, CID)};
+\node[ext] (chain) at (5.2, -7.7) {\textbf{EVM Blockchain}\\CertificateRegistry\\smart contract};
+
+\draw[arr] (users) -- (web);
+\draw[arr] (consumer) -- (public);
+\draw[arr] (web) -- node[lbl]{HTTPS / JSON} (web |- api.north);
+\draw[arr] (public) -- node[lbl]{HTTPS} (public |- api.north);
+\draw[arr] (api.south -| db) -- node[lbl]{SQL, RPC} (db);
+\draw[arr] (api) -- node[lbl]{upload / signed URL} (ipfs);
+\draw[arr] (api.south -| chain) -- node[lbl]{ethers.js} (chain);
+% Helper calling module (in progress): dashed to distinguish it from implemented components.
+\node[box, dashed, minimum width=2.9cm, minimum height=1.4cm] (tele) at (1.05, -2.3) {\textbf{Telephony}\\Twilio Voice\\(in progress)};
+\draw[arr, dashed] (users.south east) -- node[lbl, sloped]{phone call} (tele.north);
+\draw[arr, dashed] (tele) -- node[lbl]{webhooks} (tele |- api.north);
+\end{tikzpicture}
+\caption{System architecture of Farmly (dashed: helper calling module, in progress)}
+\label{fig:arch}
+\end{figure}
+
+\begin{enumerate}
+	\item \textbf{Web application.} Built with Next.js and React, the application provides role-specific dashboards, crop lot registration, the marketplace and inspection view, certificate upload and verification, and the public QR traceability page. It supports light and dark themes and eleven languages.
+	\item \textbf{REST API.} An Express.js server written in TypeScript authenticates every request, enforces role-based access control, validates all inputs and coordinates the database, IPFS and blockchain. All credentials for external services are held only by this layer.
+	\item \textbf{Database.} A PostgreSQL database hosted on Supabase stores users, farmers, crop lots (batches), purchases, certificates and an audit trail of events. Certificate and purchase tables are protected by row-level security so that only the backend can access them, and database triggers make them append-only.
+	\item \textbf{IPFS storage.} Certificate documents are uploaded through the Pinata service. IPFS identifies every file by a content identifier (CID) derived from its content. Farmer documents are stored privately by default and can only be opened through short-lived signed links.
+	\item \textbf{Blockchain registry.} A Solidity smart contract, \texttt{Certificate}\allowbreak\texttt{Registry}, stores for every certificate the SHA-256 hash of the document, the IPFS CID, the batch and transaction references, the registering account and a timestamp. Registered records cannot be overwritten, and revocations are recorded as separate events.
+	\item \textbf{Telephony (in progress).} The helper calling module connects a farmer's phone call to the assigned field helper through the Twilio Programmable Voice service \cite{twiliovoice}. The telephony provider notifies the API of call events through webhooks, and call records are stored in the database.
+\end{enumerate}
+
+\section{Proposed Methodology/Techniques}
+
+\subsection*{Certificate hashing and blockchain anchoring}
+For every certificate document $D$, the backend computes its digest over the exact bytes of the file using SHA-256 \cite{fips180}:
+\begin{equation} \label{eq:hash}
+	h(D) = \mathrm{SHA\text{-}256}(D), \qquad h(D) \in \{0,1\}^{256}
+\end{equation}
+The document is uploaded to IPFS, which returns its CID. The backend then calls the smart contract's \texttt{registerCertificate} function with the certificate identifier, batch identifier, transaction identifier, source certificate identifier, $h(D)$ and the CID. Identifiers are converted to fixed-length 32-byte values using the Keccak-256 function, so that no personal data or free text is written on-chain. A certificate is reported as registered only after the blockchain transaction has been confirmed.
+
+\subsection*{Certificate verification}
+Verification retrieves the stored document $D'$ (or a file supplied by the user), recomputes its hash and compares it with the hash $h_{\text{chain}}$ stored on the blockchain:
+\begin{equation} \label{eq:verify}
+	\text{Integrity}(D') =
+	\begin{cases}
+		\text{MATCH} & \text{if } \mathrm{SHA\text{-}256}(D') = h_{\text{chain}}\\
+		\text{MISMATCH} & \text{otherwise}
+	\end{cases}
+\end{equation}
+Integrity alone does not prove that a certificate is genuine or valid. The system therefore reports four separate checks: file integrity, blockchain registration, issuer authenticity and certification validity (revocation and expiry). These are combined into a single status according to Table~\ref{tab:status}, with the most severe condition taking precedence. A certificate is never shown as verified merely because a CID exists or a transaction was submitted.
+
+\begin{table}[!ht]
+	\caption{Certificate verification statuses}
+	\label{tab:status}
+	\centering
+	\small
+	\begin{tabular}{|L{3.4cm}|L{11.6cm}|}
+		\hline
+		\textbf{Status} & \textbf{Meaning} \\ \hline
+		Verified & Document hash matches the confirmed on-chain hash and all references match. \\ \hline
+		Issuer Not Verified & The file is intact and registered, but the issuing organisation has not been independently verified. \\ \hline
+		Mismatch & The document hash or the on-chain references differ from the registered values. \\ \hline
+		Not Registered & No matching on-chain record exists although one was expected. \\ \hline
+		Pending & IPFS storage or blockchain registration has not completed yet. \\ \hline
+		Unavailable & IPFS or the blockchain could not be reached, so the check could not be completed. \\ \hline
+		Revoked / Expired & The certificate has been revoked, or its expiry date has passed. \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsection*{Certificate bucket and append-only history}
+Each batch has a logical certificate bucket: the ordered set of certificates attached to the batch and to all of its ancestors. The bucket begins with the farmer's original certificate. Each purchase creates a child batch and a new transaction certificate whose references point to the source certificate and to every upstream certificate, as shown in Figure~\ref{fig:chain}. Certificates and purchases can never be deleted or edited; corrections are recorded as new versions that reference the previous one, and revocations are recorded both in the database and on the blockchain while the original proof remains readable.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[
+	node distance=0.6cm and 1.0cm,
+	batch/.style={draw, rounded corners=3pt, align=center, minimum width=3.6cm, minimum height=1.0cm, font=\small, fill=gray!10},
+	cert/.style={draw, align=center, minimum width=3.6cm, minimum height=0.9cm, font=\small, fill=green!8},
+	arr/.style={-{Stealth[length=2.2mm]}, thick},
+	ref/.style={-{Stealth[length=2mm]}, dashed}
+]
+\node[batch] (b1) {\textbf{Batch B-001}\\Wheat, registered 500 kg};
+\node[cert, below=of b1] (c1) {CERT-FARM\\Farmer origin certificate};
+\node[batch, right=of b1] (b2) {\textbf{Child batch B-001-D}\\Distributor, bought 250 kg};
+\node[cert, below=of b2] (c2) {CERT-DIST\\Transaction certificate};
+\node[batch, right=of b2] (b3) {\textbf{Child batch B-001-D-R}\\Retailer, bought 200 kg};
+\node[cert, below=of b3] (c3) {CERT-RET\\Transaction certificate};
+
+\draw[arr] (b1) -- node[above, font=\scriptsize]{TX-1} (b2);
+\draw[arr] (b2) -- node[above, font=\scriptsize]{TX-2} (b3);
+\draw (b1) -- (c1); \draw (b2) -- (c2); \draw (b3) -- (c3);
+\draw[ref] (c2.west) -- (c1.east);
+\draw[ref] (c3.west) -- (c2.east);
+\draw[ref] (c3.south) to[bend left=18] node[pos=0.5, fill=white, inner sep=1pt, font=\scriptsize]{references origin certificate} (c1.south);
+
+\node[font=\footnotesize, below=2.1cm of c2, align=center] {Quantity remaining: farmer 250 kg \quad distributor 50 kg \quad retailer 200 kg};
+\end{tikzpicture}
+\caption{Certificate chain for a partially purchased batch}
+\label{fig:chain}
+\end{figure}
+
+\subsection*{Partial purchases and quantity conservation}
+Let $q_0(b)$ be the quantity with which batch $b$ was created and $P(b)$ the set of purchases made from it. The available quantity is
+\begin{equation} \label{eq:qty}
+	q_{\text{avail}}(b) = q_0(b) - \sum_{p \in P(b)} q(p), \qquad q_{\text{avail}}(b) \geq 0
+\end{equation}
+A purchase is processed by a single database function, \texttt{farmly\_purchase\_batch}, which runs as one transaction. It locks the source batch row (\texttt{SELECT \ldots{} FOR UPDATE}), checks that the buyer's role may buy from the seller's role (distributors buy from farmers, retailers buy from distributors), checks that the requested quantity is available and that the source has an active certificate, deducts the quantity, creates the buyer's child batch and records the purchase. Because the row is locked, two concurrent purchases from the same batch are serialised and cannot together exceed the available quantity. A database constraint additionally guarantees that the available quantity never becomes negative.
+
+\subsection*{Idempotent requests}
+Network failures may cause a client to resend a purchase request. Every purchase request carries an idempotency key $k$ chosen by the client. The database stores $k$ with a fingerprint $f$ of the request parameters, and the function behaves as
+\begin{equation} \label{eq:idem}
+	\text{Purchase}(k, f) =
+	\begin{cases}
+		\text{existing purchase} & \text{if } k \text{ was used with the same } f\\
+		\text{rejected} & \text{if } k \text{ was used with a different } f\\
+		\text{new purchase} & \text{otherwise}
+	\end{cases}
+\end{equation}
+so a retried request never deducts the quantity twice or creates a duplicate certificate.
+
+\subsection*{Reliable purchase and certificate lifecycle}
+The database, IPFS and the blockchain cannot be updated in a single transaction, so each purchase moves through explicit states (Figure~\ref{fig:lifecycle}). The quantity is reserved first; the transaction certificate is then generated, stored on IPFS and registered on the blockchain. If IPFS or the blockchain is unavailable, the purchase remains reserved for the buyer and the certificate stays in a pending state that can be retried safely. Before resubmitting a registration, the backend checks the blockchain for an existing record so that a transaction that succeeded on-chain but was not saved in the database is reconciled instead of duplicated.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[
+	node distance=0.45cm,
+	st/.style={draw, rounded corners=3pt, align=center, minimum width=2.3cm, minimum height=0.9cm, font=\scriptsize, fill=gray!10},
+	arr/.style={-{Stealth[length=2mm]}, thick}
+]
+\node[st] (s1) {Purchase\\confirmed};
+\node[st, right=of s1] (s2) {Certificate\\generated};
+\node[st, right=of s2] (s3) {Stored on\\IPFS};
+\node[st, right=of s3] (s4) {Registered\\on-chain};
+\node[st, right=of s4, fill=green!10] (s5) {Traceability\\updated};
+\draw[arr] (s1) -- (s2); \draw[arr] (s2) -- (s3); \draw[arr] (s3) -- (s4); \draw[arr] (s4) -- (s5);
+\node[st, below=1.0cm of s3, fill=orange!10] (p) {Pending\\(retry)};
+\draw[arr, dashed] (s2.south) -- node[left, font=\scriptsize]{IPFS down} (p.north west);
+\draw[arr, dashed] (s3.south) -- (p.north);
+\draw[arr, dashed] (p.north east) -- node[right, font=\scriptsize]{retry} (s4.south);
+\end{tikzpicture}
+\caption{Purchase and certificate lifecycle}
+\label{fig:lifecycle}
+\end{figure}
+
+\subsection*{Role-based access and price confidentiality}
+Roles are enforced at three levels. The API rejects any registration with a role other than farmer, field helper, distributor or retailer; database triggers prevent clients from assigning or changing a role directly; and every certificate and purchase endpoint checks the caller's role. Prices are stored in a restricted field of each transaction certificate and are returned only to the buyer and seller of that particular transfer. Public pages show only public-safe fields: the farmer's first name and initial, district and state, quantities, dates, hashes and blockchain references.
+
+\subsection*{Helper calling (in progress)}
+Many farmers are more comfortable speaking to a person than using a web application. The helper calling module lets a farmer reach the assigned field helper by telephone. It supports two flows:
+\begin{enumerate}
+	\item \textbf{Call a helper.} The farmer calls the Farmly number, or presses \textit{Call my helper} in the application to request a call. The system identifies the farmer from the registered mobile number, looks up the field helper assigned to that farmer, and connects the two through the telephony provider. Neither party sees the other's personal number, because the call is bridged through the provider's number (number masking). If the helper does not answer, a callback request is recorded and appears among the helper's pending tasks.
+	\item \textbf{Crop details by phone.} During the call, the farmer selects a language and describes the crop, variety, quantity and expected harvest date. The call details, transcript and extracted crop data are stored as a submission with status \textit{pending}. The field helper reviews the submission, corrects it if necessary, and either approves it, which registers a crop lot for the farmer, or rejects it with a reason.
+\end{enumerate}
+A phone call alone never creates a crop lot or a purchase: every submission must be reviewed by the helper, in line with the rule that helpers assist but do not silently perform critical transactions. Calls are recorded only with the farmer's consent, recordings are accessible only to the assigned helper, and every call is logged with its duration and outcome.
+
+The database tables for this module, \texttt{voicegenie\_\allowbreak{}calls} and \texttt{voicegenie\_\allowbreak{}submissions}, are already part of the schema. The telephony integration, the webhook endpoints and the helper review screen are being implemented during this semester.
+
+\section{Experimental Setup}\label{sec:setup}
+The system was developed and tested on a single development machine. The following test environments were used:
+\begin{itemize}
+	\item \textbf{Smart contract tests} were run on the in-memory Hardhat network using Mocha and Chai.
+	\item \textbf{Database tests} executed the complete base schema and migration on PGlite, a build of PostgreSQL compiled to WebAssembly, with stand-ins for Supabase's authentication schema and roles. The test data followed the scenario used throughout this report: a farmer registers 500 kg of wheat, a distributor buys 250 kg and a retailer buys 200 kg from the distributor.
+	\item \textbf{Blockchain integration tests} ran the compiled backend blockchain service against a local Hardhat node (chain ID 31337), after deploying the certificate registry contract to that node.
+	\item \textbf{IPFS tests} uploaded small test files to Pinata as public and private files, downloaded them again and compared their SHA-256 hashes.
+	\item \textbf{User interface tests} loaded every page of the application for each role in both light and dark themes and measured the contrast ratio of every visible text element against its background, following the WCAG definition of relative luminance. Pages were also checked at a mobile width of 375 pixels for horizontal overflow.
+\end{itemize}
+A test was counted as passed only if the observed behaviour matched the expected behaviour exactly; for example, a purchase exceeding the available quantity was expected to be rejected and the source quantity was expected to remain unchanged.
+
+\section{Details of Hardware/Software Requirement}
+Table~\ref{tab:hw} lists the hardware and Table~\ref{tab:sw} the software used to develop and run the system.
+
+\begin{table}[!ht]
+	\caption{Hardware requirements}
+	\label{tab:hw}
+	\centering
+	\begin{tabular}{|L{4.5cm}|L{10cm}|}
+		\hline
+		\textbf{Component} & \textbf{Specification} \\ \hline
+		Development machine & 64-bit processor, 8 GB RAM or more, 10 GB free disk space \\ \hline
+		Server (deployment) & Any host able to run Node.js 20 or later \\ \hline
+		Client devices & Desktop, tablet or smartphone with a modern web browser \\ \hline
+		Network & Internet connection for Supabase, Pinata and the blockchain RPC endpoint \\ \hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+	\caption{Software requirements}
+	\label{tab:sw}
+	\centering
+	\small
+	\begin{tabular}{|L{4.5cm}|L{10cm}|}
+		\hline
+		\textbf{Category} & \textbf{Software} \\ \hline
+		Operating system & Windows 10/11, Linux or macOS \\ \hline
+		Runtime & Node.js 22, npm \\ \hline
+		Frontend & Next.js 15, React 19, TypeScript 5, Tailwind CSS 3, React Hook Form, Zod, Lucide icons \cite{nextjs} \\ \hline
+		Backend & Express 4, TypeScript 5, Zod, Supabase JS client, ethers.js 6 \cite{ethers}, qrcode \\ \hline
+		Database & PostgreSQL on Supabase, with row-level security \cite{supabase} \\ \hline
+		Decentralised storage & IPFS through the Pinata Files API \cite{pinata} \\ \hline
+		Blockchain & Solidity 0.8.24, Hardhat 2.22 \cite{hardhat}; local Hardhat network and Ethereum Sepolia testnet \\ \hline
+		Testing & Mocha and Chai (contracts), PGlite (database), ESLint, TypeScript compiler \\ \hline
+		Telephony (in progress) & Twilio Programmable Voice for calls and webhooks \cite{twiliovoice} \\ \hline
+		Tools & Visual Studio Code, Git, a modern web browser \\ \hline
+	\end{tabular}
+\end{table}

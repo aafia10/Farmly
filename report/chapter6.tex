@@ -1,0 +1,17 @@
+\chapter{Conclusion and Future Work}
+The purpose of this project was to give agricultural produce a verifiable digital record that follows it from the farmer to the retailer, so that buyers can inspect where a product came from and consumers can verify it, without exposing confidential prices or personal information.
+
+In this phase we built the core of that system. Farmly supports four roles, enforced in the API and in the database. Farmers register crop lots and attach certificates; each certificate document is hashed with SHA-256, stored on IPFS and anchored on a blockchain through a smart contract that does not allow records to be overwritten. Distributors and retailers inspect the full certificate history before purchasing, and every purchase, including a partial purchase, is processed atomically, creates a child batch and generates a new certificate linked to all upstream certificates. Consumers can scan a QR code to view the product's journey and verify each certificate, with integrity, registration, issuer authenticity and validity reported separately. Automated tests of the smart contract, the database, the blockchain integration and the IPFS storage all pass, and the interface works in both light and dark themes on mobile and desktop screens. The helper calling module, which lets farmers reach their field helper by telephone, has been designed and its database tables are in place; its implementation is being completed in this semester.
+
+The most important lesson of the project was that a blockchain proves only that a record has not changed since it was written; it does not prove that the record was true. For this reason the system never labels a certificate as verified merely because a file was uploaded or a transaction was submitted, and it states clearly which claims have been checked and which have not. A second lesson was that reliability depends on ordering: reserving the quantity in the database first, and treating IPFS and blockchain steps as retryable, prevents both lost purchases and duplicate certificates.
+
+\section*{Future Work}
+\begin{itemize}
+	\item Complete and test the helper calling module: telephony integration, number masking, call logging and the helper review of crop details given by phone.
+	\item Deploy the database, API and web application, deploy the smart contract to the Sepolia testnet, and execute the complete farmer-to-retailer workflow end to end.
+	\item Integrate purchases with payment tracking, and test concurrent purchases from the same batch.
+	\item Allow trusted organisations such as certification bodies or laboratories to verify certificate issuers.
+	\item Develop the AgroSathi voice assistant for farmers in local languages, and a fair-price engine based on live market data.
+	\item Extend the asset model to allied farming domains such as dairy, poultry and fisheries.
+	\item Evaluate AI-assisted quality observations and IoT sensor data as additional evidence, and strengthen security with rate limiting and removal of the development database policy.
+\end{itemize}

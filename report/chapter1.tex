@@ -1,0 +1,52 @@
+\chapter{Introduction}
+Agriculture supports a large share of India's population, yet the records that accompany agricultural produce as it is sold are still largely informal. A typical crop lot passes from a farmer to a collection point, a distributor and a retailer, and at each step the quantity, quality, price and certification of the produce are communicated through phone calls, handwritten receipts or messaging applications. When a consumer or a retailer wants to know where a product came from, or whether a certificate presented by a seller is genuine, there is usually no reliable way to check.
+
+This project, \textbf{Farmly}, proposes a digital infrastructure in which every crop lot receives a verifiable digital record. The record begins with the farmer's own certificate and grows each time the produce changes hands, so that the complete journey of the product can be inspected by buyers and verified by consumers through a QR code.
+
+\section{Overview}\label{sec1}
+Farmly is a web application backed by a REST API, a relational database, decentralised document storage and a public blockchain. The platform serves four types of users, summarised in Table~\ref{tab1}.
+
+\begin{table}[!ht]
+	\caption{User roles supported by Farmly}
+	\label{tab1}
+	\centering
+	\begin{tabular}{|L{3.2cm}|L{11cm}|}
+		\hline
+		\textbf{Role}         & \textbf{Responsibilities in the system} \\ \hline
+		Farmer                & Registers crop lots, uploads the original certificate for each lot, views sales and certificate status. \\ \hline
+		Field Helper          & Registers and assists farmers, records crop lots and supporting documents on a farmer's behalf. \\ \hline
+		Distributor           & Inspects farmer lots and their certificates, purchases full or partial quantities, sells to retailers. \\ \hline
+		Retailer              & Inspects distributor stock and its complete history, purchases, and offers traceable products to consumers. \\ \hline
+	\end{tabular}
+\end{table}
+
+A consumer does not need an account. Scanning the QR code attached to a batch opens a public page that shows the product's journey from the farmer to the latest recorded transfer.
+
+The work reported here covers the core platform and the crop supply chain: user registration and role management, farmer and crop lot registration, a marketplace, partial purchases with quantity tracking, certificate generation and storage, blockchain registration, certificate verification and QR-based public traceability. A helper calling module, which lets a farmer reach the assigned field helper by telephone, is part of this semester's scope; its design and database tables are complete and its implementation is in progress.
+
+\section{Motivation}\label{sec2}
+The motivation for this project comes from observations of how agricultural produce is traded and documented:
+\begin{itemize}
+	\item The quantity declared by a farmer, the quantity weighed at collection and the quantity finally delivered are frequently recorded on separate pieces of paper, which makes disputes difficult to resolve.
+	\item Certificates such as organic certificates or laboratory reports are shared as photographs or photocopies. A buyer has no simple way to confirm that a document has not been edited after it was issued.
+	\item Once a farmer sells produce, the farmer has no visibility into where it goes. Downstream buyers in turn cannot see the original farm-level information.
+	\item Full price transparency is not desirable either: a retailer should not automatically see the price a distributor paid the farmer. Existing marketplaces tend to expose either too little or too much commercial information.
+	\item Many farmers depend on field helpers or cooperatives to use digital tools, so the system has to support assisted workflows and multiple languages.
+\end{itemize}
+These observations led us to design a system where trust comes from verifiable records rather than from the reputation of an intermediary.
+
+\section{Objectives}\label{sec3}
+The aim of the project is to build a platform on which the origin and movement of agricultural produce can be recorded once and verified by anyone. The main objectives of the work completed in this phase are:
+\begin{enumerate}
+	\item To provide secure registration and role-based access for farmers, field helpers, distributors and retailers, with the rules enforced by the server and the database and not only by the user interface.
+	\item To give each farmer and each crop lot a unique digital identity and to record lots with their crop, variety, quantity, harvest date and supporting documents.
+	\item To build a marketplace where buyers inspect a lot and its certificates before purchasing, and to support partial purchases without losing track of quantities.
+	\item To store certificate documents on IPFS and anchor their SHA-256 hashes on a blockchain, so that any later modification of a document can be detected.
+	\item To generate a new transaction certificate for every transfer, linked to all upstream certificates, forming an append-only certificate chain for each product.
+	\item To let consumers verify a product's journey through a QR code while keeping prices and personal details private.
+	\item To provide a clean, responsive interface with working light and dark themes and support for eleven languages (English and ten Indian languages).
+	\item To let farmers who are not comfortable with a web application call their assigned field helper directly, with phone numbers kept private and every call recorded for follow-up (in progress during this semester).
+\end{enumerate}
+
+\section{Organization of the report}
+The report is organised as follows. Chapter 2 reviews the literature and existing systems for agricultural marketplaces and supply-chain traceability and identifies the research gap. Chapter 3 describes the proposed system: the problem statement, the system architecture, the methods used for certificate hashing, blockchain registration and quantity tracking, the experimental setup and the hardware and software requirements. Chapter 4 presents the project schedule and the system design, including use case, data flow, entity relationship and sequence diagrams, along with the implementation plan for the next semester. Chapter 5 describes the implementation and discusses the results of testing. Chapter 6 concludes the report and outlines future work.

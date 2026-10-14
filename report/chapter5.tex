@@ -1,0 +1,103 @@
+\chapter{Results and Discussion}
+This chapter describes the implementation of Farmly, presents the results of testing and compares the outcome with the existing solutions discussed in Chapter 2.
+
+\newcommand{\screenshot}[2]{%
+\begin{figure}[!ht]
+	\centering
+	\fbox{\begin{minipage}[c][5.2cm][c]{0.82\textwidth}\centering\small\textit{[Screenshot placeholder: #1]}\end{minipage}}
+	\caption{#1}
+	\label{#2}
+\end{figure}}
+
+\section{Implementation Details}
+The system was implemented as three packages in one repository: the web application (\texttt{frontend}), the REST API (\texttt{backend}) and the smart contract tooling (\texttt{contracts}), together with the database schema and migration scripts (\texttt{database}). The web application contains 56 page routes and the API exposes 62 route handlers.
+
+\subsection*{Authentication and roles}
+Users register and sign in through the web application, which calls the API and Supabase Authentication. The role selector offers exactly four roles: Farmer, Field Helper, Distributor and Retailer (Figure~\ref{fig:ss-login}). The API rejects any other role, and database triggers ensure that a client can neither create a profile with an unsupported role nor change an existing role. Accounts created earlier with other roles are kept unchanged. Demonstration accounts for the four roles are available in development and are disabled by default in production.
+
+\screenshot{Sign-up page with the four supported roles}{fig:ss-login}
+
+\subsection*{Dashboards}
+Each role has its own dashboard built from real records. The farmer dashboard (Figure~\ref{fig:ss-farmer}) shows the number of registered lots, the available quantity and the number of lots with registered certificates, followed by the farmer's lots with their certificate status and recent sales. The distributor and retailer dashboards show available lots, stock on hand, quantities received through purchases and the status of each transfer certificate. The field helper dashboard shows farmers assisted, pending registration and evidence tasks, and recent field activity. When data is unavailable the dashboards display an explicit empty or unavailable state rather than placeholder figures.
+
+\screenshot{Farmer dashboard}{fig:ss-farmer}
+
+\subsection*{Crop lot registration and origin certificate}
+A farmer, or a field helper on the farmer's behalf, registers a crop lot with its crop, variety, quantity, unit, harvest date and location. The farmer then uploads the supporting document, selecting its type, the issuing organisation as printed, issue and expiry dates, and whether the document may be shown publicly (Figure~\ref{fig:ss-upload}). The API checks the file type, size and file signature, computes the SHA-256 hash, uploads the document to IPFS through Pinata, saves the record and registers it on the blockchain. The form states clearly that Farmly records the claims as provided and does not itself verify the issuer.
+
+\screenshot{Origin certificate upload on the lot page}{fig:ss-upload}
+
+\subsection*{Marketplace and inspection}
+The marketplace lists the batches that the signed-in user may buy, each with its available quantity, seller and certificate status, and offers a single \textit{Inspect} action (Figure~\ref{fig:ss-market}). The inspection view (Figure~\ref{fig:ss-inspect}) shows the batch details and lineage, the complete certificate chain with the farmer's origin certificate first, and previous transfers. The purchase panel is shown only to a distributor inspecting a farmer's lot or a retailer inspecting a distributor's stock, and requires the buyer to confirm that the certificates have been inspected.
+
+\screenshot{Marketplace listing with the Inspect action}{fig:ss-market}
+\screenshot{Inspection view with certificate chain and purchase panel}{fig:ss-inspect}
+
+\subsection*{Verification and public traceability}
+Every certificate card offers \textit{Verify certificate} and \textit{Compare a file}. The result shows the overall status and the four individual checks (Figure~\ref{fig:ss-verify}). Every batch and certificate also has a QR code that opens the public traceability page (Figure~\ref{fig:ss-public}), which lists the journey in chronological order, marks the farmer's origin certificate separately from transfer certificates, shows warnings for revoked, expired or pending certificates, and explains that a transfer certificate proves a recorded transfer rather than the quality of the produce.
+
+\screenshot{Certificate verification result with four separate checks}{fig:ss-verify}
+\screenshot{Public traceability page opened from a QR code (mobile view)}{fig:ss-public}
+
+\subsection*{Theme and accessibility}
+The light and dark themes are controlled by a single theme provider. The selected theme is stored in the browser, applied before the first paint to avoid a flash of the wrong theme, and switched immediately without reloading the page. Colours that previously worked only on a dark background were replaced by theme-aware colours across the application (Figure~\ref{fig:ss-theme}).
+
+\screenshot{Dashboard in light and dark themes}{fig:ss-theme}
+
+\subsection*{Helper calling (in progress)}
+The helper calling module described in Chapter 3 is being implemented during this semester. Its database tables for call records and phone submissions are already part of the schema. The remaining work is the integration with the Twilio voice service, the webhook endpoints that receive call events, the \textit{Call my helper} action in the farmer's interface, and the review screen on which a field helper approves or rejects crop details given by phone. Because the module is not yet complete, it has not been tested and no results are reported for it in this chapter.
+
+\section{Expected Results}
+The system was evaluated using the automated tests described in Section~\ref{sec:setup}. Table~\ref{tab:results} summarises the results. All counts refer to tests that were executed; none of the figures are estimates.
+
+\begin{table}[!ht]
+	\caption{Summary of test results}
+	\label{tab:results}
+	\centering
+	\small
+	\begin{tabular}{|L{4.2cm}|L{8.1cm}|L{2.2cm}|}
+		\hline
+		\textbf{Test suite} & \textbf{What was tested} & \textbf{Result} \\ \hline
+		Smart contract & Registration and read-back, source linking, rejection of overwrites, registrar authorisation, input validation, revocation & 8 / 8 passed \\ \hline
+		Database & Schema and migration applied twice, role enforcement, the 500 / 250 / 200 kg scenario, idempotent retries, overselling, wrong-role and self-purchase, revoked source certificate, append-only rules, row-level security & 38 / 38 passed \\ \hline
+		Backend with local blockchain & Registration with confirmed transaction, hash and CID read-back, rejected overwrite, downstream reference, revocation, behaviour without IPFS configuration & 11 / 11 passed \\ \hline
+		IPFS (Pinata) & Public upload and download with matching SHA-256; private upload, refusal through the public gateway, download through a signed URL with matching hash & All passed \\ \hline
+		API access control & Missing idempotency key, purchase by a farmer, legacy-role demonstration login and registration, legacy demonstration token & Rejected as expected \\ \hline
+		Interface & Text contrast on 29 pages for all roles in both themes, layout at 375 px width, theme switching and persistence, sign-in redirect for each role & No issues remaining \\ \hline
+		Builds & Type checking, linting and production builds of the web application and API & Passed \\ \hline
+		Helper calling & Call routing, number masking, call logging and helper review of phone submissions & Not yet tested (in progress) \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsection*{Partial purchase scenario}
+The database tests reproduced the scenario used throughout this report. A farmer registered 500 kg of wheat. A distributor bought 250 kg, after which the farmer's batch showed 250 kg available and a 250 kg child batch was created for the distributor. A retailer then bought 200 kg from the distributor's batch, leaving the distributor with 50 kg, and the retailer's batch carried a lineage of three batches back to the farmer. Repeating a purchase with the same idempotency key returned the original purchase without deducting again; reusing the key with different parameters, buying more than the available quantity, buying with a quantity of zero, a retailer buying directly from a farmer and a buyer purchasing their own batch were all rejected with the source quantity unchanged.
+
+\subsection*{Integrity}
+On the local blockchain, the hash stored for a registered certificate matched the SHA-256 hash of the document exactly. An attempt to register a different hash under the same certificate identifier was rejected by the contract and the original hash remained unchanged. A revoked certificate was marked as revoked while its original proof remained readable. These results show that any modification of a stored document would be detected as a mismatch during verification.
+
+\subsection*{Comparison with existing systems}
+Table~\ref{tab:compare} compares Farmly with the systems reviewed in Chapter 2.
+
+\begin{table}[!ht]
+	\caption{Comparison of Farmly with existing systems}
+	\label{tab:compare}
+	\centering
+	\small
+	\begin{tabular}{|L{5.6cm}|L{1.6cm}|L{2.6cm}|L{2.2cm}|L{1.6cm}|}
+		\hline
+		\textbf{Feature} & \textbf{e-NAM} & \textbf{Research prototypes} & \textbf{IBM Food Trust} & \textbf{Farmly} \\ \hline
+		Marketplace for farmers & Yes & Rarely & No & Yes \\ \hline
+		Traceability after sale & No & Yes & Yes & Yes \\ \hline
+		Partial purchases with quantity conservation & No & Rarely & Not stated & Yes \\ \hline
+		Documents on IPFS, hashes on blockchain & No & Some \cite{salah2019} & No & Yes \\ \hline
+		Separate integrity, issuer and validity checks & No & No & Not stated & Yes \\ \hline
+		Price visibility limited to transaction parties & Not stated & No & Not stated & Yes \\ \hline
+		Public consumer verification by QR & No & Some & Some deployments & Yes \\ \hline
+		Multilingual, assisted workflows & Partly & No & No & Yes \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsection*{Discussion}
+The results show that the core guarantees of the system hold under test: quantities are conserved across partial purchases and retries, certificate records cannot be altered or deleted, and modified documents are detected. Building the purchase as a single database transaction, before any external service is called, was the key design decision: it keeps the quantity correct even when IPFS or the blockchain fails, and the certificate can then be completed later by a safe retry.
+
+The main limitation of this phase is that the complete workflow through the user interface, using the hosted database, has not yet been executed, because the production database was being reconfigured at the time of writing. All components of that workflow have been tested individually, as described above. In addition, simultaneous purchases from the same batch are protected by row locking in the database, but were not tested with two concurrent connections, and purchases are not yet linked to the payment tracking workflow. The helper calling module is still being implemented and will be evaluated once it is complete.

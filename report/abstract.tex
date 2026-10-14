@@ -1,0 +1,13 @@
+%\thispagestyle{empty}
+\begin{center}
+\textbf{\Large{\section*{Abstract}}}
+\end{center}
+\addcontentsline{toc}{chapter}{Abstract}{}
+
+Agricultural trade in India is still largely recorded through verbal agreements, paper receipts and disconnected applications. As produce moves from the farmer to distributors and retailers, information about its origin, quantity and certification is lost or cannot be verified. Farmly is a web-based digital infrastructure that gives every crop lot a verifiable digital record that follows the produce through the supply chain.
+
+The system consists of a Next.js web application, an Express.js REST API, a PostgreSQL database on Supabase, document storage on IPFS through Pinata, and a Solidity smart contract that acts as a certificate registry on an Ethereum-compatible blockchain. It supports four roles: farmer, field helper, distributor and retailer. A farmer registers a crop lot and uploads a supporting certificate; the backend computes the SHA-256 hash of the document, stores the document on IPFS and registers the hash on the blockchain. When a distributor buys part of a lot, the purchase is processed atomically, a child batch is created for the purchased quantity and a new transaction certificate is generated that references the farmer's certificate. The same happens when a retailer buys from a distributor, so every product carries an append-only chain of certificates from farm to retail. A QR code on every batch opens a public page showing the product journey without prices or personal information, and verification reports file integrity, blockchain registration, issuer authenticity and certification validity separately. A helper calling module, in which a farmer can call an assigned field helper through masked telephone numbers and give crop details by phone for the helper to review, has been designed and is being implemented in this semester.
+
+The implementation was evaluated with automated tests: 8 smart contract tests, 38 database tests covering partial purchases, idempotent retries, overselling and append-only rules, 11 integration tests against a local blockchain, and IPFS upload and retrieval tests. All of these pass. The complete farmer-to-retailer workflow on the hosted database remains to be executed.
+
+\textbf{Keywords:} Agricultural supply chain, Traceability, Blockchain, Smart contract, IPFS, SHA-256, QR code.
