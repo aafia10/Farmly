@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMockData } from "@/contexts/mock-data-context";
 import { useAuth } from "@/contexts/auth-context";
-import { FIXED_BLOCKCHAIN_FALLBACK_HASH } from "@/lib/constants";
+
 
 export default function NewPhysicalLotPage() {
   const router = useRouter();
@@ -168,7 +168,7 @@ export default function NewPhysicalLotPage() {
     <AppLayout title="Create Physical Lot">
       <div className="max-w-3xl space-y-6">
         {/* Distinction Banner */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-xs sm:text-sm text-white flex items-start gap-3">
+        <div className="p-4 sm:p-5 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-xs sm:text-sm text-farmly-foreground flex items-start gap-3">
           <Scale className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <h4 className="font-bold text-sm sm:text-base text-farmly-foreground">
@@ -186,25 +186,23 @@ export default function NewPhysicalLotPage() {
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-lg font-bold text-farmly-foreground">Physical Lot Successfully Created!</h3>
+              <h3 className="text-lg font-bold text-farmly-foreground">Crop lot registered</h3>
               <p className="text-xs text-farmly-muted">
-                Provenance chain and digital weighment evidence have been anchored.
+                Next, upload the supporting certificate. Buyers can purchase the lot once a certificate is attached.
               </p>
             </div>
 
             <div className="p-3 bg-farmly-surface rounded-xl border border-farmly-border space-y-1.5 text-left text-xs max-w-md mx-auto">
               <div className="flex justify-between items-center">
                 <span className="text-farmly-muted font-medium">Lot ID:</span>
-                <span className="font-mono font-bold text-farmly-primary">{createdLotId}</span>
+                <span className="font-mono font-bold text-farmly-primary dark:text-farmly-accent-light">{createdLotId}</span>
               </div>
               <div className="flex justify-between items-center gap-2">
                 <span className="text-farmly-muted font-medium shrink-0 flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  Blockchain Anchor:
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Certificate:
                 </span>
-                <span className="font-mono text-[11px] text-emerald-600 dark:text-emerald-400 truncate" title={FIXED_BLOCKCHAIN_FALLBACK_HASH}>
-                  {FIXED_BLOCKCHAIN_FALLBACK_HASH}
-                </span>
+                <span className="text-farmly-muted">Not uploaded yet</span>
               </div>
             </div>
 
@@ -217,9 +215,9 @@ export default function NewPhysicalLotPage() {
               >
                 Create Another Lot
               </Button>
-              <Link href={`/lots/${createdLotId}`}>
+              <Link href={`/lots/${encodeURIComponent(createdLotId)}/certificate`}>
                 <Button className="bg-farmly-primary text-white flex items-center gap-1.5">
-                  Inspect Lot Details <ArrowRight className="w-4 h-4" />
+                  Upload certificate <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
             </div>
@@ -265,7 +263,7 @@ export default function NewPhysicalLotPage() {
               {/* Weight Reconciliation */}
               <div className="p-4 rounded-xl bg-farmly-surface-elevated border border-farmly-border space-y-3">
                 <div className="text-xs font-bold text-farmly-foreground flex items-center gap-1.5">
-                  <Scale className="w-4 h-4 text-farmly-primary" />
+                  <Scale className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
                   Weighment &amp; Tare Reconciliation
                 </div>
 
@@ -307,7 +305,7 @@ export default function NewPhysicalLotPage() {
                 </div>
 
                 {Number(tareDifference) > 5 && (
-                  <div className="text-[11px] text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                  <div className="text-[11px] text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
                     <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                     <span>Difference exceeds 5 kg; automatic tare logging will be flagged for review.</span>
                   </div>

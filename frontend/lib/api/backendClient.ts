@@ -16,7 +16,7 @@ import {
   MixedLotComponent,
 } from "@/types";
 import { supabase } from "@/lib/supabase";
-import { FIXED_BLOCKCHAIN_FALLBACK_HASH } from "@/lib/constants";
+
 
 export interface MixedLotItem {
   id: string;
@@ -54,7 +54,7 @@ const mappers = {
       parentLotId: row.parent_lot_id || undefined,
       weighmentScaleId: row.weighment_scale_id || undefined,
       certificateRef: row.certificate_ref || undefined,
-      blockchainHash: row.blockchain_hash || FIXED_BLOCKCHAIN_FALLBACK_HASH,
+      blockchainHash: row.blockchain_hash || undefined,
     };
   },
 
@@ -282,6 +282,10 @@ const mappers = {
 };
 
 export const backendClient = {
+  apiBaseUrl(): string {
+    return getApiBaseUrl();
+  },
+
   getToken(): string | null {
     if (typeof window === "undefined") return null;
     return localStorage.getItem("farmly_token");
@@ -385,7 +389,7 @@ export const backendClient = {
           location: lot.location || "Nashik, Maharashtra",
           weighment_scale_id: lot.weighmentScaleId || "WB-NSK-01",
           certificate_ref: certRef,
-          blockchain_hash: lot.blockchainHash || FIXED_BLOCKCHAIN_FALLBACK_HASH,
+          blockchain_hash: lot.blockchainHash || null,
         }, { onConflict: "id" })
         .select()
         .single();

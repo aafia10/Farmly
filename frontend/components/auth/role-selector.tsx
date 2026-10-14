@@ -14,13 +14,13 @@ export function RoleSelector({ value, onChange, error }: RoleSelectorProps) {
   return (
     <div className="space-y-2 text-left">
       <label className="block text-xs sm:text-sm font-semibold text-farmly-muted tracking-wide">
-        Select Your Role / Farming Activity
+        Select your role
       </label>
 
       <div
         role="radiogroup"
         aria-label="Select your role in the Farmly ecosystem"
-        className="grid grid-cols-1 sm:grid-cols-2 gap-2.5"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-3"
       >
         {USER_ROLES.map((role) => {
           const Icon = role.icon;
@@ -34,35 +34,31 @@ export function RoleSelector({ value, onChange, error }: RoleSelectorProps) {
               aria-checked={isSelected}
               onClick={() => onChange(role.id)}
               className={cn(
-                "p-3 rounded-xl border text-left flex items-start gap-3 transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent min-h-[48px]",
+                "h-full p-4 rounded-xl border text-left flex items-start gap-3 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent",
                 isSelected
-                  ? "bg-farmly-surface-elevated border-farmly-accent text-white shadow-md shadow-farmly-primary/10"
-                  : "bg-farmly-surface border-farmly-border text-farmly-muted hover:border-farmly-accent/40 hover:bg-farmly-surface-elevated hover:text-white"
+                  ? "bg-farmly-primary/5 border-farmly-primary dark:bg-farmly-surface-elevated dark:border-farmly-accent"
+                  : "bg-farmly-surface border-farmly-border hover:border-farmly-accent/50 hover:bg-farmly-surface-elevated"
               )}
             >
               <div
                 className={cn(
-                  "p-2 rounded-lg shrink-0 mt-0.5 transition-colors",
+                  "w-9 h-9 rounded-lg shrink-0 flex items-center justify-center transition-colors",
                   isSelected
                     ? "bg-farmly-primary text-white"
-                    : "bg-farmly-surface-elevated text-farmly-muted border border-farmly-border"
+                    : "bg-farmly-surface-elevated text-farmly-primary dark:text-farmly-accent-light border border-farmly-border"
                 )}
               >
                 <Icon className="w-4 h-4" aria-hidden="true" />
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs sm:text-sm font-bold text-white truncate">
-                    {role.label}
-                  </span>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-semibold text-farmly-foreground">{role.label}</span>
                   {isSelected && (
-                    <Check className="w-3.5 h-3.5 text-farmly-accent shrink-0 ml-1" />
+                    <Check className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light shrink-0" aria-hidden="true" />
                   )}
                 </div>
-                <p className="text-[11px] text-farmly-muted-dark leading-tight mt-0.5 line-clamp-2">
-                  {role.description}
-                </p>
+                <p className="text-xs text-farmly-muted leading-snug mt-1">{role.description}</p>
               </div>
             </button>
           );
@@ -70,7 +66,7 @@ export function RoleSelector({ value, onChange, error }: RoleSelectorProps) {
       </div>
 
       {error && (
-        <p role="alert" className="text-xs font-medium text-red-400 mt-1">
+        <p role="alert" className="text-xs font-medium text-red-600 dark:text-red-400 mt-1">
           {error}
         </p>
       )}

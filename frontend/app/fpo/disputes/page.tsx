@@ -31,7 +31,7 @@ export default function FPODisputesPage() {
                     <Scale className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-mono text-xs font-bold text-farmly-primary">{d.id}</span>
+                    <span className="font-mono text-xs font-bold text-farmly-primary dark:text-farmly-accent-light">{d.id}</span>
                     <h3 className="text-sm font-bold text-farmly-foreground">
                       {d.category} &bull; {d.farmerName} vs. {d.buyerName}
                     </h3>
@@ -48,7 +48,7 @@ export default function FPODisputesPage() {
                 <span className="text-farmly-muted">Opened: {d.createdDate}</span>
                 <Link
                   href={`/disputes/${d.id}`}
-                  className="text-farmly-primary font-semibold hover:underline flex items-center gap-1"
+                  className="text-farmly-primary dark:text-farmly-accent-light font-semibold hover:underline flex items-center gap-1"
                 >
                   Mediate Dispute <ArrowRight className="w-3 h-3" />
                 </Link>

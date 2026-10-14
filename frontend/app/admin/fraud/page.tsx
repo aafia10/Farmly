@@ -50,16 +50,16 @@ export default function AdminFraudPage() {
                   <div className={`p-2 rounded-xl ${
                     alt.severity === "High"
                       ? "bg-red-500/10 text-red-500"
-                      : "bg-amber-500/10 text-amber-500"
+                      : "bg-amber-500/10 text-amber-700 dark:text-amber-400"
                   }`}>
                     <AlertTriangle className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-farmly-primary">{alt.id}</span>
+                      <span className="font-mono text-xs font-bold text-farmly-primary dark:text-farmly-accent-light">{alt.id}</span>
                       <h3 className="text-sm font-bold text-farmly-foreground">{alt.category}</h3>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                        alt.severity === "High" ? "bg-red-500/20 text-red-400" : "bg-amber-500/20 text-amber-400"
+                        alt.severity === "High" ? "bg-red-500/20 text-red-700 dark:text-red-400" : "bg-amber-500/20 text-amber-700 dark:text-amber-400"
                       }`}>
                         {alt.severity}
                       </span>

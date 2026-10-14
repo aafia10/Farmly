@@ -36,7 +36,7 @@ export default function LotQualityPage({ params }: { params: Promise<{ id: strin
       <div className="max-w-4xl space-y-6">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-farmly-muted">
-          <Link href={`/lots/${lot.id}`} className="hover:text-farmly-primary flex items-center gap-1">
+          <Link href={`/lots/${lot.id}`} className="hover:text-farmly-primary dark:hover:text-farmly-accent-light flex items-center gap-1">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Lot Overview
           </Link>
           <span>/</span>
@@ -70,7 +70,7 @@ export default function LotQualityPage({ params }: { params: Promise<{ id: strin
         <Card className="p-6 border border-farmly-border bg-farmly-surface space-y-5">
           <div className="flex items-center justify-between pb-3 border-b border-farmly-border">
             <div className="flex items-center gap-2">
-              <FlaskConical className="w-5 h-5 text-farmly-primary" />
+              <FlaskConical className="w-5 h-5 text-farmly-primary dark:text-farmly-accent-light" />
               <h3 className="text-base font-bold text-farmly-foreground">Laboratory Assay Parameters</h3>
             </div>
             <span className="text-xs font-mono text-farmly-muted">ISO/IEC 17025 Compliant</span>

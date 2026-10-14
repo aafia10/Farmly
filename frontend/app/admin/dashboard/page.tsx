@@ -69,7 +69,7 @@ export default function AdminDashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Total Platform Users</span>
-              <Users className="w-4 h-4 text-farmly-primary" />
+              <Users className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">{farmers.length + 7}</div>
             <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1">Across all 8 role domains</div>
@@ -78,7 +78,7 @@ export default function AdminDashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Cryptographic Ledger</span>
-              <Lock className="w-4 h-4 text-emerald-500" />
+              <Lock className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">100% Valid</div>
             <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1">Zero broken hash chains</div>
@@ -87,7 +87,7 @@ export default function AdminDashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Disputed Inquiries</span>
-              <Scale className="w-4 h-4 text-amber-500" />
+              <Scale className="w-4 h-4 text-amber-700 dark:text-amber-400" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">{disputes.length}</div>
             <div className="text-[11px] text-farmly-muted mt-1">Tare variance reconciliation</div>
@@ -101,7 +101,7 @@ export default function AdminDashboardPage() {
               <h3 className="text-base font-bold text-farmly-foreground">Surveillance &amp; Integrity Alerts</h3>
               <p className="text-xs text-farmly-muted">Automated system triggers flagging potential discrepancies</p>
             </div>
-            <Link href="/admin/fraud" className="text-xs text-farmly-primary font-semibold hover:underline flex items-center gap-1">
+            <Link href="/admin/fraud" className="text-xs text-farmly-primary dark:text-farmly-accent-light font-semibold hover:underline flex items-center gap-1">
               View All <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
@@ -114,7 +114,7 @@ export default function AdminDashboardPage() {
                     <span className="font-mono font-bold text-red-500">{alt.id}</span>
                     <strong className="text-farmly-foreground text-sm">{alt.category}</strong>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                      alt.severity === "High" ? "bg-red-500/20 text-red-400" : "bg-amber-500/20 text-amber-400"
+                      alt.severity === "High" ? "bg-red-500/20 text-red-700 dark:text-red-400" : "bg-amber-500/20 text-amber-700 dark:text-amber-400"
                     }`}>
                       {alt.severity} Severity
                     </span>

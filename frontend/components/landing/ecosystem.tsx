@@ -53,7 +53,7 @@ export function Ecosystem() {
                       </Badge>
                     </div>
 
-                    <h3 className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-farmly-foreground group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors flex items-center gap-2">
                       <span>{category.name}</span>
                       <Icon className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity text-farmly-accent" />
                     </h3>
@@ -65,7 +65,7 @@ export function Ecosystem() {
 
                   <div className="mt-6 pt-3 border-t border-farmly-border/30 flex items-center justify-between text-[11px] text-farmly-muted-dark">
                     <span>Ecosystem Module</span>
-                    <span className="text-emerald-400 font-medium">Digital Ready</span>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-medium">Digital Ready</span>
                   </div>
                 </Card>
               </motion.div>

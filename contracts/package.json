@@ -1,0 +1,21 @@
+{
+  "name": "farmly-contracts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Farmly certificate registry smart contract (development and deployment tooling)",
+  "scripts": {
+    "compile": "hardhat compile && node scripts/export-abi.js",
+    "test": "hardhat test",
+    "node": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "2.0.8",
+    "@nomicfoundation/hardhat-ethers": "3.0.8",
+    "chai": "4.5.0",
+    "dotenv": "16.4.7",
+    "ethers": "6.13.4",
+    "hardhat": "2.22.17"
+  }
+}

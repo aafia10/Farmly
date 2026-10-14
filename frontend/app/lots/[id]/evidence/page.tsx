@@ -58,7 +58,7 @@ export default function LotEvidencePage() {
 
         {/* Informational Explainer Banner */}
         <div className="p-4 rounded-xl bg-farmly-surface border border-farmly-border flex items-start gap-3 text-xs text-farmly-muted">
-          <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+          <ShieldCheck className="w-5 h-5 text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" />
           <p className="leading-relaxed">
             Farmly separates produce claims into three verifiable tiers. This gives buyers, distributors, and lenders absolute clarity on which data points are self-reported by growers, physically documented via connected field scales, or authenticated by accredited testing laboratories.
           </p>
@@ -70,15 +70,15 @@ export default function LotEvidencePage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                   <Award className="w-4 h-4" />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-farmly-foreground">Tier 3 — Externally Verified</h2>
-                  <p className="text-xs text-emerald-400">Certified by accredited third-party labs & APMC inspectors</p>
+                  <p className="text-xs text-emerald-700 dark:text-emerald-400">Certified by accredited third-party labs & APMC inspectors</p>
                 </div>
               </div>
-              <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-semibold">
+              <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 font-semibold">
                 {externallyVerified.length} Artifacts
               </span>
             </div>
@@ -93,13 +93,13 @@ export default function LotEvidencePage() {
                   <Card key={item.id} className="bg-farmly-surface border-emerald-500/30 p-5 space-y-3">
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="font-mono text-xs text-emerald-400 font-bold">{item.id}</div>
+                        <div className="font-mono text-xs text-emerald-700 dark:text-emerald-400 font-bold">{item.id}</div>
                         <h3 className="font-bold text-farmly-foreground text-base mt-0.5">{item.title}</h3>
                       </div>
                       <StatusBadge status={item.status} size="sm" />
                     </div>
 
-                    <div className="p-3 rounded-lg bg-emerald-950/20 border border-emerald-800/40 font-mono text-xs text-emerald-300">
+                    <div className="p-3 rounded-lg bg-emerald-950/20 border border-emerald-800/40 font-mono text-xs text-emerald-700 dark:text-emerald-300">
                       {item.value}
                     </div>
 
@@ -107,7 +107,7 @@ export default function LotEvidencePage() {
                       <div><strong className="text-farmly-foreground">Issuer:</strong> {item.issuer || "National Testing House"}</div>
                       <div><strong className="text-farmly-foreground">Source:</strong> {item.source}</div>
                       {item.documentRef && (
-                        <div><strong className="text-farmly-foreground">Certificate Ref:</strong> <span className="font-mono text-emerald-300">{item.documentRef}</span></div>
+                        <div><strong className="text-farmly-foreground">Certificate Ref:</strong> <span className="font-mono text-emerald-700 dark:text-emerald-300">{item.documentRef}</span></div>
                       )}
                     </div>
                   </Card>
@@ -120,15 +120,15 @@ export default function LotEvidencePage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-700 dark:text-amber-400">
                   <Scale className="w-4 h-4" />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-farmly-foreground">Tier 2 — Evidence Backed</h2>
-                  <p className="text-xs text-amber-400">Captured through calibrated weighbridges, digital meters, and photos</p>
+                  <p className="text-xs text-amber-700 dark:text-amber-400">Captured through calibrated weighbridges, digital meters, and photos</p>
                 </div>
               </div>
-              <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 font-semibold">
+              <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 font-semibold">
                 {evidenceBacked.length} Artifacts
               </span>
             </div>
@@ -143,13 +143,13 @@ export default function LotEvidencePage() {
                   <Card key={item.id} className="bg-farmly-surface border-amber-500/30 p-5 space-y-3">
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="font-mono text-xs text-amber-400 font-bold">{item.id}</div>
+                        <div className="font-mono text-xs text-amber-700 dark:text-amber-400 font-bold">{item.id}</div>
                         <h3 className="font-bold text-farmly-foreground text-base mt-0.5">{item.title}</h3>
                       </div>
                       <StatusBadge status={item.status} size="sm" />
                     </div>
 
-                    <div className="p-3 rounded-lg bg-amber-950/20 border border-amber-800/40 font-mono text-xs text-amber-300">
+                    <div className="p-3 rounded-lg bg-amber-950/20 border border-amber-800/40 font-mono text-xs text-amber-700 dark:text-amber-300">
                       {item.value}
                     </div>
 
@@ -167,15 +167,15 @@ export default function LotEvidencePage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
+                <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-700 dark:text-sky-400">
                   <FileText className="w-4 h-4" />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-farmly-foreground">Tier 1 — Farmer Declared</h2>
-                  <p className="text-xs text-sky-400">Initial harvest estimations self-reported by grower at harvest</p>
+                  <p className="text-xs text-sky-700 dark:text-sky-400">Initial harvest estimations self-reported by grower at harvest</p>
                 </div>
               </div>
-              <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/20 font-semibold">
+              <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-sky-500/10 text-sky-700 dark:text-sky-300 border border-sky-500/20 font-semibold">
                 {farmerDeclared.length} Declarations
               </span>
             </div>
@@ -190,13 +190,13 @@ export default function LotEvidencePage() {
                   <Card key={item.id} className="bg-farmly-surface border-sky-500/30 p-5 space-y-3">
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="font-mono text-xs text-sky-400 font-bold">{item.id}</div>
+                        <div className="font-mono text-xs text-sky-700 dark:text-sky-400 font-bold">{item.id}</div>
                         <h3 className="font-bold text-farmly-foreground text-base mt-0.5">{item.title}</h3>
                       </div>
                       <StatusBadge status={item.status} size="sm" />
                     </div>
 
-                    <div className="p-3 rounded-lg bg-sky-950/20 border border-sky-800/40 font-mono text-xs text-sky-300">
+                    <div className="p-3 rounded-lg bg-sky-950/20 border border-sky-800/40 font-mono text-xs text-sky-700 dark:text-sky-300">
                       {item.value}
                     </div>
 

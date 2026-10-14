@@ -48,7 +48,7 @@ export default function CollectionArrivalsPage() {
               <tbody className="divide-y divide-farmly-border">
                 {collectionArrivals.map((arr) => (
                   <tr key={arr.id} className="hover:bg-farmly-table-hover transition-colors">
-                    <td className="p-3.5 font-mono font-bold text-farmly-primary">{arr.id}</td>
+                    <td className="p-3.5 font-mono font-bold text-farmly-primary dark:text-farmly-accent-light">{arr.id}</td>
                     <td className="p-3.5 font-semibold text-farmly-foreground">{arr.farmerName}</td>
                     <td className="p-3.5 text-farmly-muted">{arr.crop} ({arr.variety})</td>
                     <td className="p-3.5 font-mono text-farmly-muted">{arr.declaredQuantity} {arr.unit}</td>
@@ -57,7 +57,7 @@ export default function CollectionArrivalsPage() {
                     <td className="p-3.5 font-mono text-farmly-muted">{arr.scaleId}</td>
                     <td className="p-3.5"><StatusBadge status={arr.status} size="sm" /></td>
                     <td className="p-3.5">
-                      <Link href="/lots/new" className="text-farmly-primary font-medium hover:underline flex items-center gap-1">
+                      <Link href="/lots/new" className="text-farmly-primary dark:text-farmly-accent-light font-medium hover:underline flex items-center gap-1">
                         Convert <ArrowRight className="w-3 h-3" />
                       </Link>
                     </td>

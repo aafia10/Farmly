@@ -21,7 +21,7 @@ export default function LotLineagePage({ params }: { params: Promise<{ id: strin
       <div className="max-w-4xl space-y-6">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-farmly-muted">
-          <Link href={`/lots/${lot.id}`} className="hover:text-farmly-primary flex items-center gap-1">
+          <Link href={`/lots/${lot.id}`} className="hover:text-farmly-primary dark:hover:text-farmly-accent-light flex items-center gap-1">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Lot Overview
           </Link>
           <span>/</span>
@@ -32,7 +32,7 @@ export default function LotLineagePage({ params }: { params: Promise<{ id: strin
         <Card className="p-6 border border-farmly-border bg-farmly-surface space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-farmly-border">
             <div className="flex items-center gap-2">
-              <GitFork className="w-5 h-5 text-farmly-primary" />
+              <GitFork className="w-5 h-5 text-farmly-primary dark:text-farmly-accent-light" />
               <h3 className="text-base font-bold text-farmly-foreground">
                 Parent-Child Lot Splitting Tree
               </h3>
@@ -53,7 +53,7 @@ export default function LotLineagePage({ params }: { params: Promise<{ id: strin
         <Card className="p-6 border border-farmly-border bg-farmly-surface space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-farmly-border">
             <div className="flex items-center gap-2">
-              <Layers className="w-5 h-5 text-farmly-primary" />
+              <Layers className="w-5 h-5 text-farmly-primary dark:text-farmly-accent-light" />
               <div>
                 <h3 className="text-base font-bold text-farmly-foreground">
                   Mixed Lot / Blend Transparency Protocol

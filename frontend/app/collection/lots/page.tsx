@@ -34,7 +34,7 @@ export default function CollectionLotsPage() {
             <Card key={lot.id} hoverGlow className="p-5 border border-farmly-border bg-farmly-surface flex flex-col justify-between">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs font-bold text-farmly-primary">{lot.id}</span>
+                  <span className="font-mono text-xs font-bold text-farmly-primary dark:text-farmly-accent-light">{lot.id}</span>
                   <StatusBadge status={lot.status} size="sm" />
                 </div>
 
@@ -63,7 +63,7 @@ export default function CollectionLotsPage() {
                 <span className="text-farmly-muted font-mono">{lot.createdDate}</span>
                 <Link
                   href={`/lots/${lot.id}`}
-                  className="text-farmly-primary font-semibold hover:underline flex items-center gap-1"
+                  className="text-farmly-primary dark:text-farmly-accent-light font-semibold hover:underline flex items-center gap-1"
                 >
                   Lot Details <ArrowRight className="w-3 h-3" />
                 </Link>

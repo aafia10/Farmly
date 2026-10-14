@@ -152,7 +152,7 @@ export default function SignupPage() {
         {selectedRole === "helper" && (
           <div className="p-4 rounded-2xl bg-farmly-surface-elevated/60 border border-farmly-accent/40 space-y-4 animate-fade-in">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-emerald-300 uppercase tracking-wider">
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
                 Field Assistance Details
               </span>
               <span className="text-[10px] text-farmly-muted-dark">Required for Helpers</span>
@@ -260,7 +260,7 @@ export default function SignupPage() {
             </span>
           </label>
           {errors.acceptTerms && (
-            <p role="alert" className="text-xs font-medium text-red-400 mt-1 pl-7">
+            <p role="alert" className="text-xs font-medium text-red-700 dark:text-red-400 mt-1 pl-7">
               {errors.acceptTerms.message}
             </p>
           )}

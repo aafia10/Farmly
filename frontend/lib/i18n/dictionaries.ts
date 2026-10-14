@@ -165,9 +165,10 @@ export const DICTIONARIES: Record<string, TranslationDict> = {
     "marketplace.searchPlaceholder": "Search by crop, variety, location...",
     "marketplace.allGrades": "All Grades",
     "marketplace.makeOffer": "Inspect & Bid",
+    "marketplace.inspect": "Inspect",
     "marketplace.noLots": "No marketplace listings found.",
     "marketplace.privacyTitle": "Privacy-Safe Trading Protocol",
-    "marketplace.privacyDesc": "Farmer personal contact details, Aadhaar IDs, and private land surveys are strictly redacted. Wholesale buyers and distributors place binding bids directly against verified batch specs. Settlement is held in transparent escrow until produce handover is certified.",
+    "marketplace.privacyDesc": "Farmer personal contact details, Aadhaar IDs, and private land surveys are strictly redacted. Buyers can inspect verified batch details, certificates, and traceability records before purchasing.",
     "marketplace.regionalOrigin": "Regional Origin",
     "marketplace.auditStandard": "Audit Standard",
     "marketplace.readyForBidding": "Ready for Bidding",
@@ -402,6 +403,7 @@ export const DICTIONARIES: Record<string, TranslationDict> = {
     "marketplace.searchPlaceholder": "फसल, किस्म या स्थान से खोजें...",
     "marketplace.allGrades": "सभी ग्रेड",
     "marketplace.makeOffer": "प्रस्ताव भेजें",
+    "marketplace.inspect": "जांचें",
     "marketplace.noLots": "कोई उपज उपलब्ध नहीं है।",
 
     "offers.title": "प्राप्त और सक्रिय प्रस्ताव",
@@ -578,6 +580,7 @@ export const DICTIONARIES: Record<string, TranslationDict> = {
     "marketplace.searchPlaceholder": "પીક, वाण किंवा ठिकाण शोधा...",
     "marketplace.allGrades": "सर्व ग्रेड",
     "marketplace.makeOffer": "ऑफर द्या",
+    "marketplace.inspect": "तपासा",
     "marketplace.noLots": "सध्या कोणताही शेतमाल उपलब्ध नाही.",
 
     "offers.title": "प्राप्त आणि चालू ऑफर्स",
@@ -731,6 +734,7 @@ export const DICTIONARIES: Record<string, TranslationDict> = {
     "marketplace.searchPlaceholder": "પાક, જાત અથવા સ્થળ શોધો...",
     "marketplace.allGrades": "બધા ગ્રેડ",
     "marketplace.makeOffer": "ઑફર મોકલો",
+    "marketplace.inspect": "તપાસો",
     "marketplace.noLots": "હાલ કોઈ પાક ઉપલબ્ધ નથી.",
 
     "offers.title": "મળેલી અને ચાલુ ઑફર્સ",
@@ -884,6 +888,7 @@ export const DICTIONARIES: Record<string, TranslationDict> = {
     "marketplace.searchPlaceholder": "ফসল, জাত বা এলাকা দিয়ে খুঁজুন...",
     "marketplace.allGrades": "সকল গ্রেড",
     "marketplace.makeOffer": "অফার দিন",
+    "marketplace.inspect": "পরিদর্শন",
     "marketplace.noLots": "কোন ফসল উপলব্ধ নেই।",
 
     "offers.title": "প্রাপ্ত ও চলমান অফার",
@@ -1037,6 +1042,7 @@ export const DICTIONARIES: Record<string, TranslationDict> = {
     "marketplace.searchPlaceholder": "பயிர், ரகம் அல்லது இருப்பிடம்...",
     "marketplace.allGrades": "அனைத்து கிரேடுகள்",
     "marketplace.makeOffer": "சலுகை அனுப்பு",
+    "marketplace.inspect": "ஆய்வு செய்",
     "marketplace.noLots": "பயிர்கள் எதுவும் தற்போது இல்லை.",
 
     "offers.title": "வந்த மற்றும் செயலில் உள்ள சலுகைகள்",
@@ -1190,6 +1196,7 @@ export const DICTIONARIES: Record<string, TranslationDict> = {
     "marketplace.searchPlaceholder": "పంట, రకం లేదా ప్రాంతం...",
     "marketplace.allGrades": "అన్ని గ్రేడులు",
     "marketplace.makeOffer": "ఆఫర్ పంపండి",
+    "marketplace.inspect": "పరిశీలించండి",
     "marketplace.noLots": "ప్రస్తుతం పంట అందుబాటులో లేదు.",
 
     "offers.title": "వచ్చిన మరియు క్రియాశీల ఆఫర్లు",
@@ -1343,6 +1350,7 @@ export const DICTIONARIES: Record<string, TranslationDict> = {
     "marketplace.searchPlaceholder": "ಬೆಳೆ, ತಳಿ ಅಥವಾ ಸ್ಥಳ...",
     "marketplace.allGrades": "ಎಲ್ಲಾ ಗ್ರೇಡ್‌ಗಳು",
     "marketplace.makeOffer": "ಆಫರ್ ಕಳುಹಿಸಿ",
+    "marketplace.inspect": "ಪರಿಶೀಲಿಸಿ",
     "marketplace.noLots": "ಯಾವುದೇ ಬೆಳೆ ಲಭ್ಯವಿಲ್ಲ.",
 
     "offers.title": "ಬಂದ ಮತ್ತು ಸಕ್ರಿಯ ಆಫರ್‌ಗಳು",
@@ -1496,6 +1504,7 @@ export const DICTIONARIES: Record<string, TranslationDict> = {
     "marketplace.searchPlaceholder": "വിള, ഇനം അല്ലെങ്കിൽ സ്ഥലം...",
     "marketplace.allGrades": "എല്ലാ ഗ്രേഡുകളും",
     "marketplace.makeOffer": "ഓഫർ നൽകുക",
+    "marketplace.inspect": "പരിശോധിക്കുക",
     "marketplace.noLots": "വിളകൾ ഒന്നും ഇപ്പോൾ ലഭ്യമല്ല.",
 
     "offers.title": "ലഭിച്ചതും നിലവിലുള്ളതുമായ ഓഫറുകൾ",
@@ -1649,6 +1658,7 @@ export const DICTIONARIES: Record<string, TranslationDict> = {
     "marketplace.searchPlaceholder": "ਫ਼ਸਲ, ਕਿਸਮ ਜਾਂ ਥਾਂ...",
     "marketplace.allGrades": "ਸਾਰੇ ਗ੍ਰੇਡ",
     "marketplace.makeOffer": "ਪੇਸ਼ਕਸ਼ ਭੇਜੋ",
+    "marketplace.inspect": "ਜਾਂਚ ਕਰੋ",
     "marketplace.noLots": "ਕੋਈ ਫ਼ਸਲ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।",
 
     "offers.title": "ਮਿਲੀਆਂ ਅਤੇ ਚੱਲ ਰਹੀਆਂ ਪੇਸ਼ਕਸ਼ਾਂ",
@@ -1802,6 +1812,7 @@ export const DICTIONARIES: Record<string, TranslationDict> = {
     "marketplace.searchPlaceholder": "ଫସଲ, କିସମ କିମ୍ବା ସ୍ଥାନ...",
     "marketplace.allGrades": "ସମସ୍ତ ଗ୍ରେଡ୍",
     "marketplace.makeOffer": "ପ୍ରସ୍ତାବ ପଠାନ୍ତୁ",
+    "marketplace.inspect": "ଯାଞ୍ଚ କରନ୍ତୁ",
     "marketplace.noLots": "କୌଣସି ଫସଲ ଉପଲବ୍ଧ ନାହିଁ।",
 
     "offers.title": "ପ୍ରାପ୍ତ ଏବଂ ଚାଲୁଥିବା ପ୍ରସ୍ତାବ",

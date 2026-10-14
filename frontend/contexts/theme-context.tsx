@@ -1,8 +1,10 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 
-export type Theme = "light" | "dark" | "system";
+import { DEFAULT_THEME, THEME_STORAGE_KEY, type Theme } from "@/lib/theme";
+
+export type { Theme };
 
 interface ThemeContextType {
   theme: Theme;
@@ -12,56 +14,67 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+function readStoredTheme(): Theme {
+  try {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    if (saved === "light" || saved === "dark" || saved === "system") return saved;
+  } catch {}
+  return DEFAULT_THEME;
+}
+
+function resolveTheme(theme: Theme): "light" | "dark" {
+  if (theme !== "system") return theme;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(resolved: "light" | "dark") {
+  const root = document.documentElement;
+  root.classList.remove(resolved === "dark" ? "light" : "dark");
+  root.classList.add(resolved);
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("dark");
+  const [theme, setThemeState] = useState<Theme>(DEFAULT_THEME);
   const [actualTheme, setActualTheme] = useState<"light" | "dark">("dark");
 
+  // Pick up the theme the init script already applied, so the toggle icon matches on first render.
   useEffect(() => {
-    const saved = (localStorage.getItem("farmly_theme") as Theme) || "dark";
+    const saved = readStoredTheme();
     setThemeState(saved);
+    setActualTheme(resolveTheme(saved));
   }, []);
 
   useEffect(() => {
-    const root = document.documentElement;
-    let resolved: "light" | "dark" = "dark";
-
-    if (theme === "system") {
-      const media = window.matchMedia("(prefers-color-scheme: dark)");
-      resolved = media.matches ? "dark" : "light";
-
-      const handler = (e: MediaQueryListEvent) => {
-        const next = e.matches ? "dark" : "light";
-        setActualTheme(next);
-        if (next === "dark") {
-          root.classList.add("dark");
-          root.classList.remove("light");
-        } else {
-          root.classList.add("light");
-          root.classList.remove("dark");
-        }
-      };
-
-      media.addEventListener("change", handler);
-      return () => media.removeEventListener("change", handler);
-    } else {
-      resolved = theme;
-    }
-
+    const resolved = resolveTheme(theme);
     setActualTheme(resolved);
+    applyTheme(resolved);
 
-    if (resolved === "dark") {
-      root.classList.add("dark");
-      root.classList.remove("light");
-    } else {
-      root.classList.add("light");
-      root.classList.remove("dark");
-    }
+    if (theme !== "system") return;
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = (e: MediaQueryListEvent) => {
+      const next = e.matches ? "dark" : "light";
+      setActualTheme(next);
+      applyTheme(next);
+    };
+    media.addEventListener("change", handler);
+    return () => media.removeEventListener("change", handler);
   }, [theme]);
 
-  const setTheme = (newTheme: Theme) => {
+  // Keep multiple open tabs in sync.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === THEME_STORAGE_KEY) setThemeState(readStoredTheme());
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem("farmly_theme", newTheme);
-  };
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+    } catch {}
+  }, []);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, actualTheme }}>

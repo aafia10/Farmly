@@ -84,13 +84,13 @@ export default function HelperFarmerDetailPage() {
         <Card className="p-6 sm:p-8 border-farmly-border/80 bg-gradient-to-br from-farmly-surface-elevated to-farmly-surface">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex items-start gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-farmly-primary/40 border border-farmly-accent/40 flex items-center justify-center text-emerald-300 font-mono font-black text-2xl shrink-0">
+              <div className="w-16 h-16 rounded-2xl bg-farmly-primary/40 border border-farmly-accent/40 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-mono font-black text-2xl shrink-0">
                 {farmer.name.charAt(0)}
               </div>
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <h2 className="text-2xl font-extrabold text-farmly-foreground">{farmer.name}</h2>
-                  <span className="font-mono text-xs px-2.5 py-1 rounded-md bg-farmly-surface border border-farmly-border text-emerald-300">
+                  <span className="font-mono text-xs px-2.5 py-1 rounded-md bg-farmly-surface border border-farmly-border text-emerald-700 dark:text-emerald-300">
                     {farmer.id}
                   </span>
                   <StatusBadge status={farmer.verificationLevel} size="sm" />
@@ -158,7 +158,7 @@ export default function HelperFarmerDetailPage() {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between py-2 border-b border-farmly-border/40">
                   <span className="text-farmly-muted">Farmer ID:</span>
-                  <span className="font-mono text-emerald-300 font-bold">{farmer.id}</span>
+                  <span className="font-mono text-emerald-700 dark:text-emerald-300 font-bold">{farmer.id}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-farmly-border/40">
                   <span className="text-farmly-muted">Full Name:</span>
@@ -196,7 +196,7 @@ export default function HelperFarmerDetailPage() {
                 </div>
                 <div className="flex justify-between py-2 border-b border-farmly-border/40">
                   <span className="text-farmly-muted">Digital Consent:</span>
-                  <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                  <span className="text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" />
                     Recorded &amp; Confirmed
                   </span>
@@ -245,7 +245,7 @@ export default function HelperFarmerDetailPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <h4 className="font-bold text-farmly-foreground text-base">{lot.crop}</h4>
-                      <span className="font-mono text-xs text-emerald-300">{lot.id}</span>
+                      <span className="font-mono text-xs text-emerald-700 dark:text-emerald-300">{lot.id}</span>
                       <StatusBadge status={lot.status} size="sm" />
                     </div>
                     <p className="text-xs text-farmly-muted mt-1">

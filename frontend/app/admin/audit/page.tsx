@@ -79,7 +79,7 @@ export default function AdminAuditPage() {
               <tbody className="divide-y divide-farmly-border">
                 {AUDIT_EVENTS.map((ev, idx) => (
                   <tr key={idx} className="hover:bg-farmly-table-hover transition-colors">
-                    <td className="p-3.5 font-mono text-farmly-primary font-bold">{ev.txHash}</td>
+                    <td className="p-3.5 font-mono text-farmly-primary dark:text-farmly-accent-light font-bold">{ev.txHash}</td>
                     <td className="p-3.5 font-bold text-farmly-foreground">{ev.event}</td>
                     <td className="p-3.5 font-mono text-farmly-muted">{ev.entity}</td>
                     <td className="p-3.5 text-farmly-muted">{ev.actor}</td>

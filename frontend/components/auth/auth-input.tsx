@@ -42,7 +42,7 @@ export const AuthInput = React.forwardRef<HTMLInputElement, AuthInputProps>(
               error ? errorId : helperText ? helperId : undefined
             }
             className={cn(
-              "w-full rounded-xl bg-farmly-surface-elevated px-4 py-3 text-sm text-white placeholder:text-farmly-muted-dark/70 border transition-all duration-200 outline-none",
+              "w-full rounded-xl bg-farmly-surface-elevated px-4 py-3 text-sm text-farmly-foreground placeholder:text-farmly-muted-dark/70 border transition-all duration-200 outline-none",
               Icon ? "pl-10" : "pl-4",
               rightElement ? "pr-11" : "pr-4",
               error
@@ -63,7 +63,7 @@ export const AuthInput = React.forwardRef<HTMLInputElement, AuthInputProps>(
           <p
             id={errorId}
             role="alert"
-            className="text-xs font-medium text-red-400 mt-1 flex items-center gap-1"
+            className="text-xs font-medium text-red-700 dark:text-red-400 mt-1 flex items-center gap-1"
           >
             {error}
           </p>

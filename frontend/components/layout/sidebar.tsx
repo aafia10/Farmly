@@ -6,14 +6,12 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
-  UserPlus,
   Wheat,
   Boxes,
   FileCheck2,
   Activity,
   Bell,
   User,
-  Settings,
   Store,
   FileText,
   CreditCard,
@@ -21,7 +19,6 @@ import {
   QrCode,
   ShieldCheck,
   Scale,
-  Sparkles,
   ArrowRightLeft,
   X,
   LogOut,
@@ -32,9 +29,7 @@ import {
   ShieldAlert,
   ClipboardList,
   Truck,
-  PlusCircle,
   FileBadge,
-  Lock,
 } from "lucide-react";
 import { Logo } from "@/components/common/logo";
 import { useAuth } from "@/contexts/auth-context";
@@ -72,7 +67,6 @@ export function Sidebar({
         return [
           { label: "Dashboard", translationKey: "nav.dashboard", href: "/helper/dashboard", icon: LayoutDashboard },
           { label: "Farmers", translationKey: "nav.farmers", href: "/helper/farmers", icon: Users },
-          { label: "Add Farmer", translationKey: "nav.addFarmer", href: "/helper/farmers/new", icon: UserPlus },
           { label: "Crop Availability", translationKey: "nav.cropAvailability", href: "/helper/crop-availability", icon: Wheat },
           { label: "Lots", translationKey: "nav.lots", href: "/helper/lots", icon: Boxes },
           {
@@ -91,7 +85,6 @@ export function Sidebar({
             badge: unreadNotificationsCount > 0 ? unreadNotificationsCount : undefined,
           },
           { label: "Profile", translationKey: "nav.profile", href: "/helper/profile", icon: User },
-          { label: "Settings", translationKey: "nav.settings", href: "/settings", icon: Settings },
         ];
 
       case "distributor":
@@ -104,7 +97,6 @@ export function Sidebar({
           { label: "Payments", translationKey: "nav.payments", href: "/payments", icon: CreditCard },
           { label: "Disputes", translationKey: "nav.disputes", href: "/disputes", icon: AlertTriangle },
           { label: "Traceability", translationKey: "nav.traceability", href: "/traceability", icon: ShieldCheck },
-          { label: "Settings", translationKey: "nav.settings", href: "/settings", icon: Settings },
         ];
 
       case "retailer":
@@ -115,7 +107,6 @@ export function Sidebar({
           { label: "QR Verification", translationKey: "nav.qrVerification", href: "/verify/KS-MH-NSK-WHT-20260910-00125", icon: QrCode },
           { label: "Payments", translationKey: "nav.payments", href: "/payments", icon: CreditCard },
           { label: "Profile", translationKey: "nav.profile", href: "/profile", icon: User },
-          { label: "Settings", translationKey: "nav.settings", href: "/settings", icon: Settings },
         ];
 
       case "fpo":
@@ -126,7 +117,6 @@ export function Sidebar({
           { label: "Quality Checks", translationKey: "nav.fpoQuality", href: "/fpo/quality", icon: Award },
           { label: "Disputes", translationKey: "nav.disputes", href: "/fpo/disputes", icon: AlertTriangle },
           { label: "Traceability", translationKey: "nav.traceability", href: "/traceability", icon: ShieldCheck },
-          { label: "Settings", translationKey: "nav.settings", href: "/settings", icon: Settings },
         ];
 
       case "collection_center":
@@ -136,7 +126,6 @@ export function Sidebar({
           { label: "Weighment Scales", translationKey: "nav.weighment", href: "/collection/weighment", icon: ScaleIcon },
           { label: "Verified Lots", translationKey: "nav.collectionLots", href: "/collection/lots", icon: Boxes },
           { label: "Custody Handover", translationKey: "nav.handover", href: "/collection/handover", icon: ArrowRightLeft },
-          { label: "Settings", translationKey: "nav.settings", href: "/settings", icon: Settings },
         ];
 
       case "quality_assessor":
@@ -144,7 +133,6 @@ export function Sidebar({
           { label: "Assessor Dashboard", translationKey: "nav.qualityDashboard", href: "/quality/dashboard", icon: Award },
           { label: "Assessments", translationKey: "nav.assessments", href: "/quality/assessments", icon: FileCheck2 },
           { label: "Inspection Reports", translationKey: "nav.reports", href: "/quality/reports", icon: FileBadge },
-          { label: "Settings", translationKey: "nav.settings", href: "/settings", icon: Settings },
         ];
 
       case "admin":
@@ -154,33 +142,14 @@ export function Sidebar({
           { label: "Fraud & Anomaly Alerts", translationKey: "nav.fraudAlerts", href: "/admin/fraud", icon: AlertTriangle },
           { label: "Audit Ledger", translationKey: "nav.auditLedger", href: "/admin/audit", icon: Activity },
           { label: "Dispute Review", translationKey: "nav.disputes", href: "/disputes", icon: Scale },
-          { label: "Settings", translationKey: "nav.settings", href: "/settings", icon: Settings },
         ];
 
       case "farmer":
       default:
         return [
           { label: "Dashboard", translationKey: "nav.dashboard", href: "/dashboard", icon: LayoutDashboard },
-          { label: "Profile", translationKey: "nav.profile", href: "/profile", icon: User },
           { label: "My Produce Lots", translationKey: "nav.lots", href: "/lots", icon: Wheat },
-          { label: "New Lot", translationKey: "nav.newLot", href: "/lots/new", icon: PlusCircle },
-          { label: "Crop Availability", translationKey: "nav.cropAvailability", href: "/crop-availability", icon: Wheat },
           { label: "Marketplace", translationKey: "nav.marketplace", href: "/marketplace", icon: Store },
-          { label: "Offers", translationKey: "nav.offers", href: "/offers", icon: FileText },
-          { label: "Payments", translationKey: "nav.payments", href: "/payments", icon: CreditCard },
-          { label: "Resolve Problems", translationKey: "nav.disputes", href: "/disputes", icon: AlertTriangle },
-          { label: "Product Journey", translationKey: "nav.traceability", href: "/traceability", icon: ShieldCheck },
-          { label: "Fair Price", translationKey: "nav.fairPrice", href: "/fair-price", icon: Scale },
-          { label: "Privacy & Consent", translationKey: "nav.privacy", href: "/settings/privacy", icon: Lock },
-          { label: "AgroSathi", translationKey: "nav.agrosathi", href: "/agrosathi", icon: Sparkles },
-          {
-            label: "Notifications",
-            translationKey: "nav.notifications",
-            href: "/notifications",
-            icon: Bell,
-            badge: unreadNotificationsCount > 0 ? unreadNotificationsCount : undefined,
-          },
-          { label: "Settings", translationKey: "nav.settings", href: "/settings", icon: Settings },
         ];
     }
   };
@@ -244,7 +213,7 @@ export function Sidebar({
                   <Icon
                     className={cn(
                       "w-4 h-4 transition-colors",
-                      isActive ? "text-white" : "text-farmly-muted group-hover:text-emerald-500"
+                      isActive ? "text-farmly-foreground" : "text-farmly-muted group-hover:text-emerald-500"
                     )}
                   />
                   <span>{t(item.translationKey, item.label)}</span>
@@ -256,7 +225,7 @@ export function Sidebar({
                       "text-[10px] px-1.5 py-0.5 rounded-full font-mono font-bold",
                       isActive
                         ? "bg-white text-farmly-dark-green"
-                        : "bg-farmly-primary text-emerald-100"
+                        : "bg-farmly-primary text-white"
                     )}
                   >
                     {item.badge}

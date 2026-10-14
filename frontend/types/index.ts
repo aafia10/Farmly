@@ -10,6 +10,17 @@ export type UserRole =
   | "quality_assessor"
   | "admin";
 
+/**
+ * Roles available at registration and in demo role switching. The remaining
+ * UserRole values only exist for legacy accounts and are never self-assigned.
+ */
+export const SUPPORTED_ROLES = ["farmer", "helper", "distributor", "retailer"] as const;
+export type SupportedRole = (typeof SUPPORTED_ROLES)[number];
+
+export function isSupportedRole(role: unknown): role is SupportedRole {
+  return typeof role === "string" && (SUPPORTED_ROLES as readonly string[]).includes(role);
+}
+
 export interface UserRoleOption {
   id: UserRole;
   label: string;

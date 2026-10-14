@@ -50,7 +50,7 @@ export default function QualityDashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Completed Assays</span>
-              <FlaskConical className="w-4 h-4 text-farmly-primary" />
+              <FlaskConical className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">
               {qualityAssessments.length} Batches
@@ -63,7 +63,7 @@ export default function QualityDashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Grade A Frequency</span>
-              <Award className="w-4 h-4 text-farmly-primary" />
+              <Award className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">82.4%</div>
             <div className="text-[11px] text-farmly-muted mt-1">Premium export grade</div>
@@ -72,7 +72,7 @@ export default function QualityDashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Avg Moisture Reading</span>
-              <TrendingUp className="w-4 h-4 text-farmly-primary" />
+              <TrendingUp className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">11.4%</div>
             <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1">Below 12.0% safe threshold</div>
@@ -81,7 +81,7 @@ export default function QualityDashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Digital Certificates Issued</span>
-              <FileBadge className="w-4 h-4 text-farmly-primary" />
+              <FileBadge className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">{lots.length}</div>
             <div className="text-[11px] text-farmly-muted mt-1">SHA-256 integrity stamped</div>
@@ -95,7 +95,7 @@ export default function QualityDashboardPage() {
               <h3 className="text-base font-bold text-farmly-foreground">Recent Laboratory Inspections</h3>
               <p className="text-xs text-farmly-muted">Certified analysis parameter log</p>
             </div>
-            <Link href="/quality/reports" className="text-xs text-farmly-primary font-semibold hover:underline flex items-center gap-1">
+            <Link href="/quality/reports" className="text-xs text-farmly-primary dark:text-farmly-accent-light font-semibold hover:underline flex items-center gap-1">
               View Reports <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
@@ -105,7 +105,7 @@ export default function QualityDashboardPage() {
               <div key={qa.id} className="py-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-farmly-primary">{qa.id}</span>
+                    <span className="font-mono font-bold text-farmly-primary dark:text-farmly-accent-light">{qa.id}</span>
                     <strong className="text-farmly-foreground text-sm">{qa.crop}</strong>
                     <span className="text-farmly-muted font-mono">({qa.lotId})</span>
                   </div>

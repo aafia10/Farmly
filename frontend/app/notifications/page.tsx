@@ -117,7 +117,7 @@ export default function NotificationsPage() {
                   <span
                     className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
                       activeCategory === cat.value
-                        ? "bg-white/25 text-white font-bold"
+                        ? "bg-white/25 text-farmly-foreground font-bold"
                         : "bg-farmly-surface-elevated text-farmly-muted"
                     }`}
                   >

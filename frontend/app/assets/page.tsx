@@ -32,7 +32,7 @@ export default function AssetsPage() {
         {/* Banner */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-farmly-primary/30 via-farmly-dark-green/40 to-farmly-surface border border-farmly-border p-6 lg:p-8">
           <div className="max-w-2xl space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold border border-emerald-500/20">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20">
               <Boxes className="w-3.5 h-3.5" />
               Verified Agricultural Asset Portfolio
             </div>
@@ -103,7 +103,7 @@ export default function AssetsPage() {
               <Card key={ca.id} className="bg-farmly-surface border-farmly-border p-5 space-y-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <span className="font-mono text-xs text-amber-400 font-bold">{ca.id}</span>
+                    <span className="font-mono text-xs text-amber-700 dark:text-amber-400 font-bold">{ca.id}</span>
                     <h3 className="font-bold text-farmly-foreground text-base mt-0.5">{ca.crop}</h3>
                     <div className="text-xs text-farmly-muted">{ca.variety}</div>
                   </div>
@@ -117,7 +117,7 @@ export default function AssetsPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Expected Harvest:</span>
-                    <span className="text-emerald-400 font-medium">{ca.expectedHarvestDate}</span>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-medium">{ca.expectedHarvestDate}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Location:</span>
@@ -138,10 +138,10 @@ export default function AssetsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card className="bg-farmly-surface border-farmly-border/70 p-6 space-y-3 relative overflow-hidden">
-              <span className="absolute top-3 right-3 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold uppercase">
+              <span className="absolute top-3 right-3 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 font-semibold uppercase">
                 Preview
               </span>
-              <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+              <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-700 dark:text-blue-400">
                 <FileCheck2 className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-farmly-foreground text-base">Digital Land Titles</h3>
@@ -151,10 +151,10 @@ export default function AssetsPage() {
             </Card>
 
             <Card className="bg-farmly-surface border-farmly-border/70 p-6 space-y-3 relative overflow-hidden">
-              <span className="absolute top-3 right-3 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold uppercase">
+              <span className="absolute top-3 right-3 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 font-semibold uppercase">
                 Preview
               </span>
-              <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-700 dark:text-purple-400">
                 <Leaf className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-farmly-foreground text-base">Agricultural Inputs</h3>
@@ -164,10 +164,10 @@ export default function AssetsPage() {
             </Card>
 
             <Card className="bg-farmly-surface border-farmly-border/70 p-6 space-y-3 relative overflow-hidden">
-              <span className="absolute top-3 right-3 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold uppercase">
+              <span className="absolute top-3 right-3 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 font-semibold uppercase">
                 Preview
               </span>
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                 <Coins className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-farmly-foreground text-base">Soil Carbon Credits</h3>

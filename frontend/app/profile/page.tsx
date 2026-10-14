@@ -63,7 +63,7 @@ export default function ProfilePage() {
       <div className="space-y-6 max-w-4xl mx-auto">
         {/* Profile Header Banner */}
         <div className="bg-farmly-surface border border-farmly-border rounded-2xl p-6 lg:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-farmly-primary to-emerald-600 border-2 border-farmly-accent/40 flex items-center justify-center text-3xl font-extrabold text-white shadow-lg shrink-0">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-farmly-primary to-emerald-600 border-2 border-farmly-accent/40 flex items-center justify-center text-3xl font-extrabold text-farmly-foreground shadow-lg shrink-0">
             {fullName.charAt(0) || "U"}
           </div>
 
@@ -315,7 +315,7 @@ export default function ProfilePage() {
                     }`}
                   >
                     <div className="text-sm font-semibold">{lang.nativeName}</div>
-                    <div className={`text-xs ${language === lang.code ? "text-emerald-100" : "text-farmly-muted-dark"}`}>
+                    <div className={`text-xs ${language === lang.code ? "text-emerald-700 dark:text-emerald-100" : "text-farmly-muted-dark"}`}>
                       {lang.name}
                     </div>
                   </button>

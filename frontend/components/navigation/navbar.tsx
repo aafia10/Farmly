@@ -61,7 +61,7 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="px-3.5 py-1.5 text-sm font-medium text-farmly-muted hover:text-white transition-colors duration-200 rounded-lg hover:bg-farmly-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent"
+              className="px-3.5 py-1.5 text-sm font-medium text-farmly-muted hover:text-farmly-foreground transition-colors duration-200 rounded-lg hover:bg-farmly-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent"
             >
               {link.label}
             </Link>
@@ -74,7 +74,7 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-white hover:text-emerald-300"
+              className="text-farmly-foreground hover:text-emerald-700 dark:hover:text-emerald-300"
             >
               Login
             </Button>
@@ -95,14 +95,14 @@ export function Navbar() {
         <button
           type="button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2.5 rounded-xl text-farmly-muted hover:text-white bg-farmly-surface border border-farmly-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent min-h-[44px] min-w-[44px] flex items-center justify-center"
+          className="md:hidden p-2.5 rounded-xl text-farmly-muted hover:text-farmly-foreground bg-farmly-surface border border-farmly-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent min-h-[44px] min-w-[44px] flex items-center justify-center"
           aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-expanded={mobileMenuOpen}
         >
           {mobileMenuOpen ? (
-            <X className="w-5 h-5 text-white" aria-hidden="true" />
+            <X className="w-5 h-5 text-farmly-foreground" aria-hidden="true" />
           ) : (
-            <Menu className="w-5 h-5 text-white" aria-hidden="true" />
+            <Menu className="w-5 h-5 text-farmly-foreground" aria-hidden="true" />
           )}
         </button>
       </div>
@@ -121,7 +121,7 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-farmly-surface-elevated hover:text-farmly-accent transition-colors flex items-center justify-between"
+                className="px-4 py-3 rounded-xl text-base font-medium text-farmly-foreground hover:bg-farmly-surface-elevated hover:text-farmly-accent transition-colors flex items-center justify-between"
               >
                 <span>{link.label}</span>
                 <ArrowRight className="w-4 h-4 text-farmly-muted" />

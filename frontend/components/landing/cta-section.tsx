@@ -21,13 +21,13 @@ export function CTASection() {
           />
 
           <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
-            <div className="w-14 h-14 rounded-2xl bg-farmly-primary/40 border border-farmly-accent/40 flex items-center justify-center text-emerald-300 mb-6 shadow-inner">
+            <div className="w-14 h-14 rounded-2xl bg-farmly-primary/40 border border-farmly-accent/40 flex items-center justify-center text-emerald-700 dark:text-emerald-300 mb-6 shadow-inner">
               <Sprout className="w-7 h-7" aria-hidden="true" />
             </div>
 
             <h2
               id="cta-heading"
-              className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight"
+              className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-farmly-foreground tracking-tight leading-tight"
             >
               Build the Future of Farming With Farmly.
             </h2>

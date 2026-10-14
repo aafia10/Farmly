@@ -1,6 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { supabase } from "../config/supabase";
-import { AuthUser, UserRole } from "../types";
+import { env } from "../config/env";
+import { AuthUser, UserRole, isSupportedRole } from "../types";
+
+/** Demo auth (no-token fallback, demo_<role> tokens) is on by default except in production. */
+export function demoAuthEnabled(): boolean {
+  if (env.ALLOW_DEMO_AUTH !== undefined) return env.ALLOW_DEMO_AUTH.toLowerCase() === "true";
+  return env.NODE_ENV !== "production";
+}
+
+const DEMO_FARMER_ID = "e1000000-0000-0000-0000-000000000001";
 
 // Extend Express Request to include user and token
 declare global {
@@ -108,24 +117,32 @@ export async function verifyAuth(req: Request, res: Response, next: NextFunction
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    // Default fallback to farmer demo user if no token provided during dev
-    req.user = DEMO_USERS_MAP["e1000000-0000-0000-0000-000000000001"];
-    next();
+    if (demoAuthEnabled()) {
+      // Default fallback to farmer demo user if no token provided during dev
+      req.user = DEMO_USERS_MAP[DEMO_FARMER_ID];
+      next();
+      return;
+    }
+    res.status(401).json({ success: false, message: "Authorization token required" });
     return;
   }
 
   const token = authHeader.split(" ")[1];
   req.token = token;
 
-  // Check if token matches a demo user key or role prefix
+  // Demo tokens: demo_<role> for the four supported roles, only when demo auth is enabled
   if (token.startsWith("demo_") || token.startsWith("simulated_")) {
-    const roleKey = token.replace("demo_", "").replace("simulated_", "") as UserRole;
-    const foundDemo = Object.values(DEMO_USERS_MAP).find((u) => u.role === roleKey);
+    const roleKey = token.replace("demo_", "").replace("simulated_", "");
+    const foundDemo = isSupportedRole(roleKey) && demoAuthEnabled()
+      ? Object.values(DEMO_USERS_MAP).find((u) => u.role === roleKey)
+      : undefined;
     if (foundDemo) {
       req.user = foundDemo;
       next();
       return;
     }
+    res.status(401).json({ success: false, message: "Demo token not accepted" });
+    return;
   }
 
   try {
@@ -133,8 +150,8 @@ export async function verifyAuth(req: Request, res: Response, next: NextFunction
 
     if (error || !authUser) {
       // If token verification with Supabase fails, check if we recognize the user id
-      const fallbackUser = DEMO_USERS_MAP[token];
-      if (fallbackUser) {
+      const fallbackUser = demoAuthEnabled() ? DEMO_USERS_MAP[token] : undefined;
+      if (fallbackUser && isSupportedRole(fallbackUser.role)) {
         req.user = fallbackUser;
         next();
         return;
@@ -155,7 +172,9 @@ export async function verifyAuth(req: Request, res: Response, next: NextFunction
       .or(`user_id.eq.${authUser.id},id.eq.${authUser.id},email.eq.${authUser.email}`)
       .maybeSingle();
 
-    const role = (profile?.user_type || profile?.role || authUser.user_metadata?.user_type || "farmer") as UserRole;
+    // The profile row is authoritative. User metadata is user-controlled, so it may only name a supported role.
+    const metadataRole = authUser.user_metadata?.user_type;
+    const role = (profile?.user_type || profile?.role || (isSupportedRole(metadataRole) ? metadataRole : "farmer")) as UserRole;
 
     req.user = {
       id: profile?.id || authUser.id,
@@ -182,7 +201,7 @@ export async function verifyAuth(req: Request, res: Response, next: NextFunction
 export function optionalAuth(req: Request, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    req.user = DEMO_USERS_MAP["e1000000-0000-0000-0000-000000000001"];
+    if (demoAuthEnabled()) req.user = DEMO_USERS_MAP[DEMO_FARMER_ID];
     next();
     return;
   }

@@ -88,7 +88,7 @@ export default function AddFarmerPage() {
         {createdFarmer ? (
           /* Success Screen */
           <Card className="p-8 sm:p-12 text-center border-emerald-500/50 bg-emerald-950/20 shadow-2xl space-y-6 animate-fade-in">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 mx-auto flex items-center justify-center">
               <CheckCircle2 className="w-10 h-10" />
             </div>
 
@@ -105,7 +105,7 @@ export default function AddFarmerPage() {
             <div className="max-w-md mx-auto p-5 rounded-2xl bg-farmly-surface border border-farmly-accent/40 text-left space-y-3">
               <div className="flex items-center justify-between pb-3 border-b border-farmly-border/50">
                 <span className="text-xs text-farmly-muted">Farmer ID:</span>
-                <span className="font-mono text-lg font-extrabold text-emerald-300">
+                <span className="font-mono text-lg font-extrabold text-emerald-700 dark:text-emerald-300">
                   {createdFarmer.id}
                 </span>
               </div>
@@ -146,7 +146,7 @@ export default function AddFarmerPage() {
           /* Registration Form */
           <Card className="p-6 sm:p-10 border-farmly-border/80">
             <div className="flex items-center gap-3 mb-6 pb-6 border-b border-farmly-border/50">
-              <div className="p-3 rounded-2xl bg-farmly-primary/30 text-emerald-300 border border-farmly-accent/30">
+              <div className="p-3 rounded-2xl bg-farmly-primary/30 text-emerald-700 dark:text-emerald-300 border border-farmly-accent/30">
                 <UserPlus className="w-6 h-6" />
               </div>
               <div>
@@ -282,7 +282,7 @@ export default function AddFarmerPage() {
                   </span>
                 </label>
                 {errors.consent && (
-                  <p role="alert" className="text-xs font-medium text-red-400 pl-7">
+                  <p role="alert" className="text-xs font-medium text-red-700 dark:text-red-400 pl-7">
                     {errors.consent.message}
                   </p>
                 )}

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { AuthUser, UserRole } from "@/types";
+import { AuthUser, UserRole, isSupportedRole } from "@/types";
 import { supabase } from "@/lib/supabase";
 import { backendClient } from "@/lib/api/backendClient";
 
@@ -271,8 +271,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // 4. Dynamic mock login fallback
-    const selectedRole: UserRole = roleHint || (cleanId.includes("helper") ? "helper" : "farmer");
+    // 4. Dynamic mock login fallback (supported roles only)
+    const selectedRole: UserRole = isSupportedRole(roleHint)
+      ? roleHint
+      : cleanId.includes("helper") ? "helper" : "farmer";
     const dynamicUser: AuthUser = {
       id: `FMR-${Date.now().toString().slice(-6)}`,
       fullName: cleanId.includes("@") ? cleanId.split("@")[0] : `User ${cleanId.slice(-4)}`,
@@ -293,6 +295,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signup = async (userData: AuthUser, password?: string): Promise<{ success: boolean; error?: string }> => {
+    if (!isSupportedRole(userData.role)) {
+      return { success: false, error: "Please choose Farmer, Field Helper, Distributor, or Retailer." };
+    }
+
     let authCreated = false;
     let registeredToken: string | null = null;
     let registeredUser: AuthUser = userData;
@@ -449,6 +455,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const quickDemoLogin = (roleToSelect: UserRole) => {
+    if (!isSupportedRole(roleToSelect)) return;
     backendClient.login({ role: roleToSelect }).then((res) => {
       if (res?.token && res?.user) {
         localStorage.setItem("farmly_token", res.token);

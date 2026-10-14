@@ -2,12 +2,15 @@ import express, { Application, Request, Response, NextFunction } from "express";
 import { corsMiddleware } from "./middleware/cors";
 import { errorHandler } from "./middleware/errorHandler";
 import apiRouter from "./routes";
+import { env } from "./config/env";
 
 export const app: Application = express();
 
 // Global Middleware
 app.use(corsMiddleware);
-app.use(express.json({ limit: "10mb" }));
+// Certificate uploads arrive base64-encoded (about 4/3 of the file size).
+const jsonLimitMb = Math.max(10, Math.ceil(env.CERT_MAX_FILE_MB * 1.4) + 1);
+app.use(express.json({ limit: `${jsonLimitMb}mb` }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Simple request logger

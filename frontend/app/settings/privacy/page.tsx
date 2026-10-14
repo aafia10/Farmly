@@ -53,8 +53,8 @@ export default function PrivacySettingsPage() {
     <AppLayout title="Consent & Privacy">
       <div className="max-w-4xl space-y-6">
         {/* Header Notice */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs sm:text-sm text-white flex items-start gap-3">
-          <ShieldCheck className="w-6 h-6 text-farmly-primary shrink-0 mt-0.5" />
+        <div className="p-4 sm:p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs sm:text-sm text-farmly-foreground flex items-start gap-3">
+          <ShieldCheck className="w-6 h-6 text-farmly-primary dark:text-farmly-accent-light shrink-0 mt-0.5" />
           <div className="space-y-1">
             <h4 className="font-bold text-base text-farmly-foreground">Farmer Privacy Charter</h4>
             <p className="text-farmly-muted">
@@ -66,7 +66,7 @@ export default function PrivacySettingsPage() {
         {/* What Data We Collect & Why */}
         <Card className="p-5 sm:p-6 border border-farmly-border">
           <div className="flex items-center gap-2.5 mb-4">
-            <Database className="w-5 h-5 text-farmly-primary" />
+            <Database className="w-5 h-5 text-farmly-primary dark:text-farmly-accent-light" />
             <h3 className="font-bold text-base text-farmly-foreground">What Data Is Collected & Why</h3>
           </div>
 
@@ -107,7 +107,7 @@ export default function PrivacySettingsPage() {
         <Card className="p-5 sm:p-6 border border-farmly-border space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <PhoneCall className="w-5 h-5 text-farmly-primary" />
+              <PhoneCall className="w-5 h-5 text-farmly-primary dark:text-farmly-accent-light" />
               <h3 className="font-bold text-base text-farmly-foreground">Explicit Consent Preferences</h3>
             </div>
             <span className="text-xs font-mono text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1 rounded-md border border-emerald-200 dark:border-emerald-800">
@@ -174,7 +174,7 @@ export default function PrivacySettingsPage() {
           {/* Timestamp details */}
           <div className="p-3 bg-farmly-surface rounded-xl border border-farmly-border text-xs text-farmly-muted flex items-center justify-between">
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
               Recorded on: <strong className="text-farmly-foreground">10 Sep 2026, 08:30 IST</strong>
             </span>
             <span>Assisted by: Field Helper Priya Sharma</span>

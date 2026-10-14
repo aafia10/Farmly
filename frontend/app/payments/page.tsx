@@ -76,7 +76,7 @@ export default function PaymentsPage() {
             <div className="text-xl font-bold text-farmly-foreground mt-1">
               ₹{pendingEscrow.toLocaleString("en-IN")}
             </div>
-            <div className="text-[11px] text-amber-500 mt-1">
+            <div className="text-[11px] text-amber-700 dark:text-amber-400 mt-1">
               {t("payments.lockedTillHandover", "Locked till physical handover")}
             </div>
           </Card>
@@ -91,7 +91,7 @@ export default function PaymentsPage() {
             <div className="text-xs text-farmly-muted">
               {t("payments.disputedHolds", "Disputed Holds")}
             </div>
-            <div className="text-xl font-bold text-sky-500 mt-1">0</div>
+            <div className="text-xl font-bold text-sky-700 dark:text-sky-400 mt-1">0</div>
             <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1">
               {t("payments.cleanHistory", "Clean settlement history")}
             </div>

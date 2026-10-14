@@ -18,6 +18,7 @@
     --farmly-input-text: #111827;
     --farmly-table-header: #F3F4F6;
     --farmly-table-row-hover: #F9FAFB;
+    --farmly-table-hover: #F9FAFB;
     --radius: 0.75rem;
     color-scheme: light;
   }
@@ -37,6 +38,7 @@
     --farmly-input-text: #FFFFFF;
     --farmly-table-header: #121C18;
     --farmly-table-row-hover: rgba(255, 255, 255, 0.04);
+    --farmly-table-hover: rgba(255, 255, 255, 0.04);
     --radius: 0.75rem;
     color-scheme: dark;
   }
@@ -56,6 +58,7 @@
     --farmly-input-text: #111827;
     --farmly-table-header: #F3F4F6;
     --farmly-table-row-hover: #F9FAFB;
+    --farmly-table-hover: #F9FAFB;
     --radius: 0.75rem;
     color-scheme: light;
   }

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { supabase } from "../config/supabase";
 import { mappers } from "../mappers/entityMappers";
-import { blockchainService, FIXED_BLOCKCHAIN_FALLBACK_HASH } from "../services/blockchainService";
+import { certificateService, traceUrl } from "../services/certificateService";
 import { toUuid } from "../utils/uuid";
 import { resolveFarmer } from "../utils/farmerRegistry";
 
@@ -81,8 +81,7 @@ export const lotController = {
     }
 
     const deterministicId = clientId || `LT-${Date.now().toString().slice(-6)}`;
-    const certRef = certificateRef || `CERT-MH-${deterministicId.replace("LT-", "")}`;
-    const bHash = blockchainService.getFallbackHash();
+    const certRef = certificateRef || null;
 
     // For farmer role, enforce that the lot is created strictly under their own profile/registry
     const effectiveFarmerId = req.user?.role === "farmer" ? req.user.id : farmerId;
@@ -117,7 +116,15 @@ export const lotController = {
         parent_lot_id: parentLotId || null,
         weighment_scale_id: weighmentScaleId || "WB-NSK-01",
         certificate_ref: certRef,
-        blockchain_hash: bHash,
+        // Root lots belong to the farmer (a helper registers on the farmer's behalf).
+        ...(parentLotId
+          ? {}
+          : {
+              owner_id: req.user?.role === "farmer" ? req.user.id : resolved.registryId,
+              owner_role: "farmer",
+              original_quantity: quantity,
+            }),
+        created_by: req.user?.id || null,
       };
 
       const { data, error } = await supabase
@@ -233,18 +240,21 @@ export const lotController = {
         return;
       }
 
-      const hash = lot.blockchain_hash || blockchainService.getFallbackHash();
-      const anchor = blockchainService.getAnchorDetails(hash);
+      // Only report certificates that actually exist; never a placeholder hash or issuer.
+      let trace = null;
+      try {
+        trace = await certificateService.getPublicTrace(lot.id);
+      } catch (e: any) {
+        console.warn("[getLotCertificate] certificate chain unavailable:", e.message);
+      }
 
       res.json({
         success: true,
         data: {
-          certificateRef: lot.certificate_ref || `CERT-MH-${lot.id}`,
           lot: mappers.lotToDto(lot),
-          blockchainAnchor: anchor,
-          issuedBy: "Maharashtra Quality Certification Bureau & Farmly Ledger",
-          issuedAt: lot.created_at,
-          verificationUrl: `http://localhost:3000/verify/${lot.id}`,
+          certificates: trace?.certificates ?? [],
+          transfers: trace?.transfers ?? [],
+          verificationUrl: traceUrl(lot.id),
         },
       });
     } catch (err: any) {

@@ -44,15 +44,15 @@ export function HowItWorks() {
                   <CardHeader className="p-6">
                     <div className="flex items-center justify-between mb-4">
                       {/* Numbered Indicator */}
-                      <span className="font-mono text-3xl font-extrabold text-farmly-accent/80 group-hover:text-farmly-accent transition-colors">
+                      <span className="font-mono text-3xl font-extrabold text-farmly-primary dark:text-farmly-accent-light group-hover:text-farmly-accent transition-colors">
                         {stepItem.step}
                       </span>
-                      <div className="p-3 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-farmly-muted group-hover:text-emerald-300 group-hover:border-farmly-accent/40 transition-colors">
+                      <div className="p-3 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-farmly-muted group-hover:text-emerald-700 dark:group-hover:text-emerald-300 group-hover:border-farmly-accent/40 transition-colors">
                         <Icon className="w-5 h-5" aria-hidden="true" />
                       </div>
                     </div>
 
-                    <CardTitle className="text-lg font-bold text-white group-hover:text-emerald-100 transition-colors">
+                    <CardTitle className="text-lg font-bold text-farmly-foreground group-hover:text-emerald-700 dark:group-hover:text-emerald-100 transition-colors">
                       {stepItem.title}
                     </CardTitle>
                   </CardHeader>

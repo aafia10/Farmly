@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { supabase } from "../config/supabase";
-import { DEMO_USERS_MAP } from "../middleware/auth";
+import { DEMO_USERS_MAP, demoAuthEnabled } from "../middleware/auth";
+import { SUPPORTED_ROLES, isSupportedRole } from "../types";
 import crypto from "crypto";
 
 export const authController = {
@@ -22,10 +23,18 @@ export const authController = {
       return;
     }
 
+    const userType = (role || req.body.userType || "farmer").toString().toLowerCase();
+    if (!isSupportedRole(userType)) {
+      res.status(400).json({
+        success: false,
+        message: `Unsupported role '${userType}'. Choose one of: ${SUPPORTED_ROLES.join(", ")}.`,
+      });
+      return;
+    }
+
     try {
       let authUserId: string | null = null;
       let accessToken: string | null = null;
-      const userType = (role || req.body.userType || "farmer").toString().toLowerCase();
 
       // Attempt Supabase Auth registration
       if (password) {
@@ -157,8 +166,12 @@ export const authController = {
     const rawIdentifier = (req.body.email || req.body.identifier || "").toString().trim().toLowerCase();
     const { password, role } = req.body;
 
-    // Quick demo login flow
+    // Quick demo login flow (development only, supported roles only)
     if (role && (!rawIdentifier || !password)) {
+      if (!demoAuthEnabled() || !isSupportedRole(role)) {
+        res.status(403).json({ success: false, message: "Demo login is not available for this role." });
+        return;
+      }
       const demoUser = Object.values(DEMO_USERS_MAP).find((u) => u.role === role);
       if (demoUser) {
         res.json({
@@ -219,9 +232,17 @@ export const authController = {
         }
       }
 
+      // The fallbacks below skip password verification, so they only run in demo mode.
+      if (!demoAuthEnabled()) {
+        res.status(401).json({ success: false, message: "Invalid email or password" });
+        return;
+      }
+
       // 2. Resilient demo/profile fallback for pre-seeded users
       const demoMatch = Object.values(DEMO_USERS_MAP).find(
-        (u) => u.email.toLowerCase() === email.toLowerCase() || (u.mobile && u.mobile === rawIdentifier)
+        (u) =>
+          isSupportedRole(u.role) &&
+          (u.email.toLowerCase() === email.toLowerCase() || (u.mobile && u.mobile === rawIdentifier))
       );
       if (demoMatch) {
         res.json({
@@ -242,7 +263,8 @@ export const authController = {
         .or(`email.eq.${email},phone.eq.${rawIdentifier}`)
         .maybeSingle();
 
-      if (profile) {
+      // Legacy-role accounts must sign in with their password; demo tokens only cover supported roles.
+      if (profile && isSupportedRole(profile.user_type || profile.role)) {
         const userPayload = {
           id: profile.id,
           fullName: profile.full_name,

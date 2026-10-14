@@ -34,11 +34,11 @@ export function PasswordStrength({ password = "", className }: PasswordStrengthP
           className={cn(
             "font-semibold",
             score <= 1
-              ? "text-red-400"
+              ? "text-red-700 dark:text-red-400"
               : score === 2
-              ? "text-amber-400"
+              ? "text-amber-700 dark:text-amber-400"
               : score === 3
-              ? "text-emerald-400"
+              ? "text-emerald-700 dark:text-emerald-400"
               : "text-farmly-accent"
           )}
         >
@@ -50,35 +50,35 @@ export function PasswordStrength({ password = "", className }: PasswordStrengthP
       <div className="grid grid-cols-2 gap-1.5 pt-1 text-[11px] text-farmly-muted-dark">
         <div className="flex items-center gap-1">
           {checks.length ? (
-            <Check className="w-3 h-3 text-emerald-400 shrink-0" />
+            <Check className="w-3 h-3 text-emerald-700 dark:text-emerald-400 shrink-0" />
           ) : (
             <X className="w-3 h-3 text-farmly-muted-dark shrink-0" />
           )}
-          <span className={checks.length ? "text-white" : ""}>At least 8 chars</span>
+          <span className={checks.length ? "text-farmly-foreground" : ""}>At least 8 chars</span>
         </div>
         <div className="flex items-center gap-1">
           {checks.hasUpper ? (
-            <Check className="w-3 h-3 text-emerald-400 shrink-0" />
+            <Check className="w-3 h-3 text-emerald-700 dark:text-emerald-400 shrink-0" />
           ) : (
             <X className="w-3 h-3 text-farmly-muted-dark shrink-0" />
           )}
-          <span className={checks.hasUpper ? "text-white" : ""}>1 uppercase</span>
+          <span className={checks.hasUpper ? "text-farmly-foreground" : ""}>1 uppercase</span>
         </div>
         <div className="flex items-center gap-1">
           {checks.hasNumberOrSymbol ? (
-            <Check className="w-3 h-3 text-emerald-400 shrink-0" />
+            <Check className="w-3 h-3 text-emerald-700 dark:text-emerald-400 shrink-0" />
           ) : (
             <X className="w-3 h-3 text-farmly-muted-dark shrink-0" />
           )}
-          <span className={checks.hasNumberOrSymbol ? "text-white" : ""}>1 number / symbol</span>
+          <span className={checks.hasNumberOrSymbol ? "text-farmly-foreground" : ""}>1 number / symbol</span>
         </div>
         <div className="flex items-center gap-1">
           {checks.hasLower ? (
-            <Check className="w-3 h-3 text-emerald-400 shrink-0" />
+            <Check className="w-3 h-3 text-emerald-700 dark:text-emerald-400 shrink-0" />
           ) : (
             <X className="w-3 h-3 text-farmly-muted-dark shrink-0" />
           )}
-          <span className={checks.hasLower ? "text-white" : ""}>Lowercase letters</span>
+          <span className={checks.hasLower ? "text-farmly-foreground" : ""}>Lowercase letters</span>
         </div>
       </div>
     </div>

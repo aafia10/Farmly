@@ -72,7 +72,7 @@ export default function HelperProfilePage() {
           <div className="space-y-2 text-center sm:text-left flex-1">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
               <h1 className="text-2xl font-bold text-farmly-foreground">{fullName}</h1>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
                 <HeartHandshake className="w-3.5 h-3.5" /> Certified Field Assistant
               </span>
             </div>
@@ -99,7 +99,7 @@ export default function HelperProfilePage() {
         {/* 3 Stat Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card className="bg-farmly-surface border-farmly-border p-4 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
               <Users className="w-6 h-6" />
             </div>
             <div>
@@ -109,7 +109,7 @@ export default function HelperProfilePage() {
           </Card>
 
           <Card className="bg-farmly-surface border-farmly-border p-4 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400">
               <Wheat className="w-6 h-6" />
             </div>
             <div>
@@ -119,7 +119,7 @@ export default function HelperProfilePage() {
           </Card>
 
           <Card className="bg-farmly-surface border-farmly-border p-4 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+            <div className="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-700 dark:text-sky-400">
               <Activity className="w-6 h-6" />
             </div>
             <div>
@@ -136,7 +136,7 @@ export default function HelperProfilePage() {
             onClick={() => setActiveTab("info")}
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 ${
               activeTab === "info"
-                ? "bg-farmly-surface-elevated text-emerald-300 border border-farmly-border"
+                ? "bg-farmly-surface-elevated text-emerald-700 dark:text-emerald-300 border border-farmly-border"
                 : "text-farmly-muted hover:text-farmly-foreground"
             }`}
           >
@@ -147,7 +147,7 @@ export default function HelperProfilePage() {
             onClick={() => setActiveTab("activities")}
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 ${
               activeTab === "activities"
-                ? "bg-farmly-surface-elevated text-emerald-300 border border-farmly-border"
+                ? "bg-farmly-surface-elevated text-emerald-700 dark:text-emerald-300 border border-farmly-border"
                 : "text-farmly-muted hover:text-farmly-foreground"
             }`}
           >
@@ -164,7 +164,7 @@ export default function HelperProfilePage() {
             <CardContent>
               <form onSubmit={handleSave} className="space-y-4">
                 {savedSuccess && (
-                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-sm flex items-center gap-2">
+                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-sm flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 shrink-0" />
                     Profile changes saved successfully!
                   </div>
@@ -220,7 +220,7 @@ export default function HelperProfilePage() {
                     <div className="text-xs text-farmly-muted">{act.details}</div>
                     <div className="text-[11px] text-farmly-muted-dark font-mono">{act.timestamp}</div>
                   </div>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
                     {act.badgeStatus}
                   </span>
                 </div>

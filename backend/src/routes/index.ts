@@ -18,6 +18,7 @@ import helperRoutes from "./helperRoutes";
 import adminRoutes from "./adminRoutes";
 import mandiRoutes from "./mandiRoutes";
 import agrosathiRoutes from "./agrosathiRoutes";
+import { certificateRoutes, purchaseRoutes, traceabilityRoutes } from "./certificateRoutes";
 
 const apiRouter = Router();
 
@@ -59,5 +60,8 @@ apiRouter.use("/helper", helperRoutes);
 apiRouter.use("/admin", adminRoutes);
 apiRouter.use("/mandi", mandiRoutes);
 apiRouter.use("/agrosathi", agrosathiRoutes);
+apiRouter.use("/certificates", certificateRoutes);
+apiRouter.use("/purchases", purchaseRoutes);
+apiRouter.use("/traceability", traceabilityRoutes);
 
 export default apiRouter;

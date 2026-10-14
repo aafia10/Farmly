@@ -8,6 +8,15 @@ export type UserRole =
   | "quality_assessor"
   | "admin";
 
+// Roles that can be chosen at registration. The others remain valid for legacy
+// accounts but cannot be self-assigned.
+export const SUPPORTED_ROLES = ["farmer", "helper", "distributor", "retailer"] as const;
+export type SupportedRole = (typeof SUPPORTED_ROLES)[number];
+
+export function isSupportedRole(role: unknown): role is SupportedRole {
+  return typeof role === "string" && (SUPPORTED_ROLES as readonly string[]).includes(role);
+}
+
 export interface AuthUser {
   id: string;
   fullName: string;

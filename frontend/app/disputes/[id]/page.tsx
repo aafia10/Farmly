@@ -67,7 +67,7 @@ export default function DisputeDetailPage() {
             </Link>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-bold text-red-400">{dispute.id}</span>
+                <span className="font-mono text-xs font-bold text-red-700 dark:text-red-400">{dispute.id}</span>
                 <StatusBadge status={dispute.status} size="sm" />
               </div>
               <h1 className="text-2xl font-bold text-farmly-foreground tracking-tight">
@@ -87,7 +87,7 @@ export default function DisputeDetailPage() {
                 Request Mandi Mediation
               </Button>
             ) : (
-              <span className="text-xs text-emerald-400 flex items-center gap-1 font-semibold">
+              <span className="text-xs text-emerald-700 dark:text-emerald-400 flex items-center gap-1 font-semibold">
                 <CheckCircle2 className="w-4 h-4" /> Mediation Requested
               </span>
             )}
@@ -102,7 +102,7 @@ export default function DisputeDetailPage() {
         </div>
 
         {submittedEvidenceSuccess && (
-          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             Supplementary evidence artifact successfully appended to arbitration timeline.
           </div>
@@ -124,7 +124,7 @@ export default function DisputeDetailPage() {
             </div>
 
             <div className="text-xs text-farmly-muted">
-              Referenced Lot: <Link href={`/lots/${dispute.lotId}`} className="font-mono text-emerald-400 font-bold underline">{dispute.lotId}</Link>
+              Referenced Lot: <Link href={`/lots/${dispute.lotId}`} className="font-mono text-emerald-700 dark:text-emerald-400 font-bold underline">{dispute.lotId}</Link>
             </div>
           </div>
 
@@ -141,7 +141,7 @@ export default function DisputeDetailPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {dispute.evidence.map((ev, i) => (
                 <div key={i} className="p-2.5 rounded-lg bg-farmly-surface-elevated border border-farmly-border flex items-center gap-2 text-xs">
-                  <FileCheck2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <FileCheck2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
                   <span className="text-farmly-foreground font-mono">{ev}</span>
                 </div>
               ))}

@@ -69,7 +69,7 @@ export default function AdminUsersPage() {
               <tbody className="divide-y divide-farmly-border">
                 {filtered.map((u) => (
                   <tr key={u.id} className="hover:bg-farmly-table-hover transition-colors">
-                    <td className="p-3.5 font-mono font-bold text-farmly-primary">{u.id}</td>
+                    <td className="p-3.5 font-mono font-bold text-farmly-primary dark:text-farmly-accent-light">{u.id}</td>
                     <td className="p-3.5 font-bold text-farmly-foreground">{u.name}</td>
                     <td className="p-3.5">
                       <span className="px-2 py-0.5 rounded-md bg-farmly-surface-elevated border border-farmly-border font-medium text-farmly-foreground">

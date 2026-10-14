@@ -63,7 +63,7 @@ export default function FPODashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Active Producer Members</span>
-              <Users className="w-4 h-4 text-farmly-primary" />
+              <Users className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">{totalMembers}</div>
             <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
@@ -74,7 +74,7 @@ export default function FPODashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Aggregated Volume</span>
-              <Scale className="w-4 h-4 text-farmly-primary" />
+              <Scale className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">
               {(totalVolumeKg / 1000).toFixed(2)} MT
@@ -87,7 +87,7 @@ export default function FPODashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Lots Under Management</span>
-              <Boxes className="w-4 h-4 text-farmly-primary" />
+              <Boxes className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">{lots.length}</div>
             <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1">
@@ -98,7 +98,7 @@ export default function FPODashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Quality Pass Rate</span>
-              <Award className="w-4 h-4 text-farmly-primary" />
+              <Award className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">98.4%</div>
             <div className="text-[11px] text-farmly-muted mt-1">Grade A &amp; B verified</div>
@@ -112,7 +112,7 @@ export default function FPODashboardPage() {
               <h3 className="text-base font-bold text-farmly-foreground">Recent Member Produce Arrivals</h3>
               <p className="text-xs text-farmly-muted">Intake weighments at Sinnar Collection Hub #3</p>
             </div>
-            <Link href="/fpo/lots" className="text-xs text-farmly-primary font-semibold hover:underline flex items-center gap-1">
+            <Link href="/fpo/lots" className="text-xs text-farmly-primary dark:text-farmly-accent-light font-semibold hover:underline flex items-center gap-1">
               View All <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
@@ -121,7 +121,7 @@ export default function FPODashboardPage() {
             {collectionArrivals.map((arr) => (
               <div key={arr.id} className="py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-farmly-primary">
+                  <div className="p-2 rounded-xl bg-farmly-surface-elevated border border-farmly-border text-farmly-primary dark:text-farmly-accent-light">
                     <Boxes className="w-4 h-4" />
                   </div>
                   <div>

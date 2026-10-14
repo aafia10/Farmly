@@ -31,7 +31,7 @@ export default function QualityReportsPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-farmly-primary text-xs">{qa.id}</span>
+                    <span className="font-mono font-bold text-farmly-primary dark:text-farmly-accent-light text-xs">{qa.id}</span>
                     <strong className="text-sm text-farmly-foreground">{qa.crop}</strong>
                     <StatusBadge status={qa.status} size="sm" />
                   </div>

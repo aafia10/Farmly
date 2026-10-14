@@ -66,7 +66,7 @@ export function ThemeToggle({ variant = "icon", className }: ThemeToggleProps) {
       aria-label={`Toggle theme. Current: ${theme}`}
     >
       {actualTheme === "dark" ? (
-        <Sun className="w-4 h-4 text-amber-300" aria-hidden="true" />
+        <Sun className="w-4 h-4 text-amber-700 dark:text-amber-300" aria-hidden="true" />
       ) : (
         <Moon className="w-4 h-4 text-emerald-600" aria-hidden="true" />
       )}

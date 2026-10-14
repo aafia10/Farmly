@@ -41,16 +41,7 @@ export type LoginFormData = z.infer<typeof loginSchema>;
  * User roles allowed during registration.
  */
 export const userRolesEnum = z.enum(
-  [
-    "farmer",
-    "helper",
-    "fpo",
-    "collection_center",
-    "quality_assessor",
-    "distributor",
-    "retailer",
-    "admin",
-  ],
+  ["farmer", "helper", "distributor", "retailer"],
   {
     errorMap: () => ({ message: "Please select how you will use Farmly." }),
   }

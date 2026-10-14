@@ -221,7 +221,7 @@ export default function GeneralCropAvailabilityPage() {
                       {t("cropAvailability.harvestDate", "Expected Date")}
                     </span>
                     <span className="text-farmly-foreground font-medium flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-farmly-primary" />
+                      <Calendar className="w-3 h-3 text-farmly-primary dark:text-farmly-accent-light" />
                       {item.expectedHarvestDate}
                     </span>
                   </div>
@@ -245,7 +245,7 @@ export default function GeneralCropAvailabilityPage() {
                 ) : (
                   <Link
                     href="/lots/new"
-                    className="text-farmly-primary font-medium hover:underline flex items-center gap-1"
+                    className="text-farmly-primary dark:text-farmly-accent-light font-medium hover:underline flex items-center gap-1"
                   >
                     {t("cropAvailability.convertToLot", "Convert to Lot")} <ArrowRight className="w-3 h-3" />
                   </Link>

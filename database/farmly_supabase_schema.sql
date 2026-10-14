@@ -211,10 +211,9 @@ CREATE TABLE IF NOT EXISTS public.batches (
     qr_code_url TEXT,
     is_split BOOLEAN DEFAULT false,
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-
-    CONSTRAINT batches_farmer_id_fkey FOREIGN KEY (farmer_id) REFERENCES public.profiles(id) ON DELETE SET NULL,
-    CONSTRAINT batches_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(user_id) ON DELETE SET NULL
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+    -- farmer_id / user_id foreign keys are declared inline above (batches_farmer_id_fkey, batches_user_id_fkey);
+    -- declaring them again here made the script fail on a fresh database.
 );
 
 -- Add additive columns if batches existed in previous migrations
@@ -833,46 +832,45 @@ CREATE TABLE IF NOT EXISTS public.voicegenie_submissions (
 -- ------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+    requested TEXT := LOWER(COALESCE(
+        NEW.raw_user_meta_data->>'user_type',
+        NEW.raw_user_meta_data->>'role',
+        'farmer'
+    ));
 BEGIN
+    IF requested NOT IN ('farmer', 'helper', 'distributor', 'retailer')
+       AND session_user NOT IN ('postgres', 'supabase_admin') THEN
+        RAISE EXCEPTION 'Unsupported role for self-registration: %', requested USING ERRCODE = '22023';
+    END IF;
+
     INSERT INTO public.profiles (
-        id,
-        user_id,
-        full_name,
-        email,
-        phone,
-        user_type,
-        state,
-        district,
-        preferred_language,
-        organization,
-        role,
-        is_verified,
-        created_at,
-        updated_at
+        id, user_id, full_name, email, phone, user_type, state, district,
+        preferred_language, organization, role, is_verified, created_at, updated_at
     ) VALUES (
         NEW.id,
         NEW.id,
         COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)),
         NEW.email,
-        NEW.raw_user_meta_data->>'phone',
-        COALESCE(NEW.raw_user_meta_data->>'user_type', 'farmer'),
+        COALESCE(NEW.raw_user_meta_data->>'phone', NEW.raw_user_meta_data->>'mobile'),
+        requested,
         NEW.raw_user_meta_data->>'state',
         NEW.raw_user_meta_data->>'district',
         COALESCE(NEW.raw_user_meta_data->>'preferred_language', 'en'),
         NEW.raw_user_meta_data->>'organization',
-        COALESCE(NEW.raw_user_meta_data->>'user_type', 'farmer'),
+        requested,
         true,
         NOW(),
         NOW()
     )
+    -- Never overwrite the role of an existing (possibly legacy) profile.
     ON CONFLICT (id) DO UPDATE SET
         full_name = EXCLUDED.full_name,
         email = EXCLUDED.email,
         phone = COALESCE(EXCLUDED.phone, profiles.phone),
-        user_type = EXCLUDED.user_type,
         organization = COALESCE(EXCLUDED.organization, profiles.organization),
         updated_at = NOW();
-    
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -1453,8 +1451,10 @@ BEGIN
     FOR t IN 
         SELECT table_name 
         FROM information_schema.tables 
-        WHERE table_schema = 'public' 
+        WHERE table_schema = 'public'
           AND table_type = 'BASE TABLE'
+          -- Certificate-chain tables stay locked to the backend's service role (see migrations/002).
+          AND table_name NOT IN ('purchases', 'certificates', 'traceability_events')
     LOOP
         EXECUTE format('DROP POLICY IF EXISTS "dev_all_access" ON public.%I;', t);
         EXECUTE format('CREATE POLICY "dev_all_access" ON public.%I FOR ALL USING (true) WITH CHECK (true);', t);

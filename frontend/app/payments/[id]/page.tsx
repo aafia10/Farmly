@@ -89,7 +89,7 @@ export default function PaymentDetailPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-farmly-border">
             <div>
               <div className="text-xs text-farmly-muted">Escrow Settlement Amount</div>
-              <div className="text-3xl font-extrabold text-emerald-400 font-mono mt-1">
+              <div className="text-3xl font-extrabold text-emerald-700 dark:text-emerald-400 font-mono mt-1">
                 ₹{payment.amount.toLocaleString("en-IN")}
               </div>
               <div className="text-xs text-farmly-muted mt-1">
@@ -102,7 +102,7 @@ export default function PaymentDetailPage() {
               <div className="font-mono font-bold text-farmly-foreground text-sm mt-0.5">
                 {payment.transactionRef || "UTR-HDFC-992104-IN"}
               </div>
-              <div className="text-[10px] text-emerald-400">Authenticated via NEFT / RTGS</div>
+              <div className="text-[10px] text-emerald-700 dark:text-emerald-400">Authenticated via NEFT / RTGS</div>
             </div>
           </div>
 
@@ -154,7 +154,7 @@ export default function PaymentDetailPage() {
                       isPast
                         ? "bg-emerald-600 text-white"
                         : isCurrent
-                        ? "bg-farmly-primary text-emerald-300 ring-4 ring-emerald-500/20"
+                        ? "bg-farmly-primary text-emerald-700 dark:text-emerald-300 ring-4 ring-emerald-500/20"
                         : "bg-farmly-surface-elevated text-farmly-muted border border-farmly-border"
                     }`}
                   >
@@ -166,7 +166,7 @@ export default function PaymentDetailPage() {
                     <div className="flex items-center justify-between">
                       <h4
                         className={`text-sm font-bold ${
-                          isPast ? "text-farmly-foreground" : isCurrent ? "text-emerald-400" : "text-farmly-muted"
+                          isPast ? "text-farmly-foreground" : isCurrent ? "text-emerald-700 dark:text-emerald-400" : "text-farmly-muted"
                         }`}
                       >
                         {st}
@@ -187,7 +187,7 @@ export default function PaymentDetailPage() {
                     </p>
 
                     {timelineItem?.note && (
-                      <div className="mt-1 text-[11px] font-mono text-emerald-300 p-2 rounded bg-farmly-surface-elevated">
+                      <div className="mt-1 text-[11px] font-mono text-emerald-700 dark:text-emerald-300 p-2 rounded bg-farmly-surface-elevated">
                         {timelineItem.note}
                       </div>
                     )}

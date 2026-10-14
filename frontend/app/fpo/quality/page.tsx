@@ -32,7 +32,7 @@ export default function FPOQualityPage() {
                       <Award className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="font-mono text-xs font-bold text-farmly-primary">{qa.id}</span>
+                      <span className="font-mono text-xs font-bold text-farmly-primary dark:text-farmly-accent-light">{qa.id}</span>
                       <h3 className="text-base font-bold text-farmly-foreground">{qa.crop}</h3>
                     </div>
                   </div>
@@ -60,7 +60,7 @@ export default function FPOQualityPage() {
                   <span className="text-farmly-muted">Inspector: {qa.assessedBy}</span>
                   <Link
                     href={`/lots/${qa.lotId}/quality`}
-                    className="text-farmly-primary font-medium hover:underline flex items-center gap-1"
+                    className="text-farmly-primary dark:text-farmly-accent-light font-medium hover:underline flex items-center gap-1"
                   >
                     View Lab Report <ArrowRight className="w-3 h-3" />
                   </Link>

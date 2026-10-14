@@ -60,7 +60,7 @@ export default function CollectionWeighmentPage() {
     <AppLayout title="Digital Scale Weighbridge Workstation">
       <div className="max-w-3xl space-y-6">
         {/* Banner */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-xs sm:text-sm text-white flex items-start gap-3">
+        <div className="p-4 sm:p-5 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-xs sm:text-sm text-farmly-foreground flex items-start gap-3">
           <Scale className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <h4 className="font-bold text-sm sm:text-base text-farmly-foreground">

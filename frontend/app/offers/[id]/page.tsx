@@ -88,7 +88,7 @@ export default function OfferDetailPage() {
             </Link>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-bold text-farmly-primary">{offer.id}</span>
+                <span className="font-mono text-xs font-bold text-farmly-primary dark:text-farmly-accent-light">{offer.id}</span>
                 <StatusBadge status={offer.status} size="sm" />
               </div>
               <h1 className="text-2xl font-bold text-farmly-foreground tracking-tight">
@@ -131,7 +131,7 @@ export default function OfferDetailPage() {
             <div className="text-xs text-farmly-muted">Harvest Lot Reference</div>
             <div className="text-lg font-bold text-farmly-foreground flex items-center justify-between">
               <span>{matchingLot?.crop || offer.crop}</span>
-              <Link href={`/lots/${offer.lotId}`} className="font-mono text-xs text-farmly-primary hover:underline">
+              <Link href={`/lots/${offer.lotId}`} className="font-mono text-xs text-farmly-primary dark:text-farmly-accent-light hover:underline">
                 {offer.lotId}
               </Link>
             </div>
@@ -148,7 +148,7 @@ export default function OfferDetailPage() {
         <Card className="bg-farmly-surface border-farmly-border p-6 space-y-5">
           <div className="flex items-center justify-between border-b border-farmly-border pb-3">
             <div className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-farmly-primary" />
+              <CreditCard className="w-5 h-5 text-farmly-primary dark:text-farmly-accent-light" />
               <h3 className="text-base font-bold text-farmly-foreground">Itemized Financial Breakdown</h3>
             </div>
             <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
@@ -231,7 +231,7 @@ export default function OfferDetailPage() {
             <Card className="max-w-md w-full p-6 border border-farmly-border bg-farmly-surface shadow-2xl space-y-4">
               <div className="flex items-center justify-between border-b border-farmly-border pb-3">
                 <div className="flex items-center gap-2">
-                  <KeyRound className="w-5 h-5 text-farmly-primary" />
+                  <KeyRound className="w-5 h-5 text-farmly-primary dark:text-farmly-accent-light" />
                   <h3 className="font-bold text-base text-farmly-foreground">Confirm Sale with OTP</h3>
                 </div>
                 <button

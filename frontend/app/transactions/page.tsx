@@ -70,16 +70,16 @@ export default function TransactionsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card className="bg-farmly-surface border-farmly-border p-5 space-y-1">
             <span className="text-xs text-farmly-muted flex items-center gap-1">
-              <ArrowDownLeft className="w-3.5 h-3.5 text-emerald-400" /> Total Inflow (Sales & Payouts)
+              <ArrowDownLeft className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" /> Total Inflow (Sales & Payouts)
             </span>
-            <div className="text-2xl font-bold text-emerald-400 font-mono">
+            <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 font-mono">
               ₹{totalIn.toLocaleString("en-IN")}
             </div>
           </Card>
 
           <Card className="bg-farmly-surface border-farmly-border p-5 space-y-1">
             <span className="text-xs text-farmly-muted flex items-center gap-1">
-              <ArrowUpRight className="w-3.5 h-3.5 text-red-400" /> Total Outflow (Procurement & Fees)
+              <ArrowUpRight className="w-3.5 h-3.5 text-red-700 dark:text-red-400" /> Total Outflow (Procurement & Fees)
             </span>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">
               ₹{totalOut.toLocaleString("en-IN")}
@@ -88,7 +88,7 @@ export default function TransactionsPage() {
 
           <Card className="bg-farmly-surface border-farmly-border p-5 space-y-1">
             <span className="text-xs text-farmly-muted">Net Position</span>
-            <div className="text-2xl font-bold text-emerald-300 font-mono">
+            <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300 font-mono">
               ₹{(totalIn - totalOut).toLocaleString("en-IN")}
             </div>
           </Card>
@@ -148,8 +148,8 @@ export default function TransactionsPage() {
                       <span
                         className={`px-2 py-0.5 rounded-md font-semibold uppercase text-[10px] ${
                           tx.type === "Sale" || tx.type === "Settlement"
-                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                            : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                            ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20"
+                            : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"
                         }`}
                       >
                         {tx.type}

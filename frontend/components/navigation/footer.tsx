@@ -7,7 +7,7 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-farmly-border bg-farmly-surface/80 pt-16 pb-12 text-white">
+    <footer className="border-t border-farmly-border bg-farmly-surface/80 pt-16 pb-12 text-farmly-foreground">
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12 pb-12 border-b border-farmly-border">
           {/* Brand Column */}
@@ -25,7 +25,7 @@ export function Footer() {
           {/* Dynamic Link Columns */}
           {FOOTER_SECTIONS.map((section) => (
             <div key={section.title} className="space-y-4">
-              <h4 className="text-sm font-semibold tracking-wider text-white uppercase">
+              <h4 className="text-sm font-semibold tracking-wider text-farmly-foreground uppercase">
                 {section.title}
               </h4>
               <ul className="space-y-2.5 text-sm">
@@ -33,7 +33,7 @@ export function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-farmly-muted hover:text-white transition-colors duration-150 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent rounded"
+                      className="text-farmly-muted hover:text-farmly-foreground transition-colors duration-150 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent rounded"
                     >
                       {link.label}
                     </Link>
@@ -52,13 +52,13 @@ export function Footer() {
           <div className="flex items-center gap-6">
             <Link
               href="#privacy"
-              className="hover:text-white transition-colors"
+              className="hover:text-farmly-foreground transition-colors"
             >
               Privacy Policy
             </Link>
             <Link
               href="#terms"
-              className="hover:text-white transition-colors"
+              className="hover:text-farmly-foreground transition-colors"
             >
               Terms of Service
             </Link>

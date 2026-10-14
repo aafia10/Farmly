@@ -272,56 +272,32 @@ export const WHY_FARMLY_POINTS: WhyFarmlyPoint[] = [
   },
 ];
 
-export const FIXED_BLOCKCHAIN_FALLBACK_HASH = "0x7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069";
+
 
 export const USER_ROLES: UserRoleOption[] = [
   {
     id: "farmer",
-    label: "Farmer / Producer",
-    description: "Direct grower of crops, horticulture, dairy, poultry, fisheries, or livestock.",
+    label: "Farmer",
+    description: "Register crop lots, upload certificates, and sell your produce.",
     icon: Sprout,
   },
   {
     id: "helper",
-    label: "Field Helper / Sathi",
-    description: "Gram Vikas assistant for farmer registration, weighment, and digital lot documentation.",
+    label: "Field Helper",
+    description: "Register and assist farmers with records and crop lots.",
     icon: HeartHandshake,
   },
   {
-    id: "fpo",
-    label: "FPO Cooperative",
-    description: "Farmer Producer Organization managing smallholder aggregation and bulk pooling.",
-    icon: Boxes,
-  },
-  {
-    id: "collection_center",
-    label: "Collection Center / Mandi",
-    description: "Aggregation hub operating calibrated weighbridges and logistical transit handovers.",
-    icon: Scale,
-  },
-  {
-    id: "quality_assessor",
-    label: "Quality Assessor / Lab",
-    description: "Accredited laboratory chemist evaluating moisture, foreign matter, and certified grade.",
-    icon: FileCheck2,
-  },
-  {
     id: "distributor",
-    label: "Distributor / Logistics",
-    description: "Commercial bulk purchaser, warehouse operator, and regional supply chain transporter.",
+    label: "Distributor",
+    description: "Inspect certified lots and buy produce from farmers.",
     icon: Truck,
   },
   {
     id: "retailer",
-    label: "Retailer / Agro-Store",
-    description: "Local shop, supermarket dealer, or outlet selling certified produce to consumers.",
+    label: "Retailer",
+    description: "Buy from distributors and verify product traceability.",
     icon: Building2,
-  },
-  {
-    id: "admin",
-    label: "Platform Auditor / Admin",
-    description: "State agriculture authority monitoring fraud heuristics and blockchain transaction integrity.",
-    icon: ShieldCheck,
   },
 ];
 

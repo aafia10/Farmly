@@ -28,7 +28,7 @@ export function AuthLayout({
         <Logo size="md" />
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-farmly-muted hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent rounded-lg px-2.5 py-1.5"
+          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-farmly-muted hover:text-farmly-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent rounded-lg px-2.5 py-1.5"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Home</span>
@@ -47,10 +47,10 @@ export function AuthLayout({
           <div className="rounded-3xl border border-farmly-border bg-farmly-surface shadow-2xl p-6 sm:p-10">
             {/* Form Header */}
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-farmly-surface-elevated border border-farmly-accent/30 text-emerald-300 mb-4 shadow-sm">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-farmly-surface-elevated border border-farmly-accent/30 text-emerald-700 dark:text-emerald-300 mb-4 shadow-sm">
                 <Sprout className="w-6 h-6" />
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-farmly-foreground">
                 {title}
               </h1>
               <p className="mt-2 text-sm text-farmly-muted leading-relaxed">
@@ -66,7 +66,7 @@ export function AuthLayout({
               {alternateAction.label}{" "}
               <Link
                 href={alternateAction.href}
-                className="font-semibold text-farmly-accent hover:text-emerald-300 underline-offset-4 hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent rounded"
+                className="font-semibold text-farmly-accent hover:text-emerald-700 dark:hover:text-emerald-300 underline-offset-4 hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent rounded"
               >
                 {alternateAction.linkText}
               </Link>

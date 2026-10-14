@@ -104,11 +104,11 @@ export function LineageTree({ data = DEFAULT_LINEAGE }: { data?: LineageNode }) 
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-farmly-primary/10 text-farmly-primary border border-farmly-accent/30">
+                <div className="p-2 rounded-xl bg-farmly-primary/10 text-farmly-primary dark:text-farmly-accent-light border border-farmly-accent/30">
                   <Icon className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-xs font-mono font-bold text-farmly-foreground group-hover:text-farmly-primary transition-colors flex items-center gap-1.5">
+                  <div className="text-xs font-mono font-bold text-farmly-foreground group-hover:text-farmly-primary dark:group-hover:text-farmly-accent-light transition-colors flex items-center gap-1.5">
                     <span>{node.id}</span>
                     <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-farmly-accent" />
                   </div>

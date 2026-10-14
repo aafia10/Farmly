@@ -66,8 +66,8 @@ export default function LoginPage() {
   };
 
   const rolesList: { id: UserRole; label: string; icon: React.ElementType }[] = [
-    { id: "helper", label: "Helper", icon: HeartHandshake },
     { id: "farmer", label: "Farmer", icon: Sprout },
+    { id: "helper", label: "Field Helper", icon: HeartHandshake },
     { id: "distributor", label: "Distributor", icon: Truck },
     { id: "retailer", label: "Retailer", icon: Building2 },
   ];
@@ -163,7 +163,7 @@ export default function LoginPage() {
               e.preventDefault();
               alert("Password reset demo: For testing, use password 'Farmly@123'.");
             }}
-            className="font-medium text-farmly-accent hover:text-emerald-300 underline-offset-4 hover:underline"
+            className="font-medium text-farmly-accent hover:text-emerald-700 dark:hover:text-emerald-300 underline-offset-4 hover:underline"
           >
             {t("auth.forgotPassword", "Forgot password?")}
           </Link>
@@ -179,7 +179,7 @@ export default function LoginPage() {
         {/* Instant One-Click Demo Login Box */}
         <div className="p-3.5 rounded-2xl bg-farmly-surface-elevated/70 border border-farmly-accent/30 space-y-2 mt-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-farmly-accent" />
               1-Click Demo Login:
             </span>
@@ -191,7 +191,7 @@ export default function LoginPage() {
               variant="outline"
               size="sm"
               onClick={() => quickDemoLogin("helper")}
-              className="text-xs justify-start px-2.5 h-8 hover:border-farmly-accent text-emerald-300"
+              className="text-xs justify-start px-2.5 h-8 hover:border-farmly-accent text-emerald-700 dark:text-emerald-300"
             >
               <ArrowRight className="w-3 h-3 mr-1 shrink-0" />
               <span>Helper Dashboard</span>

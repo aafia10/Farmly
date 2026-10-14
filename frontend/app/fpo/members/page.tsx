@@ -48,7 +48,7 @@ export default function FPOMembersPage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="font-mono text-xs text-farmly-primary font-bold">{m.id}</span>
+                    <span className="font-mono text-xs text-farmly-primary dark:text-farmly-accent-light font-bold">{m.id}</span>
                     <h3 className="text-base font-bold text-farmly-foreground">{m.name}</h3>
                     <span className="text-xs text-farmly-muted">{m.village}, Sinnar Block</span>
                   </div>

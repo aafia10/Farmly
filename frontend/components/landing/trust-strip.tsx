@@ -20,7 +20,7 @@ export function TrustStrip() {
                   <Icon className="w-6 h-6" aria-hidden="true" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-semibold text-white tracking-tight">
+                  <h3 className="text-base font-semibold text-farmly-foreground tracking-tight">
                     {item.title}
                   </h3>
                   <p className="text-xs sm:text-sm text-farmly-muted leading-relaxed">

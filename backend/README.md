@@ -68,13 +68,23 @@ npm install
 
 1. Open your Supabase project → **SQL Editor** → **New query**.
 2. Paste the full contents of `database/farmly_supabase_schema.sql` and click **Run**.
+3. In a new query, paste `database/migrations/002_certificate_traceability.sql` and click **Run**.
 
-The script is idempotent (safe to re-run). It creates:
+Both scripts are idempotent (safe to re-run). The base schema creates:
 
 - all tables (profiles, farmers, batches/lots, evidence, quality assessments, collection arrivals, FPO members, marketplace, offers, payments, disputes, notifications, transactions, …)
 - `updated_at` triggers and a trigger that creates a `profiles` row for every new auth user
 - a storage bucket and row-level security (RLS) policies
-- **demo login accounts** for all 8 roles (see [Demo accounts](#demo-accounts))
+- **demo login accounts** (see [Demo accounts](#demo-accounts))
+
+Migration 002 adds:
+
+- database-level role enforcement: sign-up can only create Farmer, Field Helper, Distributor or Retailer accounts, and clients cannot change a role
+- batch ownership and lineage columns, so partial purchases create child batches
+- the append-only `purchases`, `certificates` and `traceability_events` tables, readable only with the service-role key
+- `farmly_purchase_batch()`, which reserves quantity atomically and idempotently
+
+> The base schema ends with a development policy (`dev_all_access`) that lets the public anon key read and write most tables. The certificate tables are excluded from it, but review it before any real deployment.
 
 ### 4. Configure environment variables
 
@@ -91,8 +101,19 @@ cp .env.example .env
 | `FRONTEND_URL`      | No       | `http://localhost:3000` | URL of the frontend app |
 | `SUPABASE_URL`      | **Yes**  | —                       | Supabase → Project Settings → API → Project URL |
 | `SUPABASE_ANON_KEY` | **Yes**  | —                       | Supabase → Project Settings → API → `anon` public key |
+| `SUPABASE_SERVICE_ROLE_KEY` | For certificates | — | Supabase → Project Settings → API → `service_role` key. **Server only.** Without it, certificate endpoints return 503 |
+| `ALLOW_DEMO_AUTH`   | No       | `true` unless production | Enables password-less demo logins and `demo_<role>` tokens. Set `false` for shared deployments |
+| `PUBLIC_APP_URL`    | No       | `FRONTEND_URL`          | Base URL encoded in QR codes (`<url>/verify/<id>`) |
+| `PINATA_JWT`        | For certificates | —               | Pinata → API Keys → JWT. **Server only** |
+| `PINATA_GATEWAY_URL`| For private files | —              | Your dedicated gateway, e.g. `name.mypinata.cloud`; needed to open and verify private documents |
+| `CERT_MAX_FILE_MB`  | No       | `10`                    | Maximum certificate upload size |
+| `CHAIN_RPC_URL`     | For blockchain | —                 | EVM RPC endpoint (local: `http://127.0.0.1:8545`) |
+| `CHAIN_ID`          | For blockchain | —                 | `31337` local, `11155111` Sepolia |
+| `CERT_REGISTRY_ADDRESS` | For blockchain | —             | Deployed `CertificateRegistry` address (see `contracts/README.md`) |
+| `CHAIN_SIGNER_PRIVATE_KEY` | For blockchain | —          | Registrar wallet key. Use a dedicated testnet wallet. **Server only** |
+| `CHAIN_EXPLORER_TX_URL` | No | —                         | e.g. `https://sepolia.etherscan.io/tx`, for links in the UI |
 
-`VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` are also accepted as fallbacks. The server refuses to start if the Supabase values are missing.
+`VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` are also accepted as fallbacks. The server refuses to start if the Supabase values are missing. The server still starts without the certificate settings; those features then report themselves as unavailable or pending and never as verified.
 
 > Never commit `.env` — it is already listed in `.gitignore`.
 
@@ -163,15 +184,19 @@ Authorization: Bearer <token>
 
 The token can be:
 
-1. **A Supabase access token** — returned by `POST /api/v1/auth/login` for real accounts. The user's role and profile are loaded from `public.profiles`.
-2. **A demo token** — `demo_<role>`, e.g. `demo_farmer`, `demo_helper`, `demo_admin`. Maps to a built-in demo user for that role.
+1. **A Supabase access token** — returned by `POST /api/v1/auth/login` for real accounts. The user's role is loaded from `public.profiles` (user-editable sign-up metadata is never trusted for privileged roles).
+2. **A demo token** — `demo_farmer`, `demo_helper`, `demo_distributor` or `demo_retailer`, only while demo auth is enabled (`ALLOW_DEMO_AUTH`). There are no demo tokens for other roles.
 
 Routes use one of two guards:
 
-- `optionalAuth` — works without a token (falls back to the demo farmer). Used for most `GET` routes.
-- `verifyAuth` — validates the token when one is supplied. Used for `POST` / `PUT` / `PATCH` routes.
+- `optionalAuth` — works without a token (falls back to the demo farmer only in demo mode). Used for most `GET` routes.
+- `verifyAuth` — validates the token. Without a token it only falls back to the demo farmer in demo mode; otherwise it returns 401.
 
 `requireRoles(...)` restricts a route to specific roles; `admin` always passes.
+
+### Roles
+
+New accounts can only be **Farmer**, **Field Helper**, **Distributor** or **Retailer**. This is enforced by the API (`/auth/signup`) and by the database (sign-up trigger and a role guard on `profiles`), not just by the UI. Existing accounts with legacy roles (FPO, collection center, quality assessor, admin) are kept unchanged and can still sign in with their password.
 
 ### Demo accounts
 
@@ -180,13 +205,11 @@ Created by the schema script. Password for all of them: **`Farmly@123`**
 | Role              | Email                    |
 | ----------------- | ------------------------ |
 | Farmer            | `farmer@farmly.demo`     |
-| Helper            | `helper@farmly.demo`     |
-| FPO               | `fpo@farmly.demo`        |
-| Collection center | `collection@farmly.demo` |
-| Quality assessor  | `quality@farmly.demo`    |
+| Field Helper      | `helper@farmly.demo`     |
 | Distributor       | `distributor@farmly.demo`|
 | Retailer          | `retailer@farmly.demo`   |
-| Admin             | `admin@farmly.demo`      |
+
+The schema also seeds legacy-role accounts (`fpo@`, `collection@`, `quality@`, `admin@farmly.demo`), which can sign in with their password but have no demo token.
 
 Example login:
 
@@ -204,7 +227,35 @@ curl -X POST http://localhost:5000/api/v1/auth/login \
   -d '{"role":"helper"}'
 ```
 
-> **Before deploying publicly:** demo tokens, the no-token fallback to the demo farmer, and the password-less demo login exist for development and demos. Disable or gate them for production, since a `demo_admin` token grants admin access. CORS currently allows any origin (`middleware/cors.ts`); restrict it to `FRONTEND_URL` in production.
+> **Before deploying publicly:** set `ALLOW_DEMO_AUTH=false` (it is off by default when `NODE_ENV=production`). Demo tokens, the no-token fallback and the password-less demo login exist for development only. CORS currently allows any origin (`middleware/cors.ts`); restrict it to `FRONTEND_URL` in production.
+
+---
+
+## Certificates and traceability
+
+Every crop lot (batch) carries an append-only **certificate bucket**:
+
+1. **Farmer origin certificate** — the farmer (or an assisting field helper) uploads a supporting document for an original batch. The backend validates it (PDF/PNG/JPEG/WebP, size limit, file signature), computes the **SHA-256** of the exact bytes, uploads it to **Pinata** (private by default), stores the CID and metadata, then registers the hash and references on the **CertificateRegistry** contract.
+2. **Distributor purchase** — a distributor inspects the lot and its certificate, then buys part or all of it. `farmly_purchase_batch()` locks the batch, checks the available quantity and roles, deducts the quantity and creates a **child batch** in one transaction. The backend then generates a JSON **transfer certificate** that references the farmer's certificate, stores it on IPFS and registers it on-chain.
+3. **Retailer purchase** — the same flow from a distributor's child batch. The retailer certificate references the distributor certificate and every upstream certificate.
+
+Example: a farmer registers 500 kg. A distributor buys 250 kg (farmer keeps 250 kg). A retailer buys 200 kg of the distributor's 250 kg (distributor keeps 50 kg). Each transfer has its own transaction ID, child batch, certificate and QR code.
+
+**Lifecycle and retries.** A purchase moves through `PURCHASE_CONFIRMED → CERTIFICATE_GENERATED → IPFS_STORED → TRACEABILITY_UPDATED`. If Pinata or the chain is unavailable, the quantity stays reserved for the buyer and the certificate stays **pending**; `POST /purchases/:id/retry` or `POST /certificates/:id/retry` resumes it. Purchases need an `Idempotency-Key` header: repeating a request with the same key returns the original purchase and never deducts twice.
+
+**Append-only.** Certificates and purchases cannot be deleted or have their content changed (enforced by database triggers). Corrections are uploaded as new versions that link to the previous one; revocations are recorded in the database and on-chain while keeping the original proof.
+
+**Verification** (`POST /certificates/:id/verify`) re-downloads the document (or hashes a file you supply), recomputes SHA-256 and compares it with the on-chain record. It reports four separate checks — file integrity, blockchain registration, issuer authenticity and certification validity — and one overall status: `VERIFIED`, `ISSUER_NOT_VERIFIED`, `MISMATCH`, `NOT_REGISTERED`, `PENDING`, `UNAVAILABLE`, `REVOKED` or `EXPIRED`. Farmly does not verify the issuer of an uploaded document, so a valid origin certificate reports `ISSUER_NOT_VERIFIED` unless the platform has independently marked the issuer as verified. Transfer certificates only prove that a transfer was recorded.
+
+**QR codes and privacy.** Every batch, child batch and certificate has a QR code (`GET /traceability/qr/:id`) that encodes only the public page URL `<PUBLIC_APP_URL>/verify/<id>`. The public page shows the journey from farmer to the latest transfer with public-safe fields only: farmer first name and initial, district and state, quantities, dates, hashes and on-chain references. Prices, phone numbers, villages and private documents are never exposed publicly.
+
+### Setting it up
+
+1. Run migration `002_certificate_traceability.sql` (see [Set up the database](#3-set-up-the-database)).
+2. Set `SUPABASE_SERVICE_ROLE_KEY`.
+3. Set `PINATA_JWT` and `PINATA_GATEWAY_URL`.
+4. Deploy the contract (local chain or Sepolia, see `contracts/README.md`) and set the `CHAIN_*` variables and `CERT_REGISTRY_ADDRESS`.
+5. Restart the backend.
 
 ---
 
@@ -233,7 +284,7 @@ Responses use the shape `{ "success": true, "data": … }` on success and `{ "su
 | | `POST /lots` | 🔒 | Create a lot |
 | | `PATCH /lots/:id/status` | 🔒 | Update lot status |
 | | `GET /lots/:id/lineage` | 🔓 | Lot lineage tree (splits / merges) |
-| | `GET /lots/:id/certificate` | 🔓 | Lot certificate with hash anchor |
+| | `GET /lots/:id/certificate` | 🔓 | Lot with its registered certificates (public-safe) |
 | Evidence | `GET /evidence` | 🔓 | List evidence items |
 | | `POST /evidence` | 🔒 | Add evidence |
 | | `PATCH /evidence/:id/status` | 🔒 | Verify / reject evidence |
@@ -267,6 +318,19 @@ Responses use the shape `{ "success": true, "data": … }` on success and `{ "su
 | | `PATCH /admin/alerts/:id/resolve` | 🔒 | Resolve an alert |
 | Mandi | `GET /mandi/benchmarks` | — | MSP / APMC price benchmarks (static data) |
 | AgroSathi | `POST /agrosathi/query` | 🔓 | Rule-based farmer assistant (`{ "query": "…" }`) |
+| Certificates | `POST /certificates/origin` | 🔒 farmer, helper | Upload a farmer origin certificate (`contentBase64`, metadata, `visibility`) |
+| | `GET /certificates/:id` | 🔓 | Certificate detail and event history |
+| | `GET /certificates/:id/document` | 🔓 | Document link (public gateway URL, or a 5-minute signed URL for private files when signed in) |
+| | `POST /certificates/:id/verify` | 🔓 | Verify integrity (optionally against a supplied `contentBase64`) |
+| | `POST /certificates/:id/retry` | 🔒 | Resume pending IPFS / blockchain registration |
+| | `POST /certificates/:id/revoke` | 🔒 | Revoke (`{ "reason": "…" }`); recorded, never deleted |
+| Purchases | `POST /purchases` | 🔒 distributor, retailer | Buy from a batch (`sourceBatchId`, `quantity`, optional `pricePerUnit`). Requires `Idempotency-Key` header |
+| | `POST /purchases/:id/retry` | 🔒 buyer | Resume the purchase's certificate steps |
+| Traceability | `GET /traceability/batches/:id` | 🔒 | Full certificate chain, transfers and child batches for a batch |
+| | `GET /traceability/public/:id` | — | Public-safe product journey for a batch or certificate ID |
+| | `GET /traceability/qr/:id` | — | QR code (SVG) pointing to the public page |
+| | `GET /traceability/available` | 🔒 | Batches the caller can buy (farmer lots for distributors, distributor stock for retailers) |
+| | `GET /traceability/dashboard` | 🔒 | Role-specific dashboard data |
 
 ---
 
@@ -279,3 +343,8 @@ Responses use the shape `{ "success": true, "data": … }` on success and `{ "su
 | Health check shows `database: error: relation "profiles" does not exist` | The schema has not been applied — run `database/farmly_supabase_schema.sql` in the Supabase SQL Editor. |
 | Health check shows `database: error: TypeError: fetch failed` or `unreachable` | Check your internet connection and that `SUPABASE_URL` is correct and the project is not paused. |
 | `401 Invalid or expired authorization token` | The Supabase session expired — log in again, or use a `demo_<role>` token during development. |
+| Certificate endpoints return `503 ... SUPABASE_SERVICE_ROLE_KEY` | Set the service-role key in `.env` and run migration 002. |
+| Certificate upload returns `503 IPFS_UNAVAILABLE` or `502 IPFS_UPLOAD_FAILED` | Check `PINATA_JWT`. Nothing is recorded until Pinata confirms the upload. |
+| Certificates stay "Chain registration pending" | Check the `CHAIN_*` variables, that the RPC node is running, and that the signer is a registrar with test ETH; then use **Retry registration**. |
+| Purchase returns `409 This batch has no active certificate yet` | The seller must upload a certificate for the batch first. |
+| Private document verification shows `UNAVAILABLE` | Set `PINATA_GATEWAY_URL` to your dedicated gateway; private files can only be read through signed URLs. |

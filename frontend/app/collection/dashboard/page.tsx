@@ -56,7 +56,7 @@ export default function CollectionDashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Today&apos;s Measured Intake</span>
-              <Scale className="w-4 h-4 text-farmly-primary" />
+              <Scale className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">1,292.4 kg</div>
             <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
@@ -67,7 +67,7 @@ export default function CollectionDashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Active Scales</span>
-              <CheckCircle2 className="w-4 h-4 text-farmly-primary" />
+              <CheckCircle2 className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">2 Scales</div>
             <div className="text-[11px] text-farmly-muted mt-1">
@@ -78,7 +78,7 @@ export default function CollectionDashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Lots Bagged &amp; Stored</span>
-              <Boxes className="w-4 h-4 text-farmly-primary" />
+              <Boxes className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">{lots.length}</div>
             <div className="text-[11px] text-farmly-muted mt-1">Bay 3 &amp; Bay 12</div>
@@ -87,7 +87,7 @@ export default function CollectionDashboardPage() {
           <Card className="p-5 border border-farmly-border bg-farmly-surface">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Dispatches In Transit</span>
-              <Truck className="w-4 h-4 text-farmly-primary" />
+              <Truck className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
             </div>
             <div className="text-2xl font-bold text-farmly-foreground font-mono">1 Active</div>
             <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1">To Bhiwandi Warehouse</div>
@@ -101,7 +101,7 @@ export default function CollectionDashboardPage() {
               <h3 className="text-base font-bold text-farmly-foreground">Intake Weighment Log</h3>
               <p className="text-xs text-farmly-muted">Verified digital receipts with scale ID &amp; supervisor stamp</p>
             </div>
-            <Link href="/collection/arrivals" className="text-xs text-farmly-primary font-semibold hover:underline flex items-center gap-1">
+            <Link href="/collection/arrivals" className="text-xs text-farmly-primary dark:text-farmly-accent-light font-semibold hover:underline flex items-center gap-1">
               View All Arrivals <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
@@ -111,7 +111,7 @@ export default function CollectionDashboardPage() {
               <div key={arr.id} className="py-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-farmly-primary">{arr.id}</span>
+                    <span className="font-mono font-bold text-farmly-primary dark:text-farmly-accent-light">{arr.id}</span>
                     <strong className="text-farmly-foreground text-sm">{arr.farmerName}</strong>
                     <span className="text-farmly-muted">({arr.crop})</span>
                   </div>

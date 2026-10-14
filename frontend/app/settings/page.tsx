@@ -75,7 +75,7 @@ export default function SettingsPage() {
         <Card className="bg-farmly-surface border-farmly-border">
           <CardHeader>
             <CardTitle className="text-farmly-foreground text-base flex items-center gap-2">
-              <Sun className="w-5 h-5 text-amber-500" />
+              <Sun className="w-5 h-5 text-amber-700 dark:text-amber-400" />
               {t("settings.themeTitle", "Theme & Visual Appearance")}
             </CardTitle>
           </CardHeader>
@@ -152,7 +152,7 @@ export default function SettingsPage() {
         <Card className="bg-farmly-surface border-farmly-border">
           <CardHeader>
             <CardTitle className="text-farmly-foreground text-base flex items-center gap-2">
-              <Bell className="w-5 h-5 text-sky-500" />
+              <Bell className="w-5 h-5 text-sky-700 dark:text-sky-400" />
               {t("settings.notificationsTitle", "Notification Preferences")}
             </CardTitle>
           </CardHeader>

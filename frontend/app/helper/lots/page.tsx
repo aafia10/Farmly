@@ -24,7 +24,7 @@ import { useMockData } from "@/contexts/mock-data-context";
 import { useAuth } from "@/contexts/auth-context";
 import { useTranslation } from "@/contexts/language-context";
 import { Lot } from "@/types";
-import { FIXED_BLOCKCHAIN_FALLBACK_HASH } from "@/lib/constants";
+
 
 export default function HelperLotsPage() {
   const { user } = useAuth();
@@ -126,19 +126,16 @@ export default function HelperLotsPage() {
                 <p className="text-xs text-farmly-muted">
                   {t("common.assistedBy", "Digitized for")} {createdLotResult.farmerName} • {createdLotResult.quantity} {createdLotResult.unit} of {createdLotResult.crop}
                 </p>
-                <div className="pt-1.5 flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-400 font-mono">
-                  <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                  <span className="font-semibold text-[11px]">Blockchain:</span>
-                  <span className="text-[11px] truncate max-w-xs sm:max-w-md" title={createdLotResult.blockchainHash || FIXED_BLOCKCHAIN_FALLBACK_HASH}>
-                    {createdLotResult.blockchainHash || FIXED_BLOCKCHAIN_FALLBACK_HASH}
-                  </span>
+                <div className="pt-1.5 flex items-center gap-1.5 text-xs text-farmly-muted">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                  <span className="text-[11px]">No certificate yet. Upload the farmer&apos;s document so buyers can purchase this lot.</span>
                 </div>
               </div>
             </div>
             <div className="flex gap-2 pt-2">
-              <Link href={`/lots/${createdLotResult.id}`}>
+              <Link href={`/lots/${encodeURIComponent(createdLotResult.id)}/certificate`}>
                 <Button size="sm" className="bg-farmly-primary hover:bg-farmly-primary-hover text-white text-xs">
-                  {t("helper.viewLotAddEvidence", "View Lot & Add Evidence")}
+                  Upload certificate
                 </Button>
               </Link>
               <Button

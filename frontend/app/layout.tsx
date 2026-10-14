@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/contexts/theme-context";
+import { themeInitScript } from "@/lib/theme";
 import { LanguageProvider } from "@/contexts/language-context";
 import { MockDataProvider } from "@/contexts/mock-data-context";
 import { AuthProvider } from "@/contexts/auth-context";
@@ -55,7 +56,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="min-h-screen bg-farmly-bg text-farmly-foreground font-sans antialiased selection:bg-farmly-primary selection:text-white">
         <ThemeProvider>
           <LanguageProvider>

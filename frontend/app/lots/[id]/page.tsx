@@ -25,6 +25,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/common/status-badge";
 import { LineageTree } from "@/components/common/lineage-tree";
+import { LotCertificatesSection } from "@/components/certificates/lot-certificates-section";
 import { useMockData } from "@/contexts/mock-data-context";
 import { useAuth } from "@/contexts/auth-context";
 
@@ -37,7 +38,7 @@ export default function LotDetailPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "evidence" | "quality" | "offers" | "certificate">("overview");
 
   const lotId = params?.id || "LT-20391";
-  const lot = lots.find((l) => l.id === lotId) || lots[0];
+  const lot = lots.find((l) => l.id === lotId);
   const lotEvidence = evidence.filter((e) => e.lotId === lot?.id);
   const lotOffers = offers.filter((o) => o.lotId === lot?.id);
 
@@ -47,7 +48,10 @@ export default function LotDetailPage() {
         <Card className="bg-farmly-surface border-farmly-border p-12 text-center space-y-4 max-w-md mx-auto my-12">
           <Boxes className="w-12 h-12 text-farmly-muted mx-auto opacity-40" />
           <h2 className="text-xl font-bold text-farmly-foreground">Harvest Lot Not Found</h2>
-          <p className="text-xs text-farmly-muted">The requested identifier does not exist in local verified ledger.</p>
+          <p className="text-xs text-farmly-muted">This lot is not in your list. It may belong to another participant.</p>
+          <Link href={`/marketplace/${encodeURIComponent(lotId)}`} className="block text-xs underline text-farmly-primary dark:text-farmly-accent-light">
+            Inspect it in the marketplace
+          </Link>
           <Button onClick={() => router.push("/lots")} className="bg-farmly-primary text-white text-xs">
             Back to Lots
           </Button>
@@ -75,7 +79,7 @@ export default function LotDetailPage() {
               <div className="flex items-center gap-2">
                 <span className="font-mono text-xs font-bold text-farmly-accent">{lot.id}</span>
                 <StatusBadge status={lot.status} size="sm" />
-                <span className="text-xs px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
+                <span className="text-xs px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-semibold border border-emerald-500/20">
                   {lot.qualityGrade}
                 </span>
               </div>
@@ -108,7 +112,7 @@ export default function LotDetailPage() {
             { id: "evidence", label: `Evidence (${lotEvidence.length})`, icon: FileCheck2 },
             { id: "quality", label: "Quality & Specs", icon: Award },
             { id: "offers", label: `Offers (${lotOffers.length})`, icon: FileText },
-            { id: "certificate", label: "Certificate", icon: ShieldCheck },
+            { id: "certificate", label: "Certificates", icon: ShieldCheck },
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -118,7 +122,7 @@ export default function LotDetailPage() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`px-4 py-2 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors flex items-center gap-2 ${
                   activeTab === tab.id
-                    ? "bg-farmly-surface-elevated text-emerald-300 border border-farmly-border"
+                    ? "bg-farmly-surface-elevated text-emerald-700 dark:text-emerald-300 border border-farmly-border"
                     : "text-farmly-muted hover:text-farmly-foreground"
                 }`}
               >
@@ -144,7 +148,7 @@ export default function LotDetailPage() {
               <Card className="bg-farmly-surface border-farmly-border p-4">
                 <div className="text-xs text-farmly-muted">Registered Grower</div>
                 <div className="text-base font-bold text-farmly-foreground mt-1">{lot.farmerName}</div>
-                <div className="text-[11px] font-mono text-emerald-400">{lot.farmerId}</div>
+                <div className="text-[11px] font-mono text-emerald-700 dark:text-emerald-400">{lot.farmerId}</div>
               </Card>
 
               <Card className="bg-farmly-surface border-farmly-border p-4">
@@ -158,7 +162,7 @@ export default function LotDetailPage() {
                 <div className="text-base font-bold text-farmly-foreground mt-1 font-mono text-xs">
                   {lot.weighmentScaleId || "Calibrated Scale #04"}
                 </div>
-                <div className="text-[11px] text-emerald-400">Zero-tare calibrated</div>
+                <div className="text-[11px] text-emerald-700 dark:text-emerald-400">Zero-tare calibrated</div>
               </Card>
             </div>
 
@@ -179,16 +183,14 @@ export default function LotDetailPage() {
                   <span className="text-farmly-foreground font-medium">{lot.assistedBy || "Priya Sharma"}</span>
                 </div>
                 <div>
-                  <span className="text-farmly-muted block">National Quality Certificate:</span>
-                  <span className="font-mono text-emerald-300">{lot.certificateRef || "AGMARK-CERT-4410"}</span>
-                </div>
-                <div>
-                  <span className="text-farmly-muted block">Lineage Integrity:</span>
-                  <span className="text-emerald-400 font-semibold">Merkle Root Verified</span>
-                </div>
-                <div>
-                  <span className="text-farmly-muted block">Marketplace Status:</span>
-                  <span className="text-farmly-foreground font-medium">Eligible for Escrow Trade</span>
+                  <span className="text-farmly-muted block">Certificates:</span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("certificate")}
+                    className="font-medium underline text-farmly-primary dark:text-farmly-accent-light"
+                  >
+                    View certificate history
+                  </button>
                 </div>
               </div>
             </Card>
@@ -236,7 +238,7 @@ export default function LotDetailPage() {
                         </span>
                       </div>
                       <div className="font-bold text-farmly-foreground text-sm">{ev.title}</div>
-                      <div className="text-xs text-emerald-300 font-mono p-2 rounded bg-farmly-surface-elevated">
+                      <div className="text-xs text-emerald-700 dark:text-emerald-300 font-mono p-2 rounded bg-farmly-surface-elevated">
                         {ev.value}
                       </div>
                       <div className="text-[11px] text-farmly-muted">
@@ -261,18 +263,18 @@ export default function LotDetailPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="p-4 rounded-xl bg-farmly-surface-elevated border border-farmly-border space-y-1">
                 <span className="text-xs text-farmly-muted">Assigned Quality Grade</span>
-                <div className="text-xl font-bold text-emerald-400">{lot.qualityGrade}</div>
+                <div className="text-xl font-bold text-emerald-700 dark:text-emerald-400">{lot.qualityGrade}</div>
                 <p className="text-[11px] text-farmly-muted">Top 5% crop density percentile</p>
               </div>
               <div className="p-4 rounded-xl bg-farmly-surface-elevated border border-farmly-border space-y-1">
                 <span className="text-xs text-farmly-muted">Moisture Content</span>
                 <div className="text-xl font-bold text-farmly-foreground">11.8%</div>
-                <p className="text-[11px] text-emerald-400">Within permissible 12.0% safe limit</p>
+                <p className="text-[11px] text-emerald-700 dark:text-emerald-400">Within permissible 12.0% safe limit</p>
               </div>
               <div className="p-4 rounded-xl bg-farmly-surface-elevated border border-farmly-border space-y-1">
                 <span className="text-xs text-farmly-muted">Foreign Matter</span>
                 <div className="text-xl font-bold text-farmly-foreground">0.4%</div>
-                <p className="text-[11px] text-emerald-400">Below 1.0% maximum tolerance</p>
+                <p className="text-[11px] text-emerald-700 dark:text-emerald-400">Below 1.0% maximum tolerance</p>
               </div>
             </div>
 
@@ -287,12 +289,12 @@ export default function LotDetailPage() {
                 ].map((item, i) => (
                   <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-farmly-surface-elevated border border-farmly-border/70 text-xs">
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                       <span className="font-semibold text-farmly-foreground">{item.test}</span>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="text-farmly-muted">Threshold: {item.standard}</span>
-                      <span className="font-mono text-emerald-300 font-bold">{item.result}</span>
+                      <span className="font-mono text-emerald-700 dark:text-emerald-300 font-bold">{item.result}</span>
                     </div>
                   </div>
                 ))}
@@ -335,11 +337,11 @@ export default function LotDetailPage() {
                       </div>
                       <div>
                         <span className="text-farmly-muted block">Offer Rate</span>
-                        <span className="font-bold text-emerald-400">₹{offer.pricePerKg}/kg</span>
+                        <span className="font-bold text-emerald-700 dark:text-emerald-400">₹{offer.pricePerKg}/kg</span>
                       </div>
                       <div>
                         <span className="text-farmly-muted block">Total Deductions</span>
-                        <span className="font-medium text-amber-400">₹{offer.totalDeductions}</span>
+                        <span className="font-medium text-amber-700 dark:text-amber-400">₹{offer.totalDeductions}</span>
                       </div>
                       <div>
                         <span className="text-farmly-muted block">Net Payout to Grower</span>
@@ -358,7 +360,7 @@ export default function LotDetailPage() {
                         <Button
                           variant="outline"
                           onClick={() => rejectOffer(offer.id)}
-                          className="border-red-500/30 text-red-400 hover:bg-red-950/20 text-xs h-8"
+                          className="border-red-500/30 text-red-700 dark:text-red-400 hover:bg-red-950/20 text-xs h-8"
                         >
                           Decline
                         </Button>
@@ -371,71 +373,8 @@ export default function LotDetailPage() {
           </div>
         )}
 
-        {/* Tab 5: Certificate */}
-        {activeTab === "certificate" && (
-          <Card className="bg-farmly-surface border-farmly-border p-8 space-y-6 max-w-3xl mx-auto">
-            <div className="border-2 border-dashed border-emerald-500/40 rounded-2xl p-8 bg-gradient-to-b from-emerald-950/20 to-transparent space-y-6 text-center">
-              <div className="flex justify-center">
-                <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                  <Award className="w-8 h-8" />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <div className="text-xs uppercase tracking-widest text-emerald-400 font-semibold font-mono">
-                  GOVERNMENT APMC & AGMARK ACCREDITED
-                </div>
-                <h2 className="text-2xl font-bold text-farmly-foreground tracking-tight">Agricultural Produce Quality Certificate</h2>
-                <p className="text-xs text-farmly-muted">Digitally sealed under the Farmly Cryptographic Provenance Standard</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 text-left p-4 rounded-xl bg-farmly-surface border border-farmly-border text-xs">
-                <div>
-                  <span className="text-farmly-muted block">Certificate ID:</span>
-                  <span className="font-mono text-emerald-300 font-bold">{lot.certificateRef || "AGMARK-CERT-4410"}</span>
-                </div>
-                <div>
-                  <span className="text-farmly-muted block">Associated Lot:</span>
-                  <span className="font-mono text-farmly-foreground">{lot.id}</span>
-                </div>
-                <div>
-                  <span className="text-farmly-muted block">Crop Specification:</span>
-                  <span className="text-farmly-foreground font-medium">{lot.crop} ({lot.variety})</span>
-                </div>
-                <div>
-                  <span className="text-farmly-muted block">Certified Volume:</span>
-                  <span className="text-farmly-foreground font-bold">{lot.quantity} {lot.unit}</span>
-                </div>
-                <div>
-                  <span className="text-farmly-muted block">Assigned Grade:</span>
-                  <span className="text-emerald-400 font-bold">{lot.qualityGrade}</span>
-                </div>
-                <div>
-                  <span className="text-farmly-muted block">Issuance Date:</span>
-                  <span className="text-farmly-foreground">{lot.createdDate}</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col items-center gap-2 pt-2">
-                <div className="w-24 h-24 bg-white p-2 rounded-xl flex items-center justify-center">
-                  <QrCode className="w-20 h-20 text-black" />
-                </div>
-                <span className="text-[10px] font-mono text-farmly-muted">Scan to verify cryptographic signature</span>
-              </div>
-            </div>
-
-            <div className="flex justify-center">
-              <Button
-                variant="outline"
-                className="border-farmly-border text-farmly-foreground text-xs h-9 hover:bg-farmly-surface-elevated"
-                onClick={() => alert("Certificate PDF generation ready.")}
-              >
-                <Download className="w-4 h-4 mr-2 text-farmly-accent" />
-                Download Sealed PDF Certificate
-              </Button>
-            </div>
-          </Card>
-        )}
+        {/* Tab 5: Certificates */}
+        {activeTab === "certificate" && <LotCertificatesSection lotId={lot.id} />}
       </div>
     </AppLayout>
   );

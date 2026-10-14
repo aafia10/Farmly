@@ -70,7 +70,7 @@ export default function AgroSathiPage() {
         {/* Hero Section */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-950/40 via-farmly-dark-green/50 to-farmly-surface border border-farmly-border p-6 lg:p-8">
           <div className="max-w-2xl space-y-3">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 text-xs font-semibold border border-amber-500/20">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 text-xs font-semibold border border-amber-500/20">
               <Sparkles className="w-3.5 h-3.5" />
               Multilingual Farmer Digital Companion
             </div>
@@ -85,7 +85,7 @@ export default function AgroSathiPage() {
 
         {/* Telephony Disclaimer Banner */}
         <div className="p-4 rounded-xl bg-farmly-surface border border-farmly-border flex items-start gap-3 text-xs text-farmly-muted">
-          <AlertCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+          <AlertCircle className="w-5 h-5 text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" />
           <p className="leading-relaxed">
             <strong>Platform Feature Notice:</strong> AgroSathi is an integrated digital web assistant within the Farmly software platform. It does not operate outbound voice calling agents, toll-free telephony numbers, or automated phone calls. All assistance is delivered securely in-app.
           </p>
@@ -95,7 +95,7 @@ export default function AgroSathiPage() {
         <Card className="bg-farmly-surface border-farmly-border p-6 space-y-5">
           <div className="flex items-center justify-between border-b border-farmly-border pb-3">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                 <Sparkles className="w-4 h-4" />
               </div>
               <div>
@@ -103,7 +103,7 @@ export default function AgroSathiPage() {
                 <span className="text-[11px] text-farmly-muted">Available in 11 Indian regional dialects</span>
               </div>
             </div>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 font-mono">
               Online
             </span>
           </div>
@@ -143,7 +143,7 @@ export default function AgroSathiPage() {
         {/* 11 Regional Languages Preview */}
         <div className="space-y-3">
           <h2 className="text-base font-bold text-farmly-foreground flex items-center gap-2">
-            <Globe className="w-4 h-4 text-emerald-400" />
+            <Globe className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
             11 Regional Languages Supported
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
@@ -154,7 +154,7 @@ export default function AgroSathiPage() {
                 onClick={() => setSelectedLanguage(lang.name)}
                 className={`p-3 rounded-xl border text-center transition-all ${
                   selectedLanguage === lang.name
-                    ? "bg-farmly-primary/30 border-farmly-accent text-white"
+                    ? "bg-farmly-primary/30 border-farmly-accent text-farmly-foreground"
                     : "bg-farmly-surface border-farmly-border text-farmly-muted hover:text-farmly-foreground"
                 }`}
               >
@@ -164,7 +164,7 @@ export default function AgroSathiPage() {
             ))}
           </div>
           {selectedLanguage && (
-            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               AgroSathi is pre-configured to assist farmers in {selectedLanguage}!
             </div>
@@ -174,7 +174,7 @@ export default function AgroSathiPage() {
         {/* Feature Roadmap Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card className="bg-farmly-surface border-farmly-border p-5 space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
               <FileCheck2 className="w-5 h-5" />
             </div>
             <h3 className="font-bold text-farmly-foreground text-sm">Document Simplifier</h3>
@@ -184,7 +184,7 @@ export default function AgroSathiPage() {
           </Card>
 
           <Card className="bg-farmly-surface border-farmly-border p-5 space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+            <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-700 dark:text-sky-400">
               <Mic className="w-5 h-5" />
             </div>
             <h3 className="font-bold text-farmly-foreground text-sm">Voice Navigation (In Dev)</h3>
@@ -194,7 +194,7 @@ export default function AgroSathiPage() {
           </Card>
 
           <Card className="bg-farmly-surface border-farmly-border p-5 space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400">
               <Bell className="w-5 h-5" />
             </div>
             <h3 className="font-bold text-farmly-foreground text-sm">Mandi Price Alerts</h3>

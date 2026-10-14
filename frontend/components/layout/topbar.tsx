@@ -27,18 +27,14 @@ export function Topbar({ onOpenMobileMenu, title }: TopbarProps) {
   const roleOptions: { id: UserRole; label: string }[] = [
     { id: "farmer", label: t("role.farmer", "Farmer") },
     { id: "helper", label: t("role.helper", "Field Helper") },
-    { id: "fpo", label: t("role.fpo", "FPO Cooperative") },
-    { id: "collection_center", label: t("role.collection_center", "Collection Center") },
-    { id: "quality_assessor", label: t("role.quality_assessor", "Quality Assessor") },
     { id: "distributor", label: t("role.distributor", "Distributor") },
     { id: "retailer", label: t("role.retailer", "Retailer") },
-    { id: "admin", label: t("role.admin", "Admin Auditor") },
   ];
 
   return (
-    <header className="sticky top-0 z-20 w-full h-16 bg-farmly-bg/90 backdrop-blur-md border-b border-farmly-border px-4 sm:px-6 flex items-center justify-between">
+    <header className="sticky top-0 z-20 w-full h-16 bg-farmly-bg/90 backdrop-blur-md border-b border-farmly-border px-4 sm:px-6 flex items-center justify-between gap-3">
       {/* Left: Mobile hamburger & breadcrumb/title */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
         <button
           type="button"
           onClick={onOpenMobileMenu}
@@ -56,9 +52,9 @@ export function Topbar({ onOpenMobileMenu, title }: TopbarProps) {
       </div>
 
       {/* Right: Quick Role Switcher, Language, Theme, Notifications, Profile */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        {/* Quick Role Switcher */}
-        <div className="relative">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Quick Role Switcher (demo convenience; the login page offers the same on small screens) */}
+        <div className="relative hidden sm:block">
           <button
             type="button"
             onClick={() => setRoleSwitcherOpen(!roleSwitcherOpen)}

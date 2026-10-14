@@ -37,14 +37,14 @@ export function Logo({
           iconSizes[size]
         )}
       >
-        <Sprout className="text-white w-3/5 h-3/5 transition-transform duration-300 group-hover:rotate-6" />
+        <Sprout className="text-farmly-foreground w-3/5 h-3/5 transition-transform duration-300 group-hover:rotate-6" />
         <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-farmly-accent rounded-full border border-farmly-bg" />
       </div>
 
       <div className="flex flex-col">
         <span
           className={cn(
-            "font-bold tracking-tight text-white transition-colors duration-200 group-hover:text-farmly-accent",
+            "font-bold tracking-tight text-farmly-foreground transition-colors duration-200 group-hover:text-farmly-accent",
             textSizes[size]
           )}
         >

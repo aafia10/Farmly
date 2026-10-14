@@ -36,7 +36,7 @@ import {
   INITIAL_MIXED_LOTS,
 } from "@/lib/mock-data";
 import { backendClient } from "@/lib/api/backendClient";
-import { FIXED_BLOCKCHAIN_FALLBACK_HASH } from "@/lib/constants";
+
 
 const isHelperUser = (): boolean => {
   if (typeof window === "undefined") return false;
@@ -424,7 +424,7 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
       ...lotData,
       id: newId,
       certificateRef: certRef,
-      blockchainHash: lotData.blockchainHash || FIXED_BLOCKCHAIN_FALLBACK_HASH,
+      blockchainHash: lotData.blockchainHash,
       createdDate: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
     };
     const updated = [newLot, ...lots];

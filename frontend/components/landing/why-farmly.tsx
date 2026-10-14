@@ -29,7 +29,7 @@ export function WhyFarmly() {
             <span className="text-xs uppercase font-bold tracking-widest text-farmly-accent mb-2 block">
               The Agricultural Transformation
             </span>
-            <h3 className="text-2xl sm:text-3xl font-bold text-white leading-snug">
+            <h3 className="text-2xl sm:text-3xl font-bold text-farmly-foreground leading-snug">
               Bridging the gap between traditional field mastery and modern digital trust.
             </h3>
             <p className="mt-4 text-farmly-muted text-sm sm:text-base leading-relaxed">
@@ -54,11 +54,11 @@ export function WhyFarmly() {
                   hoverGlow
                   className="p-6 md:p-8 h-full flex flex-col justify-start border-farmly-border/70 group"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-farmly-surface-elevated border border-farmly-border flex items-center justify-center text-farmly-accent group-hover:bg-farmly-primary/30 group-hover:border-farmly-accent/40 group-hover:text-emerald-300 transition-colors mb-5">
+                  <div className="w-12 h-12 rounded-xl bg-farmly-surface-elevated border border-farmly-border flex items-center justify-center text-farmly-accent group-hover:bg-farmly-primary/30 group-hover:border-farmly-accent/40 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors mb-5">
                     <Icon className="w-6 h-6" aria-hidden="true" />
                   </div>
 
-                  <h4 className="text-lg font-bold text-white group-hover:text-emerald-200 transition-colors mb-2.5">
+                  <h4 className="text-lg font-bold text-farmly-foreground group-hover:text-emerald-700 dark:group-hover:text-emerald-200 transition-colors mb-2.5">
                     {point.title}
                   </h4>
 
