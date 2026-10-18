@@ -383,7 +383,14 @@ const title = (s: string) =>
     .join(" ");
 
 /** "My name is ramesh patil" -> "Ramesh Patil". */
+/** Answers that are acknowledgements or refusals, never a name or a place ("yes", "ok", "no"). */
+function isNonAnswer(text: string): boolean {
+  const t = normalize(text);
+  return !t || parseYesNo(t) !== undefined && t.split(" ").length <= 3 || /^(hello|hi|hmm|um|uh|what|sorry|pardon)$/.test(t);
+}
+
 export function parseName(text: string): string | undefined {
+  if (isNonAnswer(text)) return undefined;
   const raw = text
     .replace(/\b(my|full)?\s*name\s*(is|:)?\b/gi, " ")
     .replace(/\b(i am|i'm|this is|myself|call me|it is|it's|sir|madam|ji)\b/gi, " ")
@@ -395,6 +402,7 @@ export function parseName(text: string): string | undefined {
 
 /** Village / taluka / district: strip filler like "I live in", "the district is". */
 export function parsePlace(text: string): string | undefined {
+  if (isNonAnswer(text)) return undefined;
   const raw = text
     .replace(/\b(i live in|i am from|i'm from|we live in|my village is|village is|my village|village|the|taluka|tehsil|tahsil|block|district|is|in|at|of|it is|it's|from|name)\b/gi, " ")
     .replace(/[^\p{L}\s-]/gu, " ");

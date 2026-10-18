@@ -75,6 +75,12 @@ test("registration answers", () => {
   assert.equal(p.parseName("I am Sunita Devi ji"), "Sunita Devi");
   assert.equal(p.parsePlace("I live in Pimpalgaon"), "Pimpalgaon");
   assert.equal(p.parsePlace("the district is Nashik"), "Nashik");
+  // A "yes" heard at the district question must be re-asked, never stored as the place (seen live).
+  assert.equal(p.parsePlace("Yes"), undefined);
+  assert.equal(p.parsePlace("haan ji"), undefined);
+  assert.equal(p.parsePlace("okay"), undefined);
+  assert.equal(p.parseName("yes"), undefined);
+  assert.equal(p.parsePlace("Yeola"), "Yeola");
   assert.equal(p.parseState("Maharashtra"), "Maharashtra");
   assert.equal(p.parseState("we are in tamil nadu"), "Tamil Nadu");
   assert.equal(p.parseState("Mars"), undefined);
