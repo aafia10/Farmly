@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { CropDetailBadges } from "@/components/common/crop-detail-badges";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -434,6 +435,7 @@ export default function HelperLotsPage() {
                       <td className="px-5 py-4">
                         <div className="font-semibold text-farmly-foreground">{lot.crop}</div>
                         <div className="text-xs text-farmly-muted">{lot.variety}</div>
+                        <CropDetailBadges item={lot} className="mt-1" />
                       </td>
                       <td className="px-5 py-4 font-medium text-farmly-foreground">{lot.quantity} {lot.unit}</td>
                       <td className="px-5 py-4">

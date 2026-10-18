@@ -41,6 +41,11 @@ export const cropController = {
           location: b.location,
           notes: b.notes,
           status: b.status,
+          sowingDate: b.sowingDate,
+          farmingMethod: b.farmingMethod,
+          organicCertified: b.organicCertified,
+          cropCategory: b.cropCategory,
+          expectedPricePerKg: b.expectedPricePerKg,
         },
         req.user
       );

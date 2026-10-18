@@ -63,9 +63,15 @@ async function answerLot(service, id) {
   await service.handle(id, { kind: "digits", digits: "1" }); // menu: crop lot
   await service.handle(id, speak("onion"));
   await service.handle(id, speak("Red onion"));
+  await service.handle(id, speak("organic"));
+  await service.handle(id, speak("yes")); // certified
+  await service.handle(id, speak("4 months ago"));
   await service.handle(id, speak("25 quintals"));
+  await service.handle(id, speak("B grade"));
   await service.handle(id, speak("next week"));
-  return service.handle(id, speak("yes")); // location from profile
+  await service.handle(id, speak("yes")); // location from profile
+  await service.handle(id, speak("WB NSK 07"));
+  return service.handle(id, speak("18 rupees per kilo"));
 }
 
 async function startEnglish(service, opts) {
@@ -78,7 +84,7 @@ test("registered farmer registers a crop lot and an upcoming harvest on one call
   const { service, tables, calls, deps } = makeService();
   const id = await startEnglish(service, { source: "simulator", callerNumber: "+919876543210", helper: HELPER });
   const rb = await answerLot(service, id);
-  assert.match(say(rb.output), /Onion.*Red onion.*25 quintals/);
+  assert.match(say(rb.output), /Onion, a vegetable, variety Red onion. Farming: organic, certified..*25 quintals, Grade B..*Weighbridge: WB-NSK-07. Expected price: 18 rupees per kilo/);
   assert.equal(calls.lot.length, 0, "no lot before the farmer confirms");
 
   const lot = await service.handle(id, speak("yes, correct"));
@@ -89,22 +95,36 @@ test("registered farmer registers a crop lot and an upcoming harvest on one call
   assert.match(say(lot.output), new RegExp(lotEntry.recordId.replace(/[^A-Z0-9]/g, "").split("").join(" ")));
   assert.match(say(lot.output), /anything else/i);
   // The JSON is exactly the body the website's lot form posts.
-  assert.deepEqual(Object.keys(lotEntry.payload).sort(), ["crop", "farmerId", "farmerName", "harvestDate", "id", "location", "qualityGrade", "quantity", "unit", "variety"]);
+  assert.deepEqual(Object.keys(lotEntry.payload).sort(), [
+    "crop", "cropCategory", "farmerId", "farmerName", "farmingMethod", "harvestDate", "id", "location", "organicCertified",
+    "pricePerKg", "qualityGrade", "quantity", "sowingDate", "unit", "variety", "weighmentScaleId",
+  ]);
+  assert.deepEqual(
+    { grade: lotEntry.payload.qualityGrade, scale: lotEntry.payload.weighmentScaleId, method: lotEntry.payload.farmingMethod, certified: lotEntry.payload.organicCertified, category: lotEntry.payload.cropCategory, price: lotEntry.payload.pricePerKg },
+    { grade: "Grade B", scale: "WB-NSK-07", method: "Organic", certified: true, category: "Vegetable", price: 18 }
+  );
   assert.equal(lotEntry.payload.location, "Pimpalgaon, Nashik");
   assert.equal(calls.lot[0].actor.role, "helper");
 
   await service.handle(id, { kind: "digits", digits: "2" }); // upcoming harvest
   await service.handle(id, speak("soybean"));
   await service.handle(id, speak("don't know"));
+  await service.handle(id, speak("we use fertiliser and spray"));
+  await service.handle(id, speak("don't know"));
   await service.handle(id, speak("40 quintals"));
   await service.handle(id, speak("15 December"));
   await service.handle(id, speak("yes"));
+  await service.handle(id, speak("4500 per quintal"));
   await service.handle(id, speak("no"));
   const avail = await service.handle(id, { kind: "digits", digits: "1" });
   assert.equal(tables.availability.size, 1);
   const availEntry = avail.record.submissions.find((s) => s.kind === "availability");
   assert.match(availEntry.recordId, /^CA-\d{6}$/);
   assert.equal(availEntry.payload.variety, "Not specified");
+  assert.equal(availEntry.payload.farmingMethod, "Conventional");
+  assert.equal(availEntry.payload.expectedPricePerKg, 45);
+  assert.equal(availEntry.payload.cropCategory, "Oilseed");
+  assert.equal(availEntry.payload.sowingDate, null);
   assert.equal(availEntry.payload.expectedHarvestDate.slice(5), "12-15");
   assert.match(say(avail.output), /upcoming harvest is recorded/);
 
@@ -142,13 +162,21 @@ test("new caller registers as a farmer, then registers a lot under the new profi
   await service.handle(id, { kind: "digits", digits: "1" });
   await service.handle(id, speak("tomato"));
   await service.handle(id, speak("local"));
+  await service.handle(id, speak("natural"));
+  await service.handle(id, speak("2 months ago"));
   await service.handle(id, speak("800 kg"));
+  await service.handle(id, speak("not sure"));
   await service.handle(id, speak("today"));
   await service.handle(id, speak("yes"));
+  await service.handle(id, speak("no"));
+  await service.handle(id, speak("don't know"));
   r = await service.handle(id, speak("yes"));
   const lot = [...tables.lot.values()][0];
   assert.equal(lot.farmerId, farmerEntry.recordId);
   assert.equal(lot.location, "Ozar, Nashik");
+  assert.equal(lot.weighmentScaleId, null, "not weighed: no made-up scale ID");
+  assert.equal(lot.qualityGrade, "Standard");
+  assert.equal(lot.farmingMethod, "Natural");
   assert.equal(r.record.submissions.length, 2);
 });
 

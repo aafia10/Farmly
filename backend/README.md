@@ -72,6 +72,7 @@ npm install
 4. In a new query, paste `database/migrations/003_ivr_sessions.sql` and click **Run** (phone registration sessions).
 5. In a new query, paste `database/migrations/004_ivr_registrations.sql` and click **Run** (several registrations per call).
 6. If your project already had `voicegenie_calls` / `voicegenie_submissions` tables from an older VoiceGenie prototype, also run `database/migrations/005_ivr_legacy_table_repair.sql`. It adds the columns the phone agent needs and keeps the old data. It is harmless on a fresh database.
+7. In a new query, paste `database/migrations/006_crop_details.sql` and click **Run** (farming method, crop type, sowing date and expected price for lots and upcoming harvests).
 
 All the scripts are idempotent (safe to re-run). The base schema creates:
 

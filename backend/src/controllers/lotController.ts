@@ -72,6 +72,11 @@ export const lotController = {
           weighmentScaleId: b.weighmentScaleId,
           certificateRef: b.certificateRef,
           harvestDate: b.harvestDate,
+          sowingDate: b.sowingDate,
+          farmingMethod: b.farmingMethod,
+          organicCertified: b.organicCertified,
+          cropCategory: b.cropCategory,
+          pricePerKg: b.pricePerKg,
         },
         req.user
       );

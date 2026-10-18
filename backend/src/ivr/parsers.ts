@@ -340,14 +340,31 @@ export function parseHarvestDate(text: string, today = new Date()): HarvestResul
 // Which field to change after the read-back
 // ---------------------------------------------------------------------------
 
-export type Field = "crop" | "variety" | "quantity" | "harvest" | "location";
+export type Field =
+  | "crop"
+  | "category"
+  | "variety"
+  | "method"
+  | "sowing"
+  | "quantity"
+  | "grade"
+  | "harvest"
+  | "location"
+  | "scale"
+  | "price";
 
 export function parseFieldChoice(text: string): Field | undefined {
   const t = normalize(text);
+  if (/\b(organic|natural|chemical|farming method|method|fertili[sz]er|spray|certified|certificate)\b/.test(t)) return "method";
+  if (/\b(sow|sowing|sown|planted|planting)\b/.test(t)) return "sowing";
+  if (/\b(grade|quality)\b/.test(t)) return "grade";
+  if (/\b(scale|weighbridge|weigh bridge|weighed|weighment)\b/.test(t)) return "scale";
+  if (/\b(price|rate|rupees|rs|money)\b/.test(t)) return "price";
+  if (/\b(crop type|type of crop|category|group)\b/.test(t)) return "category";
   if (/\b(variety|type|kind)\b/.test(t)) return "variety";
   if (/\b(quantity|amount|weight|how much|kilo|kilos|quintal|quintals|tonne|tonnes|kg)\b/.test(t)) return "quantity";
   if (/\b(date|harvest|when|day|month)\b/.test(t)) return "harvest";
-  if (/\b(location|village|place|farm|where|district)\b/.test(t)) return "location";
+  if (/\b(location|village|place|farm|where|district|stored|storage|godown)\b/.test(t)) return "location";
   if (/\b(crop|name)\b/.test(t)) return "crop";
   return undefined;
 }
@@ -512,4 +529,157 @@ export function parseAvailFieldChoice(text: string): AvailField | undefined {
   const t = normalize(text);
   if (/\b(note|notes|remark|remarks|extra|comment)\b/.test(t)) return "notes";
   return parseFieldChoice(text);
+}
+
+// ---------------------------------------------------------------------------
+// Extra lot / harvest details: crop type, farming method, grade, sowing date, scale, price
+// ---------------------------------------------------------------------------
+
+export const CROP_CATEGORIES = ["Cereal", "Pulse", "Oilseed", "Vegetable", "Fruit", "Spice", "Cash Crop", "Plantation", "Other"] as const;
+export type CropCategory = (typeof CROP_CATEGORIES)[number];
+
+const CATEGORY_OF: Record<string, CropCategory> = {
+  Wheat: "Cereal", Rice: "Cereal", Maize: "Cereal", "Pearl Millet": "Cereal", Sorghum: "Cereal", "Finger Millet": "Cereal",
+  Chickpea: "Pulse", "Pigeon Pea": "Pulse", "Green Gram": "Pulse", "Black Gram": "Pulse", Lentil: "Pulse",
+  Soybean: "Oilseed", Groundnut: "Oilseed", Mustard: "Oilseed", Sunflower: "Oilseed", Sesame: "Oilseed",
+  Onion: "Vegetable", Tomato: "Vegetable", Potato: "Vegetable", Cauliflower: "Vegetable", Cabbage: "Vegetable", Brinjal: "Vegetable", Okra: "Vegetable",
+  Grapes: "Fruit", Pomegranate: "Fruit", Banana: "Fruit", Mango: "Fruit", Orange: "Fruit",
+  Turmeric: "Spice", Chilli: "Spice", Garlic: "Spice", Ginger: "Spice",
+  Cotton: "Cash Crop", Sugarcane: "Cash Crop", Jute: "Cash Crop",
+  Coconut: "Plantation", Tea: "Plantation", Coffee: "Plantation",
+};
+
+/** Crop type for a crop from the dictionary; undefined for crops the agent does not know. */
+export function categoryForCrop(crop?: string): CropCategory | undefined {
+  return crop ? CATEGORY_OF[crop] : undefined;
+}
+
+export function parseCropCategory(text: string): CropCategory | undefined {
+  const t = normalize(text);
+  if (/\b(grain|grains|cereal|cereals|millet|anaj|anaaj)\b/.test(t)) return "Cereal";
+  if (/\b(pulse|pulses|dal|daal|lentil|beans?)\b/.test(t)) return "Pulse";
+  if (/\b(oil ?seeds?|oil|tilhan)\b/.test(t)) return "Oilseed";
+  if (/\b(vegetables?|sabzi|sabji|bhaji)\b/.test(t)) return "Vegetable";
+  if (/\b(fruits?|phal)\b/.test(t)) return "Fruit";
+  if (/\b(spices?|masala)\b/.test(t)) return "Spice";
+  if (/\b(cash crop|commercial|fibre|fiber)\b/.test(t)) return "Cash Crop";
+  if (/\b(plantation|tree|trees|garden|bagayat)\b/.test(t)) return "Plantation";
+  if (/\b(other|something else|dont know|do not know|not sure)\b/.test(t)) return "Other";
+  return undefined;
+}
+
+export type FarmingMethod = "Organic" | "Natural" | "Conventional";
+
+const NO_CHEMICALS = /\b(no chemicals?|without chemicals?|no sprays?|no fertili[sz]ers?|no pesticides?|no urea)\b/;
+
+/** Organic / natural (zero-budget) / conventional (uses chemical fertiliser or sprays). */
+export function parseFarmingMethod(text: string): FarmingMethod | undefined {
+  const t = normalize(text);
+  if (/\b(not organic|non organic|chemicals?|urea|fertili[sz]ers?|pesticides?|sprays?|dap|conventional|normal|regular|rasayanik)\b/.test(t) && !NO_CHEMICALS.test(t)) {
+    return "Conventional";
+  }
+  if (/\b(natural|zero budget|zbnf|prakritik|naisargik)\b/.test(t)) return "Natural";
+  if (/\b(organic|jaivik|sendriya|sendriy|compost|vermi ?compost|manure)\b/.test(t) || NO_CHEMICALS.test(t)) return "Organic";
+  return undefined;
+}
+
+export type Grade = "Grade A" | "Grade B" | "Standard";
+
+/** Farmer-declared quality, matching the website's grade options. "Not sure" gives Standard. */
+export function parseGrade(text: string): Grade | undefined {
+  const t = normalize(text);
+  if (/\b(c grade|grade c|third|3rd|standard|normal|local|mandi|ordinary|dont know|do not know|not sure|no idea)\b/.test(t)) return "Standard";
+  if (/\b(b grade|grade b|second|2nd|medium|average|b class|class b)\b/.test(t) || t === "b") return "Grade B";
+  if (/\b(a grade|grade a|first|1st|best|top|premium|export|number one|a class|class a)\b/.test(t) || t === "a") return "Grade A";
+  return undefined;
+}
+
+export type PastDateResult = { kind: "ok"; date: string } | { kind: "invalid" } | { kind: "none" };
+
+/** Sowing date: in the past, at most two years ago ("3 months ago", "in June", "15 July"). */
+export function parseSowingDate(text: string, today = new Date()): PastDateResult {
+  const t = normalize(text);
+  if (!t) return { kind: "none" };
+  const base = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const n = parseNumber(t);
+  let date: Date | undefined;
+  if (/\b(today|now)\b/.test(t)) date = base;
+  else if (/\byesterday\b/.test(t)) date = addDays(base, -1);
+  else if (/\blast week\b/.test(t)) date = addDays(base, -7);
+  else if (/\blast month\b/.test(t)) date = addDays(base, -30);
+  else if (/\blast year\b/.test(t)) date = addDays(base, -365);
+  else if (n !== undefined && /\bdays?\b/.test(t)) date = addDays(base, -Math.round(n));
+  else if (n !== undefined && /\bweeks?\b/.test(t)) date = addDays(base, -Math.round(n * 7));
+  else if (n !== undefined && /\bmonths?\b/.test(t)) date = addDays(base, -Math.round(n * 30));
+  else {
+    const numeric = t.match(/\b(\d{1,2})\s*[/-]\s*(\d{1,2})(?:\s*[/-]\s*(\d{2,4}))?\b/);
+    const dayMonth = t.match(/\b(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?([a-z]+)(?:\s+(\d{4}))?\b/);
+    const monthDay = t.match(/\b([a-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?(?:\s+(\d{4}))?\b/);
+    let day: number | undefined;
+    let month: number | undefined;
+    let year: number | undefined;
+    if (numeric) {
+      day = +numeric[1];
+      month = +numeric[2] - 1;
+      if (numeric[3]) year = numeric[3].length === 2 ? 2000 + +numeric[3] : +numeric[3];
+    } else if (dayMonth && dayMonth[2] in MONTHS) {
+      day = +dayMonth[1];
+      month = MONTHS[dayMonth[2]];
+      if (dayMonth[3]) year = +dayMonth[3];
+    } else if (monthDay && monthDay[1] in MONTHS) {
+      day = +monthDay[2];
+      month = MONTHS[monthDay[1]];
+      if (monthDay[3]) year = +monthDay[3];
+    } else {
+      const m = t.split(" ").find((w) => w in MONTHS && w !== "may");
+      if (m) {
+        day = 15;
+        month = MONTHS[m];
+      }
+    }
+    if (day !== undefined && month !== undefined && month >= 0 && month <= 11 && day >= 1 && day <= 31) {
+      const candidate = new Date(year ?? base.getFullYear(), month, day);
+      if (candidate.getMonth() !== month) return { kind: "invalid" };
+      // Without a year, a date later this year means last year's sowing.
+      if (year === undefined && candidate.getTime() > base.getTime()) candidate.setFullYear(candidate.getFullYear() - 1);
+      date = candidate;
+    }
+  }
+  if (!date) return { kind: "none" };
+  const diff = Math.round((date.getTime() - base.getTime()) / DAY_MS);
+  if (diff > 0 || diff < -730) return { kind: "invalid" };
+  return { kind: "ok", date: iso(date) };
+}
+
+/** Weighbridge / scale number, or null when the crop has not been weighed. */
+export function parseScaleId(text: string): { scaleId: string | null } | undefined {
+  const t = normalize(text);
+  if (!t) return undefined;
+  if (/^(no|nope|not yet|nahi|nahin|na|never)\b/.test(t) || /\b(not weighed|no scale|dont know|do not know|not sure)\b/.test(t)) return { scaleId: null };
+  const words = text
+    .toUpperCase()
+    .replace(/\b(YES|HAAN|THE|SCALE|WEIGHBRIDGE|WEIGH|BRIDGE|NUMBER|NO|IS|IT|ID|CODE|AT|ON)\b/g, " ")
+    .replace(/[^A-Z0-9]+/g, " ")
+    .trim()
+    .split(" ")
+    .filter(Boolean);
+  if (!words.length || !words.some((w) => /\d/.test(w))) return undefined; // "yes" alone: ask for the number
+  return { scaleId: words.join("-").slice(0, 30) };
+}
+
+/** Expected price per kg in rupees (converted from per quintal / per tonne); null when not known. */
+export function parsePricePerKg(text: string): { pricePerKg: number | null } | undefined {
+  const t = normalize(text);
+  if (!t) return undefined;
+  const n = parseNumber(t);
+  if (n === undefined) {
+    if (/\b(dont know|do not know|not sure|no idea|market rate|market price|whatever|buyer decides|no)\b/.test(t)) return { pricePerKg: null };
+    return undefined;
+  }
+  if (n <= 0) return undefined;
+  let perKg = n;
+  if (/\b(quintal|quintals|qtl)\b/.test(t)) perKg = n / 100;
+  else if (/\b(tonne|tonnes|ton|tons)\b/.test(t)) perKg = n / 1000;
+  if (perKg > 100000) return undefined;
+  return { pricePerKg: Math.round(perKg * 100) / 100 };
 }

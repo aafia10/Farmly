@@ -20,6 +20,15 @@ export interface LotInput {
   weighmentScaleId?: string | null;
   certificateRef?: string | null;
   harvestDate?: string | null; // YYYY-MM-DD
+  sowingDate?: string | null;
+  farmingMethod?: "Organic" | "Natural" | "Conventional" | null;
+  organicCertified?: boolean | null;
+  cropCategory?: string | null;
+  pricePerKg?: number | null;
+}
+
+function toKgFactor(unit?: string): number {
+  return unit === "quintals" ? 100 : unit === "tonnes" ? 1000 : 1;
 }
 
 /**
@@ -65,9 +74,16 @@ export async function createLotRecord(input: LotInput, actor: AuthUser | undefin
     location: input.location || "Nashik, Maharashtra",
     assisted_by_helper_id: helperUuid,
     parent_lot_id: input.parentLotId || null,
-    weighment_scale_id: input.weighmentScaleId || "WB-NSK-01",
+    // null = explicitly not weighed yet (phone registration); undefined keeps the old form default.
+    weighment_scale_id: input.weighmentScaleId === null ? null : input.weighmentScaleId || "WB-NSK-01",
     certificate_ref: input.certificateRef || null,
     ...(input.harvestDate ? { harvest_date: input.harvestDate } : {}),
+    // Optional crop details (migration 006); only sent when given so older forms keep working.
+    ...(input.sowingDate ? { sowing_date: input.sowingDate } : {}),
+    ...(input.farmingMethod ? { farming_method: input.farmingMethod } : {}),
+    ...(input.organicCertified != null ? { organic_certified: input.organicCertified } : {}),
+    ...(input.cropCategory ? { crop_category: input.cropCategory } : {}),
+    ...(input.pricePerKg ? { price_per_kg: input.pricePerKg, total_price: Math.round(input.pricePerKg * toKgFactor(input.unit) * input.quantity * 100) / 100 } : {}),
     // Root lots belong to the farmer (a helper registers on the farmer's behalf).
     ...(input.parentLotId
       ? {}

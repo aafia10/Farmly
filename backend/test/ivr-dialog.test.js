@@ -126,9 +126,15 @@ test("registered caller: menu, crop lot, confirm, then finish", () => {
     { type: "speech", text: "crop lot" },
     { type: "speech", text: "onion" },
     { type: "speech", text: "Nashik red" },
+    { type: "speech", text: "organic, we use only compost" },
+    { type: "speech", text: "no" }, // not certified
+    { type: "speech", text: "3 months ago" },
     { type: "speech", text: "twenty quintals" },
+    { type: "speech", text: "A grade" },
     { type: "speech", text: "next week" },
     { type: "speech", text: "yes" },
+    { type: "speech", text: "yes, weighbridge WB NSK 07" },
+    { type: "speech", text: "2000 rupees per quintal" },
   ]);
   assert.equal(log[1].action.type, "identify");
   assert.equal(log[1].action.mobile, "9876543210");
@@ -140,6 +146,15 @@ test("registered caller: menu, crop lot, confirm, then finish", () => {
     { crop: state.fields.crop, variety: state.fields.variety, quantity: state.fields.quantity, unit: state.fields.unit, location: state.fields.location },
     { crop: "Onion", variety: "Nashik red", quantity: 20, unit: "quintals", location: "Sinnar, Nashik" }
   );
+  const f = state.fields;
+  assert.deepEqual(
+    { category: f.cropCategory, method: f.farmingMethod, certified: f.organicCertified, sowing: f.sowingDate, grade: f.grade, scale: f.scaleId, price: f.pricePerKg },
+    { category: "Vegetable", method: "Organic", certified: false, sowing: "2026-07-20", grade: "Grade A", scale: "WB-NSK-07", price: 20 }
+  );
+  const rb = log[log.length - 1].say[0];
+  assert.equal(rb.id, "readback");
+  assert.equal(rb.vars.method, "organic, not certified");
+  assert.equal(rb.vars.price, "20 rupees per kilo");
   const confirm = step(state, { type: "digits", digits: "1" }, dopts);
   assert.deepEqual(confirm.action, { type: "submit", kind: "lot" });
   const done = step(confirm.state, { type: "submitted", kind: "lot", id: "LT-482913" }, dopts);
@@ -160,10 +175,15 @@ test("keypad language menu, unit follow-up and correcting a field", () => {
     { type: "digits", digits: "1" },
     { type: "speech", text: "wheat" },
     { type: "speech", text: "don't know" },
+    { type: "digits", digits: "3" }, // chemical
+    { type: "speech", text: "I don't remember" },
     { type: "speech", text: "about 300" },
     { type: "speech", text: "kilos" },
+    { type: "digits", digits: "2" }, // Grade B
     { type: "speech", text: "already harvested" },
     { type: "speech", text: "Kalwan" },
+    { type: "digits", digits: "2" }, // not weighed
+    { type: "speech", text: "don't know" }, // price
     { type: "speech", text: "no" },
     { type: "speech", text: "the quantity" },
     { type: "speech", text: "350 kg" },
@@ -173,6 +193,40 @@ test("keypad language menu, unit follow-up and correcting a field", () => {
   assert.equal(state.fields.quantity, 350);
   assert.equal(state.fields.variety, null);
   assert.equal(state.fields.location, "Kalwan");
+  assert.equal(state.fields.farmingMethod, "Conventional");
+  assert.equal(state.fields.organicCertified, null);
+  assert.equal(state.fields.sowingDate, null);
+  assert.equal(state.fields.grade, "Grade B");
+  assert.equal(state.fields.scaleId, null);
+  assert.equal(state.fields.pricePerKg, null);
+});
+
+test("unknown crops are asked for their crop type; changing a detail returns to the read-back", () => {
+  const { state, log } = run([
+    ...intoLot,
+    { type: "speech", text: "dragon fruit" },
+    { type: "speech", text: "yes" }, // confirm the unknown crop name
+    { type: "speech", text: "it is a fruit" },
+    { type: "speech", text: "don't know" },
+    { type: "digits", digits: "1" }, // organic
+    { type: "digits", digits: "1" }, // certified
+    { type: "speech", text: "in June" },
+    { type: "speech", text: "2 tonnes" },
+    { type: "speech", text: "standard" },
+    { type: "speech", text: "today" },
+    { type: "speech", text: "yes" },
+    { type: "speech", text: "no" },
+    { type: "speech", text: "60 per kilo" },
+    { type: "speech", text: "no" },
+    { type: "speech", text: "change the farming method" },
+    { type: "speech", text: "natural farming" },
+  ]);
+  assert.equal(log[5].say[0].id, "askCropCategory");
+  assert.equal(state.fields.cropCategory, "Fruit");
+  assert.equal(state.fields.farmingMethod, "Natural");
+  assert.equal(state.fields.organicCertified, null);
+  assert.equal(state.fields.sowingDate, "2026-06-15");
+  assert.equal(state.step, "readback");
 });
 
 test("new caller registers as a farmer on the call, then records an upcoming harvest", () => {
@@ -215,17 +269,26 @@ test("new caller registers as a farmer on the call, then records an upcoming har
     { type: "speech", text: "upcoming harvest" },
     { type: "speech", text: "grapes" },
     { type: "speech", text: "Thompson seedless" },
+    { type: "speech", text: "no chemical spray at all" },
+    { type: "speech", text: "yes" }, // certified organic
+    { type: "speech", text: "5 months ago" },
     { type: "speech", text: "5 tonnes" },
     { type: "speech", text: "15 days ago" },
     { type: "speech", text: "next month" },
     { type: "speech", text: "yes" },
-    { type: "speech", text: "organic, no chemical spray" },
+    { type: "speech", text: "we expect 60 rupees per kilo" },
+    { type: "speech", text: "drip irrigation, black soil" },
     { type: "speech", text: "yes" },
   ], registered.state);
-  assert.equal(harvest.log[4].say[0].id, "availPastDate", "a past date is refused for an upcoming harvest");
+  assert.equal(harvest.log[7].say[0].id, "availPastDate", "a past date is refused for an upcoming harvest");
+  assert.equal(harvest.state.fields.farmingMethod, "Organic");
+  assert.equal(harvest.state.fields.organicCertified, true);
+  assert.equal(harvest.state.fields.cropCategory, "Fruit");
+  assert.equal(harvest.state.fields.pricePerKg, 60);
+  assert.equal(harvest.state.fields.grade, undefined, "grade is asked for lots only");
   assert.deepEqual(harvest.last.action, { type: "submit", kind: "availability" });
   assert.equal(harvest.state.fields.location, "Ozar, Niphad");
-  assert.equal(harvest.state.fields.notes, "organic, no chemical spray");
+  assert.equal(harvest.state.fields.notes, "drip irrigation, black soil");
   assert.equal(harvest.state.fields.harvestDate, p.parseHarvestDate("next month", today).date);
 });
 
@@ -286,7 +349,7 @@ test("resume offers the unfinished crop", () => {
   const { state, log } = run([
     { type: "start" },
     { type: "digits", digits: "3" },
-    { type: "identified", farmer, resume: { task: "lot", fields: { crop: "Wheat", varietyAsked: true, variety: null } } },
+    { type: "identified", farmer, resume: { task: "lot", fields: { crop: "Wheat", cropCategory: "Cereal", varietyAsked: true, variety: null, farmingMethod: "Conventional", organicCertified: null, sowingAsked: true, sowingDate: null } } },
     { type: "speech", text: "yes" },
   ]);
   assert.equal(log[2].say[1].id, "askResume");

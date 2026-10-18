@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Wheat, Plus, Info, ArrowRight, CheckCircle2, Boxes } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Card } from "@/components/ui/card";
+import { CropDetailBadges } from "@/components/common/crop-detail-badges";
 import { Button } from "@/components/ui/button";
 import { AuthInput } from "@/components/auth/auth-input";
 import { StatusBadge } from "@/components/common/status-badge";
@@ -276,6 +277,7 @@ export default function HelperCropAvailabilityPage() {
                         {item.crop}
                       </h4>
                       <span className="text-xs text-farmly-muted font-mono">{item.variety}</span>
+                      <CropDetailBadges item={item} className="mt-1" />
                     </div>
                   </div>
                   <StatusBadge status={item.status} size="sm" />

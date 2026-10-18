@@ -64,10 +64,29 @@ export const PROMPTS = {
     "When will you harvest it, or have you already harvested it? For example today, next week, or 15 November.",
   harvestInvalid: "That date doesn't look right. Please tell me the harvest date again, for example 20 November.",
   askLocationConfirm: "Is the crop at your farm in {location}? Say yes or no.",
-  askLocation: "Please tell me the village where the crop is.",
+  askLocation: "Please tell me the village or place where the crop is kept.",
+
+  // Crop details asked for both lots and upcoming harvests (same answers as the website forms, plus farming method).
+  askCropCategory:
+    "What type of crop is {crop}? Say grain, pulse, oilseed, vegetable, fruit, spice, cash crop, or something else.",
+  askFarmingMethod:
+    "How is this {crop} grown? Say organic, if you use no chemical fertiliser or sprays. Say natural, for natural or zero-budget farming. Or say chemical, if you use chemical fertiliser or sprays. You can also press 1 for organic, 2 for natural, or 3 for chemical.",
+  askOrganicCertified: "Do you have an organic certificate for this crop? Say yes or no.",
+  askSowing: "When did you sow it? For example 3 months ago, or 15 June. If you don't remember, say don't know.",
+  sowingInvalid: "That sowing date doesn't look right. Please say it again, for example 3 months ago, or say don't know.",
+  askGrade:
+    "What is the quality of the crop? Press 1 or say A grade, for export quality. Press 2 or say B grade, for good commercial quality. Press 3 or say standard, for local mandi quality. If you are not sure, say not sure.",
+  askScale:
+    "Has the crop been weighed at a weighbridge or weighing scale? If yes, please say the scale or receipt number. If not, say no.",
+  askScaleNumber: "Please say the weighbridge or scale number, or say no if you don't have it.",
+  askPrice:
+    "What price do you expect per kilo? For example 25 rupees per kilo, or 2500 per quintal. If you don't know, say don't know.",
+  priceInvalid: "Sorry, I didn't get the price. Please say it like 25 rupees per kilo, or say don't know.",
+
   readback:
-    "Please check the details. Crop: {crop}, variety {variety}. Quantity: {quantity} {unit}. Harvest: {harvest}. Location: {location}. Shall I register this crop lot? Say yes to register, or no to change something. You can also press 1 for yes or 2 for no.",
-  askWhichChange: "What would you like to change: the crop, variety, quantity, harvest date or location?",
+    "Please check the details. Crop: {crop}, {category}, variety {variety}. Farming: {method}. Sown: {sowing}. Quantity: {quantity} {unit}, {grade}. Harvest: {harvest}. Location: {location}. Weighbridge: {scale}. Expected price: {price}. Shall I register this crop lot? Say yes to register, or no to change something. You can also press 1 for yes or 2 for no.",
+  askWhichChange:
+    "What would you like to change: the crop, crop type, variety, farming method, sowing date, quantity, quality grade, harvest date, location, weighbridge or price?",
   registered: "Your crop lot is registered. Your batch number is {batch}. Your helper can see it in Farmly.",
   submitFailed:
     "Your details are saved, but the registration could not be completed right now. Your field helper will complete it and call you. Thank you.",
@@ -79,10 +98,11 @@ export const PROMPTS = {
   askExpectedHarvest: "When do you expect to harvest it? For example next month, or 15 December.",
   availPastDate:
     "That date has already passed. For a crop that is already harvested, please register a crop lot instead. When do you expect to harvest?",
-  askNotes: "Is there anything buyers should know, for example organic farming or soil type? If nothing, say no.",
+  askNotes: "Is there anything else buyers should know, for example soil type or irrigation? If nothing, say no.",
   availReadback:
-    "Please check. Upcoming harvest of {crop}, variety {variety}. About {quantity} {unit}, {harvest}. Location: {location}. Notes: {notes}. Shall I record this? Say yes, or no to change something. You can also press 1 for yes or 2 for no.",
-  availAskWhichChange: "What would you like to change: the crop, variety, quantity, harvest date, location or notes?",
+    "Please check. Upcoming harvest of {crop}, {category}, variety {variety}. Farming: {method}. Sown: {sowing}. About {quantity} {unit}, {harvest}. Location: {location}. Expected price: {price}. Notes: {notes}. Shall I record this? Say yes, or no to change something. You can also press 1 for yes or 2 for no.",
+  availAskWhichChange:
+    "What would you like to change: the crop, crop type, variety, farming method, sowing date, quantity, harvest date, location, price or notes?",
   availabilityRecorded: "Your upcoming harvest is recorded. Your reference number is {ref}. Buyers on Farmly can now see it.",
 
   // ----- Errors, silence and commands -----------------------------------------------------------

@@ -131,6 +131,11 @@ export interface CropAvailability {
   notes?: string;
   status: "Draft" | "Available" | "Under Review" | "Converted to Lot" | "Sold";
   createdAt: string;
+  farmingMethod?: "Organic" | "Natural" | "Conventional";
+  organicCertified?: boolean;
+  cropCategory?: string;
+  sowingDate?: string;
+  expectedPricePerKg?: number;
 }
 
 export interface Lot {
@@ -152,6 +157,12 @@ export interface Lot {
   weighmentScaleId?: string;
   certificateRef?: string;
   blockchainHash?: string;
+  farmingMethod?: "Organic" | "Natural" | "Conventional";
+  organicCertified?: boolean;
+  cropCategory?: string;
+  sowingDate?: string;
+  harvestDate?: string;
+  pricePerKg?: number;
 }
 
 export interface EvidenceItem {

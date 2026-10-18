@@ -159,9 +159,15 @@ export function lotPayload(state: DialogState, id: string): LotInput & { id: str
     variety: f.variety || "Standard",
     quantity: f.quantity!,
     unit: f.unit!,
-    qualityGrade: "Standard", // farmer-declared by phone; graded later at collection
+    qualityGrade: f.grade || "Standard", // farmer-declared by phone; checked again at collection
     location: f.location!,
     harvestDate: f.harvestDate!,
+    weighmentScaleId: f.scaleId ?? null, // null = not weighed yet
+    cropCategory: f.cropCategory || null,
+    farmingMethod: f.farmingMethod || null,
+    organicCertified: f.farmingMethod === "Organic" ? Boolean(f.organicCertified) : null,
+    sowingDate: f.sowingDate || null,
+    pricePerKg: f.pricePerKg || null,
   };
 }
 
@@ -178,6 +184,11 @@ export function availabilityPayload(state: DialogState, id: string): CropAvailab
     expectedHarvestDate: f.harvestDate!,
     location: f.location!,
     notes: f.notes || null,
+    cropCategory: f.cropCategory || null,
+    farmingMethod: f.farmingMethod || null,
+    organicCertified: f.farmingMethod === "Organic" ? Boolean(f.organicCertified) : null,
+    sowingDate: f.sowingDate || null,
+    expectedPricePerKg: f.pricePerKg || null,
   };
 }
 

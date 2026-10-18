@@ -330,7 +330,7 @@ export default function HelperCallsPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto rounded-xl border border-farmly-border bg-farmly-background/40 p-3 space-y-2 max-h-[380px]">
-              {chat.length === 0 && <p className="text-xs text-farmly-muted text-center py-10">Enter a farmer's mobile number and start a call.</p>}
+              {chat.length === 0 && <p className="text-xs text-farmly-muted text-center py-10">Enter a farmer&apos;s mobile number and start a call.</p>}
               {chat.map((line, i) => (
                 <div key={i} className={`flex ${line.role === "caller" ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-xs ${line.role === "caller" ? "bg-farmly-primary text-white" : "bg-farmly-surface-elevated text-farmly-foreground border border-farmly-border"}`}>

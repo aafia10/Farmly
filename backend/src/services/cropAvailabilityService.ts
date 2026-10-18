@@ -16,6 +16,11 @@ export interface CropAvailabilityInput {
   location: string;
   notes?: string | null;
   status?: string;
+  sowingDate?: string | null;
+  farmingMethod?: "Organic" | "Natural" | "Conventional" | null;
+  organicCertified?: boolean | null;
+  cropCategory?: string | null;
+  expectedPricePerKg?: number | null;
 }
 
 /**
@@ -49,6 +54,12 @@ export async function createCropAvailabilityRecord(
     location: input.location,
     notes: input.notes || null,
     status: input.status || "Available",
+    // Optional crop details (migration 006); only sent when given so older forms keep working.
+    ...(input.sowingDate ? { sowing_date: input.sowingDate } : {}),
+    ...(input.farmingMethod ? { farming_method: input.farmingMethod } : {}),
+    ...(input.organicCertified != null ? { organic_certified: input.organicCertified } : {}),
+    ...(input.cropCategory ? { crop_category: input.cropCategory } : {}),
+    ...(input.expectedPricePerKg ? { expected_price_per_kg: input.expectedPricePerKg } : {}),
   };
 
   const query = opts.insertOnly

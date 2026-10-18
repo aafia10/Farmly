@@ -18,7 +18,14 @@ import {
   isSkip,
   normalizeMobile,
   parseAvailFieldChoice,
+  categoryForCrop,
   parseCrop,
+  parseCropCategory,
+  parseFarmingMethod,
+  parseGrade,
+  parsePricePerKg,
+  parseScaleId,
+  parseSowingDate,
   parseFarmingCategory,
   parseFieldChoice,
   parseFpo,
@@ -64,12 +71,20 @@ export type Step =
   | "resume"
   | "crop"
   | "cropConfirm"
+  | "cropCategory"
   | "variety"
+  | "farmingMethod"
+  | "organicCertified"
+  | "sowing"
   | "quantity"
   | "unit"
+  | "grade"
   | "harvest"
   | "locationConfirm"
   | "location"
+  | "scale"
+  | "scaleNumber"
+  | "price"
   | "notes"
   | "readback"
   | "changeWhich"
@@ -97,6 +112,16 @@ export interface CollectedFields {
   location?: string;
   notes?: string | null; // upcoming harvest only
   notesAsked?: boolean;
+  cropCategory?: string; // Cereal, Pulse, Oilseed, Vegetable, Fruit, Spice, Cash Crop, Plantation, Other
+  farmingMethod?: "Organic" | "Natural" | "Conventional";
+  organicCertified?: boolean | null; // asked only for organic
+  sowingDate?: string | null; // null = farmer does not remember
+  sowingAsked?: boolean;
+  grade?: "Grade A" | "Grade B" | "Standard"; // crop lot only
+  scaleId?: string | null; // crop lot only; null = not weighed yet
+  scaleAsked?: boolean;
+  pricePerKg?: number | null; // null = farmer does not know
+  priceAsked?: boolean;
 }
 
 /** Answers for a new farmer profile (same fields as the helper "Register farmer" form). */
@@ -208,8 +233,24 @@ export function formatDate(isoDate?: string): string {
 
 const last4 = (mobile?: string) => spell((mobile || "").slice(-4));
 
+/** "a vegetable", "an oilseed". */
+const withArticle = (w: string) => (/^[aeiou]/.test(w) ? `an ${w}` : `a ${w}`);
+
+function methodWords(f: CollectedFields): string {
+  if (f.farmingMethod === "Organic") return f.organicCertified ? "organic, certified" : "organic, not certified";
+  if (f.farmingMethod === "Natural") return "natural farming";
+  if (f.farmingMethod === "Conventional") return "with chemical fertiliser or sprays";
+  return "not given";
+}
+
 function readbackVars(f: CollectedFields): Record<string, string | number> {
   return {
+    category: withArticle((f.cropCategory || "crop").toLowerCase()),
+    method: methodWords(f),
+    sowing: f.sowingDate ? formatDate(f.sowingDate) : "not known",
+    grade: f.grade === "Standard" || !f.grade ? "standard quality" : f.grade,
+    scale: f.scaleId || "not weighed yet",
+    price: f.pricePerKg ? `${f.pricePerKg} rupees per kilo` : "not given",
     crop: f.crop || "",
     variety: f.variety || "not known",
     quantity: f.quantity ?? "",
@@ -284,8 +325,24 @@ function question(state: DialogState): Utterance[] {
       return [{ id: avail ? "askAvailCrop" : "askCrop" }];
     case "cropConfirm":
       return [{ id: "confirmUnknownCrop", vars: { crop: state.pendingCrop || "" } }];
+    case "cropCategory":
+      return [{ id: "askCropCategory", vars: { crop: f.crop || "this crop" } }];
     case "variety":
       return [{ id: "askVariety", vars: { crop: f.crop || "the crop" } }];
+    case "farmingMethod":
+      return [{ id: "askFarmingMethod", vars: { crop: f.crop || "crop" } }];
+    case "organicCertified":
+      return [{ id: "askOrganicCertified" }];
+    case "sowing":
+      return [{ id: "askSowing" }];
+    case "grade":
+      return [{ id: "askGrade" }];
+    case "scale":
+      return [{ id: "askScale" }];
+    case "scaleNumber":
+      return [{ id: "askScaleNumber" }];
+    case "price":
+      return [{ id: "askPrice" }];
     case "quantity":
       return [{ id: avail ? "askAvailQuantity" : "askQuantity", vars: { crop: f.crop || "the crop" } }];
     case "unit":
@@ -337,13 +394,23 @@ function nextRegStep(state: DialogState): Step {
 function nextCropStep(state: DialogState): Step {
   const f = state.fields;
   const avail = state.task === "availability";
-  const complete = f.crop && f.quantity && f.unit && f.harvestDate && f.location && (!avail || f.notesAsked);
+  const needsCertificate = f.farmingMethod === "Organic" && f.organicCertified === undefined;
+  const complete =
+    f.crop && f.cropCategory && f.varietyAsked && f.farmingMethod && !needsCertificate && f.sowingAsked && f.quantity && f.unit &&
+    (avail || f.grade) && f.harvestDate && f.location && (avail || f.scaleAsked) && f.priceAsked && (!avail || f.notesAsked);
   if (state.editing && complete) return "readback";
   if (!f.crop) return "crop";
+  if (!f.cropCategory) return "cropCategory";
   if (!f.varietyAsked) return "variety";
+  if (!f.farmingMethod) return "farmingMethod";
+  if (needsCertificate) return "organicCertified";
+  if (!f.sowingAsked) return "sowing";
   if (!f.quantity || !f.unit) return "quantity";
+  if (!avail && !f.grade) return "grade";
   if (!f.harvestDate) return "harvest";
   if (!f.location) return profileLocation(state.farmer) ? "locationConfirm" : "location";
+  if (!avail && !f.scaleAsked) return "scale";
+  if (!f.priceAsked) return "price";
   if (avail && !f.notesAsked) return "notes";
   return "readback";
 }
@@ -667,7 +734,7 @@ export function step(state: DialogState, event: DialogEvent, opts: DialogOptions
     // ----- Crop lot / upcoming harvest ----------------------------------------
     case "crop": {
       const { crop, heard } = parseCrop(text);
-      if (crop) return setFields({ crop });
+      if (crop) return setFields({ crop, cropCategory: categoryForCrop(crop) });
       const faq = tryFaq();
       if (faq) return faq;
       if (heard && heard.length >= 2 && heard.split(" ").length <= 4) return goTo({ ...s, pendingCrop: cleanFreeText(heard) }, "cropConfirm");
@@ -678,10 +745,58 @@ export function step(state: DialogState, event: DialogEvent, opts: DialogOptions
       const yn = yesNo();
       if (yn === "yes") {
         const crop = (s.pendingCrop || "").replace(/\b\w/g, (c) => c.toUpperCase());
-        return advance({ ...s, pendingCrop: undefined, fields: { ...s.fields, crop } });
+        return advance({ ...s, pendingCrop: undefined, fields: { ...s.fields, crop, cropCategory: categoryForCrop(crop) } });
       }
       if (yn === "no") return goTo({ ...s, pendingCrop: undefined }, "crop");
       return retry(s, "yesNoAgain");
+    }
+
+    case "cropCategory": {
+      const category = parseCropCategory(text);
+      if (category) return setFields({ cropCategory: category });
+      return tryFaq() ?? retry(s, "notUnderstood");
+    }
+
+    case "farmingMethod": {
+      const method = digits === "1" ? "Organic" : digits === "2" ? "Natural" : digits === "3" ? "Conventional" : parseFarmingMethod(text);
+      if (method) return setFields({ farmingMethod: method, organicCertified: method === "Organic" ? undefined : null });
+      return tryFaq() ?? retry(s, "notUnderstood");
+    }
+
+    case "organicCertified": {
+      const yn = yesNo();
+      if (yn) return setFields({ organicCertified: yn === "yes" });
+      return tryFaq() ?? retry(s, "yesNoAgain");
+    }
+
+    case "sowing": {
+      if (isSkip(text) || /\b(dont remember|do not remember|forgot|not remember)\b/.test(text.toLowerCase().replace(/['’]/g, ""))) {
+        return setFields({ sowingDate: null, sowingAsked: true });
+      }
+      const d = parseSowingDate(text, opts.today);
+      if (d.kind === "ok") return setFields({ sowingDate: d.date, sowingAsked: true });
+      return tryFaq() ?? retry(s, "sowingInvalid");
+    }
+
+    case "grade": {
+      const grade = digits === "1" ? "Grade A" : digits === "2" ? "Grade B" : digits === "3" ? "Standard" : parseGrade(text);
+      if (grade) return setFields({ grade });
+      return tryFaq() ?? retry(s, "notUnderstood");
+    }
+
+    case "scale":
+    case "scaleNumber": {
+      if (digits === "2") return setFields({ scaleId: null, scaleAsked: true });
+      if (s.step === "scale" && (digits === "1" || (text && parseYesNo(text) === "yes" && !/\d/.test(text)))) return goTo(s, "scaleNumber");
+      const r = parseScaleId(text || digits);
+      if (r) return setFields({ scaleId: r.scaleId, scaleAsked: true });
+      return tryFaq() ?? retry(s, "notUnderstood");
+    }
+
+    case "price": {
+      const r = parsePricePerKg(text || digits);
+      if (r) return setFields({ pricePerKg: r.pricePerKg, priceAsked: true });
+      return tryFaq() ?? retry(s, "priceInvalid");
     }
 
     case "variety": {
@@ -762,8 +877,20 @@ export function step(state: DialogState, event: DialogEvent, opts: DialogOptions
       const field: AvailField | undefined = s.task === "availability" ? parseAvailFieldChoice(text) : parseFieldChoice(text);
       if (!field) return retry(s, "notUnderstood");
       const fields = { ...s.fields };
-      if (field === "crop") delete fields.crop;
+      if (field === "crop") {
+        delete fields.crop;
+        delete fields.cropCategory;
+      }
+      if (field === "category") delete fields.cropCategory;
       if (field === "variety") delete fields.varietyAsked;
+      if (field === "method") {
+        delete fields.farmingMethod;
+        delete fields.organicCertified;
+      }
+      if (field === "sowing") delete fields.sowingAsked;
+      if (field === "grade") delete fields.grade;
+      if (field === "scale") delete fields.scaleAsked;
+      if (field === "price") delete fields.priceAsked;
       if (field === "quantity") {
         delete fields.quantity;
         delete fields.unit;

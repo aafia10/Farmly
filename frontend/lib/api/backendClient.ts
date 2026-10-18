@@ -55,6 +55,12 @@ const mappers = {
       weighmentScaleId: row.weighment_scale_id || undefined,
       certificateRef: row.certificate_ref || undefined,
       blockchainHash: row.blockchain_hash || undefined,
+      farmingMethod: row.farming_method || undefined,
+      organicCertified: row.organic_certified ?? undefined,
+      cropCategory: row.crop_category || undefined,
+      sowingDate: row.sowing_date || undefined,
+      harvestDate: row.harvest_date || undefined,
+      pricePerKg: Number(row.price_per_kg) > 0 ? Number(row.price_per_kg) : undefined,
     };
   },
 
@@ -96,6 +102,11 @@ const mappers = {
       location: row.location || "",
       notes: row.notes || undefined,
       status: row.status || "Available",
+      farmingMethod: row.farming_method || undefined,
+      organicCertified: row.organic_certified ?? undefined,
+      cropCategory: row.crop_category || undefined,
+      sowingDate: row.sowing_date || undefined,
+      expectedPricePerKg: row.expected_price_per_kg != null ? Number(row.expected_price_per_kg) : undefined,
       createdAt: row.created_at ? new Date(row.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "Today",
     };
   },

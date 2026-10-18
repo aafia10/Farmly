@@ -48,20 +48,31 @@ Example JSON (stored with the call and shown in the helper workspace):
 
 ### Crop lot → `POST /lots` (helper "Create lot" form)
 
-| Field | Asked as | Validation |
-|---|---|---|
-| `crop` | "Which crop do you want to register?" | Over 40 crops with local names (kanda → Onion, gehun → Wheat, tur → Pigeon Pea…). An unknown name is read back for confirmation |
-| `variety` | "Which variety of {crop} is it? If you don't know, say don't know." | "don't know" → `Standard`; "local/desi" → `Local` |
-| `quantity` + `unit` | "How much {crop} do you have?…" | Units: kg, quintals, tonnes. A number without a unit gets a follow-up question. Bags are refused. Must be over 0 and at most 1,000 tonnes |
-| `harvestDate` | "When will you harvest it, or have you already harvested it?" | "today", "next week", "15 November", "5 days ago"… Must fall between 90 days ago and a year ahead |
-| `location` | "Is the crop at your farm in {village, district}?" | "no" → "Please tell me the village where the crop is." |
-| `qualityGrade` | — | `Standard` (farmer-declared); graded later at collection |
+Questions are asked in this order. Optional questions accept "don't know".
+
+| # | Field | Asked as | Validation / stored as |
+|---|---|---|---|
+| 1 | `crop` | "Which crop do you want to register?" | Over 40 crops with local names (kanda → Onion, gehun → Wheat, tur → Pigeon Pea…). An unknown name is read back for confirmation |
+| 2 | `cropCategory` (crop type) | *only for crops the agent doesn't know:* "What type of crop is {crop}? Say grain, pulse, oilseed, vegetable, fruit, spice, cash crop, or something else." | Cereal / Pulse / Oilseed / Vegetable / Fruit / Spice / Cash Crop / Plantation / Other. Known crops are filled in automatically (Onion → Vegetable) and read back |
+| 3 | `variety` | "Which variety of {crop} is it? If you don't know, say don't know." | "don't know" → `Standard`; "local/desi" → `Local` |
+| 4 | `farmingMethod` | "How is this {crop} grown? Say organic… natural… or chemical… You can also press 1, 2 or 3." | `Organic` (also "jaivik", "no chemical spray", "compost"), `Natural` ("zero budget"), `Conventional` ("urea", "spray", "fertiliser") |
+| 5 | `organicCertified` | *only if organic:* "Do you have an organic certificate for this crop?" | yes / no |
+| 6 | `sowingDate` | "When did you sow it? For example 3 months ago, or 15 June." | Optional. In the past, at most two years ago |
+| 7 | `quantity` + `unit` | "How much {crop} do you have?…" | Units: kg, quintals, tonnes. A number without a unit gets a follow-up question. Bags are refused. Must be over 0 and at most 1,000 tonnes |
+| 8 | `qualityGrade` | "What is the quality of the crop? Press 1 or say A grade… 2… B grade… 3… standard…" | `Grade A` / `Grade B` / `Standard`, the same options as the website form. "Not sure" → `Standard` (farmer-declared; checked again at collection) |
+| 9 | `harvestDate` | "When will you harvest it, or have you already harvested it?" | "today", "next week", "15 November", "5 days ago"… Must fall between 90 days ago and a year ahead |
+| 10 | `location` | "Is the crop at your farm in {village, district}?" | "no" → "Please tell me the village or place where the crop is kept." |
+| 11 | `weighmentScaleId` | "Has the crop been weighed at a weighbridge or weighing scale? If yes, please say the scale or receipt number." | Optional. "WB NSK 07" → `WB-NSK-07`; "no" → empty (not weighed yet; no made-up ID) |
+| 12 | `pricePerKg` | "What price do you expect per kilo? For example 25 rupees per kilo, or 2500 per quintal." | Optional. Per quintal ÷ 100, per tonne ÷ 1000. Stored as `price_per_kg`, with `total_price` calculated |
 
 ```json
 {
   "id": "LT-482913", "farmerId": "FM-482913", "farmerName": "Sunita Pawar",
-  "crop": "Onion", "variety": "Nashik Red", "quantity": 25, "unit": "quintals",
-  "qualityGrade": "Standard", "location": "Ozar, Nashik", "harvestDate": "2026-10-25"
+  "crop": "Onion", "cropCategory": "Vegetable", "variety": "Nashik Red",
+  "farmingMethod": "Organic", "organicCertified": false, "sowingDate": "2026-07-20",
+  "quantity": 25, "unit": "quintals", "qualityGrade": "Grade A",
+  "location": "Ozar, Nashik", "harvestDate": "2026-10-25",
+  "weighmentScaleId": "WB-NSK-07", "pricePerKg": 20
 }
 ```
 
@@ -69,17 +80,23 @@ Example JSON (stored with the call and shown in the helper workspace):
 
 The questions are the same as for a lot, except:
 - the crop question is "Which crop are you growing that you will harvest soon?";
+- quality grade and weighbridge are **not** asked, because the crop isn't harvested yet;
 - the harvest date must be today or later ("That date has already passed. For a crop that is already harvested, please register a crop lot instead.");
-- there is one extra question at the end: "Is there anything buyers should know, for example organic farming or soil type? If nothing, say no." This answer becomes `notes`;
+- the expected price is stored as `expectedPricePerKg`;
+- the last question is "Is there anything else buyers should know, for example soil type or irrigation? If nothing, say no." This answer becomes `notes`;
 - if the farmer doesn't know the variety, it is stored as `Not specified`.
 
 ```json
 {
   "id": "CA-551204", "farmerId": "FM-482913", "farmerName": "Sunita Pawar",
-  "crop": "Soybean", "variety": "Not specified", "estimatedQuantity": 40, "unit": "quintals",
-  "expectedHarvestDate": "2026-12-15", "location": "Ozar, Nashik", "notes": "organic, no chemical spray"
+  "crop": "Soybean", "cropCategory": "Oilseed", "variety": "Not specified",
+  "farmingMethod": "Conventional", "organicCertified": null, "sowingDate": null,
+  "estimatedQuantity": 40, "unit": "quintals", "expectedHarvestDate": "2026-12-15",
+  "location": "Ozar, Nashik", "expectedPricePerKg": 45, "notes": "drip irrigation, black soil"
 }
 ```
+
+The new fields (`cropCategory`, `farmingMethod`, `organicCertified`, `sowingDate`, price) need **migration 006** (`database/migrations/006_crop_details.sql`).
 
 ---
 
@@ -161,20 +178,32 @@ If the backend fails:
 ### 4. Crop lot (menu 1)
 
 > **Agent:** Which crop do you want to register? For example wheat, onion, soybean or cotton.
-> **Farmer:** Kanda. *(→ Onion)*
+> **Farmer:** Kanda. *(→ Onion, a vegetable)*
 > **Agent:** Which variety of Onion is it? If you don't know, say don't know.
 > **Farmer:** Nashik red.
+> **Agent:** How is this Onion grown? Say organic, if you use no chemical fertiliser or sprays. Say natural, for natural or zero-budget farming. Or say chemical, if you use chemical fertiliser or sprays. You can also press 1 for organic, 2 for natural, or 3 for chemical.
+> **Farmer:** Organic, only compost.
+> **Agent:** Do you have an organic certificate for this crop? Say yes or no.
+> **Farmer:** No.
+> **Agent:** When did you sow it? For example 3 months ago, or 15 June. If you don't remember, say don't know.
+> **Farmer:** Three months ago.
 > **Agent:** How much Onion do you have? Please say the amount with the unit, for example 500 kilos, 20 quintals or 2 tonnes.
 > **Farmer:** Around 30.
 > **Agent:** Is that 30 kilos, quintals or tonnes?
 > **Farmer:** Quintal.
+> **Agent:** What is the quality of the crop? Press 1 or say A grade, for export quality. Press 2 or say B grade, for good commercial quality. Press 3 or say standard, for local mandi quality. If you are not sure, say not sure.
+> **Farmer:** A grade.
 > **Agent:** When will you harvest it, or have you already harvested it? For example today, next week, or 15 November.
 > **Farmer:** In 10 days.
 > **Agent:** Is the crop at your farm in Ozar, Nashik? Say yes or no.
 > **Farmer:** Yes.
-> **Agent:** Please check the details. Crop: Onion, variety Nashik red. Quantity: 30 quintals. Harvest: expected on 28 October 2026. Location: Ozar, Nashik. Shall I register this crop lot? Say yes to register, or no to change something. You can also press 1 for yes or 2 for no.
+> **Agent:** Has the crop been weighed at a weighbridge or weighing scale? If yes, please say the scale or receipt number. If not, say no.
+> **Farmer:** No.
+> **Agent:** What price do you expect per kilo? For example 25 rupees per kilo, or 2500 per quintal. If you don't know, say don't know.
+> **Farmer:** 2000 per quintal. *(→ 20 rupees per kilo)*
+> **Agent:** Please check the details. Crop: Onion, a vegetable, variety Nashik red. Farming: organic, not certified. Sown: 20 July 2026. Quantity: 30 quintals, Grade A. Harvest: expected on 28 October 2026. Location: Ozar, Nashik. Weighbridge: not weighed yet. Expected price: 20 rupees per kilo. Shall I register this crop lot? Say yes to register, or no to change something. You can also press 1 for yes or 2 for no.
 
-- **"no"** → "What would you like to change: the crop, variety, quantity, harvest date or location?" The agent asks only that question again, then repeats the read-back.
+- **"no"** → "What would you like to change: the crop, crop type, variety, farming method, sowing date, quantity, quality grade, harvest date, location, weighbridge or price?" The agent asks only that question again, then repeats the read-back.
 - **"yes"** → after the backend stores the lot:
 
 > **Agent:** Your crop lot is registered. Your batch number is L T 4 8 2 9 1 3. Your helper can see it in Farmly.
@@ -186,15 +215,21 @@ If the backend fails:
 > **Farmer:** Soybean.
 > **Agent:** Which variety of Soybean is it? If you don't know, say don't know.
 > **Farmer:** Don't know.
+> **Agent:** How is this Soybean grown? Say organic… natural… or chemical…
+> **Farmer:** We use fertiliser and spray. *(→ chemical)*
+> **Agent:** When did you sow it? For example 3 months ago, or 15 June. If you don't remember, say don't know.
+> **Farmer:** Don't remember.
 > **Agent:** About how much Soybean do you expect to harvest? Please say the amount with the unit, for example 500 kilos or 20 quintals.
 > **Farmer:** 40 quintals.
 > **Agent:** When do you expect to harvest it? For example next month, or 15 December.
 > **Farmer:** 15 December.
 > **Agent:** Is the crop at your farm in Ozar, Nashik? Say yes or no.
 > **Farmer:** Yes.
-> **Agent:** Is there anything buyers should know, for example organic farming or soil type? If nothing, say no.
-> **Farmer:** Organic, no chemical spray.
-> **Agent:** Please check. Upcoming harvest of Soybean, variety not known. About 40 quintals, expected on 15 December 2026. Location: Ozar, Nashik. Notes: organic, no chemical spray. Shall I record this? Say yes, or no to change something.
+> **Agent:** What price do you expect per kilo? For example 25 rupees per kilo, or 2500 per quintal. If you don't know, say don't know.
+> **Farmer:** 4500 per quintal.
+> **Agent:** Is there anything else buyers should know, for example soil type or irrigation? If nothing, say no.
+> **Farmer:** Drip irrigation, black soil.
+> **Agent:** Please check. Upcoming harvest of Soybean, an oilseed, variety not known. Farming: with chemical fertiliser or sprays. Sown: not known. About 40 quintals, expected on 15 December 2026. Location: Ozar, Nashik. Expected price: 45 rupees per kilo. Notes: drip irrigation, black soil. Shall I record this? Say yes, or no to change something.
 > **Farmer:** Yes.
 > **Agent:** Your upcoming harvest is recorded. Your reference number is C A 5 5 1 2 0 4. Buyers on Farmly can now see it.
 > **Agent:** Would you like to do anything else? Press 1…, 2…, or 3 to finish the call.

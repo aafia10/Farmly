@@ -18,6 +18,7 @@ docs/**
 
 # Build outputs & caches
 .next/
+.next-test/
 **/.next/
 out/
 build/
