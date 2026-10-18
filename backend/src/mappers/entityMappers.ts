@@ -87,6 +87,7 @@ export const mappers = {
       sowingDate: row.sowing_date || undefined,
       harvestDate: row.harvest_date || undefined,
       pricePerKg: Number(row.price_per_kg) > 0 ? Number(row.price_per_kg) : undefined,
+      ipfsHash: row.ipfs_hash || undefined,
     };
   },
 

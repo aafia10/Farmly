@@ -30,9 +30,9 @@ const getApiBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
   if (process.env.VITE_API_BASE_URL) return process.env.VITE_API_BASE_URL;
   if (typeof window !== "undefined" && window.location?.hostname) {
-    return `http://${window.location.hostname}:5000/api/v1`;
+    return `http://${window.location.hostname}:5001/api/v1`;
   }
-  return "http://localhost:5000/api/v1";
+  return "http://localhost:5001/api/v1";
 };
 
 // Database Row to DTO Mappers for resilient Supabase direct fallback
@@ -61,6 +61,7 @@ const mappers = {
       sowingDate: row.sowing_date || undefined,
       harvestDate: row.harvest_date || undefined,
       pricePerKg: Number(row.price_per_kg) > 0 ? Number(row.price_per_kg) : undefined,
+      ipfsHash: row.ipfs_hash || undefined,
     };
   },
 
@@ -401,6 +402,7 @@ export const backendClient = {
           weighment_scale_id: lot.weighmentScaleId || "WB-NSK-01",
           certificate_ref: certRef,
           blockchain_hash: lot.blockchainHash || null,
+          ipfs_hash: lot.ipfsHash || null,
         }, { onConflict: "id" })
         .select()
         .single();

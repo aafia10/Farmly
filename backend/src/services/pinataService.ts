@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { env } from "../config/env";
 
 /**
@@ -30,7 +31,9 @@ export interface PinataUploadResult {
 function gatewayBase(): string {
   const configured = env.PINATA_GATEWAY_URL;
   if (!configured) return PUBLIC_GATEWAY_FALLBACK;
-  return configured.startsWith("http") ? configured.replace(/\/$/, "") : `https://${configured.replace(/\/$/, "")}`;
+  // Accept "my-gw.mypinata.cloud", "https://my-gw.mypinata.cloud" and ".../ipfs" forms.
+  const base = configured.replace(/\/+$/, "").replace(/\/ipfs$/, "");
+  return base.startsWith("http") ? base : `https://${base}`;
 }
 
 async function fetchWithTimeout(url: string, init: RequestInit = {}): Promise<Response> {
@@ -43,6 +46,31 @@ async function fetchWithTimeout(url: string, init: RequestInit = {}): Promise<Re
   } finally {
     clearTimeout(timer);
   }
+}
+
+/** Lot (batch) metadata pinned when a lot is created; its CID is registered on Sepolia. */
+export interface BatchMetadataPayload {
+  batchId: string;
+  farmerName: string;
+  farmerId?: string;
+  crop: string;
+  variety?: string;
+  quantity: number;
+  unit: string;
+  qualityGrade: string;
+  location?: string;
+  weighmentScaleId?: string;
+  certificateRef?: string;
+  timestamp: string;
+  attributes?: Record<string, any>;
+}
+
+export interface BatchPinResult {
+  ipfsHash: string;
+  pinSize?: number;
+  timestamp?: string;
+  /** true when Pinata is not configured or failed: the hash is a placeholder and must not be stored as real. */
+  isMock?: boolean;
 }
 
 export const pinataService = {
@@ -116,5 +144,63 @@ export const pinataService = {
     const res = await fetchWithTimeout(url);
     if (!res.ok) throw new PinataError(`IPFS retrieval failed (${res.status})`, res.status >= 500 || res.status === 429);
     return Buffer.from(await res.arrayBuffer());
+  },
+  // ---------------------------------------------------------------------------
+  // Lot (batch) metadata, used by lot creation and POST /lots/pin-metadata
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Pins a lot's metadata JSON to IPFS. Without Pinata credentials, or if Pinata fails, it returns a
+   * deterministic placeholder flagged `isMock` so lot creation still completes; callers must not
+   * present or store a mock hash as a real IPFS record.
+   */
+  async uploadBatchMetadata(payload: BatchMetadataPayload): Promise<BatchPinResult> {
+    const jwt = env.PINATA_JWT;
+    const apiKey = env.PINATA_API_KEY;
+    const secret = env.PINATA_SECRET_API_KEY;
+    const hasJwt = Boolean(jwt && jwt !== "your-pinata-jwt-here");
+    const hasKeys = Boolean(apiKey && secret && apiKey !== "your-pinata-api-key");
+
+    const placeholder = (): BatchPinResult => ({
+      ipfsHash: `QmFarmly${crypto.createHash("sha256").update(JSON.stringify(payload)).digest("hex").slice(0, 38)}`,
+      isMock: true,
+      timestamp: new Date().toISOString(),
+    });
+
+    if (!hasJwt && !hasKeys) {
+      console.warn("[PinataService] Pinata credentials missing; lot metadata not pinned.");
+      return placeholder();
+    }
+
+    try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (hasJwt) headers.Authorization = `Bearer ${jwt}`;
+      else {
+        headers.pinata_api_key = apiKey!;
+        headers.pinata_secret_api_key = secret!;
+      }
+      const res = await fetchWithTimeout("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          pinataMetadata: {
+            name: `Farmly-Batch-${payload.batchId}`,
+            keyvalues: { batchId: payload.batchId, crop: payload.crop, farmer: payload.farmerName, platform: "Farmly" },
+          },
+          pinataContent: { ...payload, standard: "Farmly-Provenance-v1.0", schema: "https://farmly.io/schemas/batch-v1.json" },
+        }),
+      });
+      if (!res.ok) throw new Error(`Pinata API responded with ${res.status}: ${(await res.text()).slice(0, 200)}`);
+      const data = (await res.json()) as { IpfsHash: string; PinSize: number; Timestamp: string };
+      return { ipfsHash: data.IpfsHash, pinSize: data.PinSize, timestamp: data.Timestamp, isMock: false };
+    } catch (error: any) {
+      console.error("[PinataService] Failed to pin lot metadata:", error.message);
+      return placeholder();
+    }
+  },
+
+  /** Public gateway URL for a CID. */
+  getGatewayUrl(ipfsHash: string): string {
+    return this.publicUrl(ipfsHash);
   },
 };

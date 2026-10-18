@@ -47,6 +47,14 @@ const envSchema = z.object({
   TWILIO_PHONE_NUMBER: optionalString,
   // Public HTTPS base URL that Twilio can reach (e.g. a free cloudflared/ngrok tunnel to this server).
   IVR_PUBLIC_BASE_URL: optionalString,
+
+  // Lot (batch) registry on Sepolia, used when lots are created (see contracts/FarmlyBatchRegistry.sol).
+  SEPOLIA_RPC_URL: z.string().default("https://ethereum-sepolia-rpc.publicnode.com"),
+  SEPOLIA_PRIVATE_KEY: optionalString,
+  BATCH_REGISTRY_CONTRACT_ADDRESS: optionalString,
+  // Optional legacy Pinata key pair (PINATA_JWT is preferred).
+  PINATA_API_KEY: optionalString,
+  PINATA_SECRET_API_KEY: optionalString,
 });
 
 export const env = envSchema.parse({
@@ -74,4 +82,9 @@ export const env = envSchema.parse({
   TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
   TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER,
   IVR_PUBLIC_BASE_URL: process.env.IVR_PUBLIC_BASE_URL,
+  SEPOLIA_RPC_URL: process.env.SEPOLIA_RPC_URL,
+  SEPOLIA_PRIVATE_KEY: process.env.SEPOLIA_PRIVATE_KEY,
+  BATCH_REGISTRY_CONTRACT_ADDRESS: process.env.BATCH_REGISTRY_CONTRACT_ADDRESS,
+  PINATA_API_KEY: process.env.PINATA_API_KEY,
+  PINATA_SECRET_API_KEY: process.env.PINATA_SECRET_API_KEY,
 });

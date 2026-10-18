@@ -115,7 +115,8 @@ export const defaultDeps = (): IvrDeps => ({
     return Boolean(data);
   },
   createFarmer: (input, actor) => createFarmerRecord(input, actor, { insertOnly: true }),
-  createLot: (input, actor) => createLotRecord(input, actor, { insertOnly: true }),
+  // Anchoring (Pinata + Sepolia) runs after the call turn: a webhook cannot wait for a block.
+  createLot: (input, actor) => createLotRecord(input, actor, { insertOnly: true, anchor: "background" }),
   createAvailability: (input, actor) => createCropAvailabilityRecord(input, actor, { insertOnly: true }),
   speech: {
     configured: speech.speechConfigured,

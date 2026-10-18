@@ -163,6 +163,7 @@ export interface Lot {
   sowingDate?: string;
   harvestDate?: string;
   pricePerKg?: number;
+  ipfsHash?: string;
 }
 
 export interface EvidenceItem {
