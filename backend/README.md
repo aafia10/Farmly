@@ -70,8 +70,9 @@ npm install
 2. Paste the full contents of `database/farmly_supabase_schema.sql` and click **Run**.
 3. In a new query, paste `database/migrations/002_certificate_traceability.sql` and click **Run**.
 4. In a new query, paste `database/migrations/003_ivr_sessions.sql` and click **Run** (phone registration sessions).
+5. In a new query, paste `database/migrations/004_ivr_registrations.sql` and click **Run** (several registrations per call).
 
-All three scripts are idempotent (safe to re-run). The base schema creates:
+All the scripts are idempotent (safe to re-run). The base schema creates:
 
 - all tables (profiles, farmers, batches/lots, evidence, quality assessments, collection arrivals, FPO members, marketplace, offers, payments, disputes, notifications, transactions, …)
 - `updated_at` triggers and a trigger that creates a `profiles` row for every new auth user
@@ -261,9 +262,9 @@ Example: a farmer registers 500 kg. A distributor buys 250 kg (farmer keeps 250 
 
 ---
 
-## Phone crop registration (IVR)
+## Phone registration agent (IVR)
 
-Farmers can register a crop lot by phone in 13 Indian languages. A Sarvam AI voice agent asks the questions, reads the details back, and creates the lot through the same lot service as the helper form, only after the farmer confirms. Helpers follow calls, fix failures, and run a free local **call simulator** at `/helper/calls`.
+Farmers can phone in and, in 13 Indian languages, register themselves, their crop lots and upcoming harvests. A Sarvam AI voice agent asks the same questions as the helper forms and reads the answers back. After the farmer confirms, it submits the generated JSON through the same services as the website. Helpers follow calls, see the JSON, retry failures and run a free local **call simulator** at `/helper/calls`.
 
 Setup, Twilio webhooks, verified languages, and costs: [src/ivr/README.md](src/ivr/README.md). Conversation script: [src/ivr/conversation-script.md](src/ivr/conversation-script.md).
 

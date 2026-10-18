@@ -24,12 +24,16 @@ function sessionDto(rec: CallRecord) {
     farmer: rec.state.farmer ? { registryId: rec.state.farmer.registryId, name: rec.state.farmer.name } : null,
     fields: rec.state.fields,
     outcome: rec.state.outcome ?? rec.outcome ?? null,
-    batchId: rec.batchId ?? null,
+    task: rec.state.task ?? null,
+    registration: rec.state.reg,
+    submissions: rec.submissions,
+    batchId: [...rec.submissions].reverse().find((s) => s.kind === "lot" && s.recordId)?.recordId ?? null,
+    farmerId: rec.farmerRegistryId ?? null,
     callbackRequested: rec.callbackRequested,
     callbackReason: rec.callbackReason ?? null,
     lastError: rec.lastError ?? null,
     helperName: rec.helperName ?? null,
-    canRetry: rec.state.outcome === "failed" && !rec.batchId,
+    canRetry: rec.submissions.some((s) => s.status !== "registered") && rec.status !== "in_progress",
     turns: rec.turns,
     createdAt: rec.createdAt,
     updatedAt: rec.updatedAt,
@@ -220,8 +224,10 @@ export const ivrController = {
         return;
       }
       const user = req.user!;
-      const rec = await service.retrySubmission(req.params.id, { ...user, id: helperKey(user) });
-      res.json({ success: Boolean(rec.batchId), data: sessionDto(rec), message: rec.batchId ? `Lot ${rec.batchId} registered` : rec.lastError });
+      const key = typeof req.body?.key === "string" ? req.body.key : undefined;
+      const rec = await service.retrySubmission(req.params.id, { ...user, id: helperKey(user) }, key);
+      const open = rec.submissions.filter((s) => s.status !== "registered");
+      res.json({ success: open.length === 0, data: sessionDto(rec), message: open.length ? rec.lastError : "All registrations on this call are complete" });
     } catch (err: any) {
       res.status(err.statusCode || 500).json({ success: false, message: err.message });
     }

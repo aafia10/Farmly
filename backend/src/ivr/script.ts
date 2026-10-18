@@ -4,21 +4,54 @@
  * {placeholders} are filled before translation.
  */
 export const PROMPTS = {
-  // Greeting is spoken bilingually (Hindi + English) before a language is known.
+  // ----- Opening (spoken bilingually before a language is known) -----------------------------
   greetingHi:
-    "नमस्ते, Farmly में आपका स्वागत है। मैं आपकी फसल पंजीकरण में मदद कर सकता हूँ। कृपया अपनी भाषा का नाम बोलें, या फ़ोन पर बटन दबाएँ।",
+    "नमस्ते, Farmly में आपका स्वागत है। मैं किसान पंजीकरण, आने वाली फसल और फसल लॉट दर्ज करने में आपकी मदद कर सकता हूँ। कृपया अपनी भाषा का नाम बोलें, या फ़ोन पर बटन दबाएँ।",
   greetingEn:
     "Welcome to Farmly. Please say the name of your language, or press 1 Hindi, 2 Marathi, 3 English, 4 Gujarati, 5 Bengali, 6 Tamil, 7 Telugu, 8 Kannada, 9 Malayalam, or 0 for more languages.",
   languageMenu2: "Press 1 for Punjabi, 2 for Odia, 3 for Assamese, or 4 for Urdu.",
   languageChosen: "Thank you. We will continue in {language}.",
 
-  askMobile: "Please type your 10-digit mobile number registered with Farmly on your phone keypad.",
+  // ----- Identification --------------------------------------------------------------------------
+  askMobile: "Please type the 10-digit mobile number you registered with Farmly, on your phone keypad.",
   farmerFound: "Namaste {name}. I found your Farmly registration.",
-  farmerNotFound:
-    "This number is not registered with Farmly yet. Please ask your field helper to register you first. We have noted your call and your helper will call you back. Thank you.",
-
+  mainMenu:
+    "What would you like to do today? Press 1 or say crop lot, to register a crop you have harvested and want to sell. Press 2 or say upcoming harvest, to tell buyers about a crop you will harvest soon.",
+  menuAgain:
+    "Would you like to do anything else? Press 1 to register another crop lot, 2 for an upcoming harvest, or 3 to finish the call.",
+  goodbye: "Thank you for calling Farmly. Goodbye.",
   askResume: "Last time you started registering {crop}. Would you like to continue it? Say yes or no.",
 
+  // ----- New farmer registration ---------------------------------------------------------------
+  notRegisteredOffer:
+    "This mobile number is not registered with Farmly yet. I can register you now on this call. It takes about two minutes. Say yes to register. If you are already registered with a different mobile number, press 2.",
+  notRegisteredDeclined: "Okay. Your field helper will call you back to help you. Thank you for calling Farmly.",
+  regIntro: "Let's register you. I will ask a few questions about you and your farm.",
+  regConfirmMobile: "Shall I register the mobile number ending in {last4}? Say yes or no.",
+  askRegMobile: "Please type the 10-digit mobile number you want to register, on your phone keypad.",
+  regMobileTaken: "This mobile number is already registered with Farmly.",
+  askName: "Please tell me your full name.",
+  askVillage: "Which village do you live in?",
+  askTaluka: "Which taluka or tehsil is your village in? If you don't know, say don't know.",
+  askDistrict: "Which district is it in?",
+  askState: "And which state?",
+  stateInvalid: "Sorry, I didn't recognise the state. Please say the state name, for example Maharashtra or Gujarat.",
+  askCategory: "What do you mainly farm? For example crops, vegetables, fruits, dairy, poultry, or mixed farming.",
+  askFpo:
+    "Are you a member of a farmer producer organisation or a cooperative society? If yes, please say its name. If not, say no.",
+  askFpoName: "Please say the name of your farmer producer organisation or cooperative.",
+  askConsent:
+    "To create your Farmly profile we will store your name, mobile number and village. Buyers will not see your mobile number. Your field helper and Farmly can see your details. Do you agree? Say yes or no.",
+  consentDeclined:
+    "Okay. Without your agreement I cannot register you, and nothing has been saved. Your field helper can explain more and will call you. Thank you.",
+  regReadback:
+    "Please check your details. Name: {name}. Mobile number ending in {last4}. Village {village}, taluka {taluka}, district {district}, {state}. Farming: {category}. Producer organisation: {fpo}. Shall I register you? Say yes, or no to change something. You can also press 1 for yes or 2 for no.",
+  regAskWhichChange: "What would you like to change: name, mobile number, village, taluka, district, state, farming type, or producer organisation?",
+  farmerRegistered: "You are now registered with Farmly. Your Farmly ID is {farmerId}. Your field helper can see your profile.",
+  registerFailed:
+    "Your details are saved, but the registration could not be completed right now. Your field helper will complete it and call you. Thank you.",
+
+  // ----- Crop lot (harvested crop to sell) ------------------------------------------------------
   askCrop: "Which crop do you want to register? For example wheat, onion, soybean or cotton.",
   confirmUnknownCrop: "I heard {crop}. Is that the crop name? Say yes or no.",
   askVariety: "Which variety of {crop} is it? If you don't know, say don't know.",
@@ -32,37 +65,52 @@ export const PROMPTS = {
   harvestInvalid: "That date doesn't look right. Please tell me the harvest date again, for example 20 November.",
   askLocationConfirm: "Is the crop at your farm in {location}? Say yes or no.",
   askLocation: "Please tell me the village where the crop is.",
-
   readback:
     "Please check the details. Crop: {crop}, variety {variety}. Quantity: {quantity} {unit}. Harvest: {harvest}. Location: {location}. Shall I register this crop lot? Say yes to register, or no to change something. You can also press 1 for yes or 2 for no.",
   askWhichChange: "What would you like to change: the crop, variety, quantity, harvest date or location?",
-
-  registered:
-    "Your crop lot is registered. Your batch number is {batch}. Your helper can see it in Farmly. Thank you for using Farmly.",
+  registered: "Your crop lot is registered. Your batch number is {batch}. Your helper can see it in Farmly.",
   submitFailed:
     "Your details are saved, but the registration could not be completed right now. Your field helper will complete it and call you. Thank you.",
 
+  // ----- Upcoming harvest (crop availability) ---------------------------------------------------
+  askAvailCrop: "Which crop are you growing that you will harvest soon?",
+  askAvailQuantity:
+    "About how much {crop} do you expect to harvest? Please say the amount with the unit, for example 500 kilos or 20 quintals.",
+  askExpectedHarvest: "When do you expect to harvest it? For example next month, or 15 December.",
+  availPastDate:
+    "That date has already passed. For a crop that is already harvested, please register a crop lot instead. When do you expect to harvest?",
+  askNotes: "Is there anything buyers should know, for example organic farming or soil type? If nothing, say no.",
+  availReadback:
+    "Please check. Upcoming harvest of {crop}, variety {variety}. About {quantity} {unit}, {harvest}. Location: {location}. Notes: {notes}. Shall I record this? Say yes, or no to change something. You can also press 1 for yes or 2 for no.",
+  availAskWhichChange: "What would you like to change: the crop, variety, quantity, harvest date, location or notes?",
+  availabilityRecorded: "Your upcoming harvest is recorded. Your reference number is {ref}. Buyers on Farmly can now see it.",
+
+  // ----- Errors, silence and commands -----------------------------------------------------------
   noInput: "Sorry, I didn't hear you.",
   notUnderstood: "Sorry, I didn't understand.",
   handOffCallback:
-    "I'm sorry this is difficult. Your field helper will call you back to complete the registration. Thank you for calling Farmly.",
+    "I'm sorry this is difficult. Your field helper will call you back to complete it. Thank you for calling Farmly.",
   speechUnavailable:
     "Sorry, I am having trouble understanding right now. Your field helper will call you back. Thank you.",
   connectingHelper: "I will connect you to your field helper now. Please stay on the line.",
   noHelper: "Your field helper is not available right now. We have noted your request and your helper will call you back.",
   startOver: "Okay, let's start again.",
-  stopped: "Okay, I have stopped. Nothing has been registered. You can call again any time.",
+  stopped: "Okay, I have stopped. Nothing more will be registered. You can call again any time.",
   yesNoAgain: "Please say yes or no. You can also press 1 for yes or 2 for no.",
+  menuAgainHelp: "Please press 1 for a crop lot, 2 for an upcoming harvest, or 3 to finish.",
 
-  // Answers to questions a farmer may ask (see the script document).
+  // ----- Answers to questions a farmer may ask --------------------------------------------------
   faqWhat:
-    "Farmly records your crop so that buyers can see it and buy from you. I am asking only the details needed to register your crop lot.",
+    "Farmly registers farmers and their crops so that buyers can find them and buy directly. I am asking only the details needed for your registration.",
   faqPrice:
-    "After registration, registered distributors can see your lot and make a purchase. Your helper will tell you about offers. Prices are agreed with the buyer, not on this call.",
+    "After registration, registered distributors can see your crop and make a purchase. Your helper will tell you about offers. Prices are agreed with the buyer, not on this call.",
   faqPayment: "Payment is made by the buyer after purchase, and you can see the status in Farmly or ask your helper.",
   faqPrivacy: "Your phone number and personal details are not shown to buyers. Only your helper and Farmly can see them.",
   faqCertificate:
     "Buyers can purchase your lot after a certificate is added. Your helper can help you upload one after registration.",
+  faqCost: "Registering with Farmly is free. This call does not charge you anything extra.",
+  faqDocuments:
+    "You don't need any documents for this call. Your helper may visit later to verify your details and upload certificates.",
 } as const;
 
 export type PromptId = keyof typeof PROMPTS;
@@ -73,3 +121,6 @@ export function renderPrompt(id: PromptId, vars: Record<string, string | number>
 
 /** Prompts spoken before a language is chosen are not translated. */
 export const UNTRANSLATED_PROMPTS: PromptId[] = ["greetingHi", "greetingEn", "languageMenu2"];
+
+/** Placeholders read out exactly (IDs, digits) and never sent through translation. */
+export const VERBATIM_VARS = ["batch", "farmerId", "ref", "last4"];

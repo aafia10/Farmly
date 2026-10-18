@@ -70,26 +70,54 @@ test("questions and commands", () => {
   assert.equal(p.parseIntent("wheat"), undefined);
 });
 
+test("registration answers", () => {
+  assert.equal(p.parseName("My name is ramesh patil"), "Ramesh Patil");
+  assert.equal(p.parseName("I am Sunita Devi ji"), "Sunita Devi");
+  assert.equal(p.parsePlace("I live in Pimpalgaon"), "Pimpalgaon");
+  assert.equal(p.parsePlace("the district is Nashik"), "Nashik");
+  assert.equal(p.parseState("Maharashtra"), "Maharashtra");
+  assert.equal(p.parseState("we are in tamil nadu"), "Tamil Nadu");
+  assert.equal(p.parseState("Mars"), undefined);
+  assert.equal(p.parseFarmingCategory("mostly onion and tomato"), "Vegetables");
+  assert.equal(p.parseFarmingCategory("wheat and also cows"), "Mixed Farming");
+  assert.equal(p.parseFarmingCategory("dairy"), "Dairy & Livestock");
+  assert.deepEqual(p.parseFpo("no"), { fpo: null });
+  assert.deepEqual(p.parseFpo("Yes, Sahyadri Farmers Producer Company"), { fpo: "Sahyadri Farmers Producer Company" });
+  assert.equal(p.parseFpo("yes"), undefined);
+  assert.equal(p.parseTask("I want to sell my harvested crop"), "lot");
+  assert.equal(p.parseTask("upcoming harvest"), "availability");
+  assert.equal(p.parseTask("nothing else"), "finish");
+  assert.equal(p.parseRegFieldChoice("change the district"), "district");
+  assert.equal(p.parseRegFieldChoice("my name is wrong"), "name");
+  assert.ok(p.isSkip("I don't know"));
+  assert.equal(p.parseIntent("is there any fee?"), "faqCost");
+  assert.equal(p.parseIntent("do I need aadhaar"), "faqDocuments");
+});
+
 // --- Dialog -----------------------------------------------------------------
 
 const farmer = { registryId: "FMR-MH-000421", name: "Ramesh Patil", village: "Sinnar", district: "Nashik", state: "Maharashtra" };
+const dopts = { ...opts, today };
 
-function run(events) {
-  let state = initialState();
+function run(events, from = initialState()) {
+  let state = from;
   const log = [];
   for (const ev of events) {
-    const r = step(state, ev, opts);
+    const r = step(state, ev, dopts);
     state = r.state;
     log.push(r);
   }
   return { state, log, last: log[log.length - 1] };
 }
 
-test("happy path registers only after confirmation", () => {
+const intoLot = [{ type: "start", callerNumber: "+919876543210" }, { type: "digits", digits: "3" }, { type: "identified", farmer }, { type: "digits", digits: "1" }];
+
+test("registered caller: menu, crop lot, confirm, then finish", () => {
   const { state, log } = run([
     { type: "start", callerNumber: "+919876543210" },
     { type: "speech", text: "Marathi", detectedLanguage: "mr-IN" },
     { type: "identified", farmer },
+    { type: "speech", text: "crop lot" },
     { type: "speech", text: "onion" },
     { type: "speech", text: "Nashik red" },
     { type: "speech", text: "twenty quintals" },
@@ -98,6 +126,7 @@ test("happy path registers only after confirmation", () => {
   ]);
   assert.equal(log[1].action.type, "identify");
   assert.equal(log[1].action.mobile, "9876543210");
+  assert.deepEqual(log[2].say.map((u) => u.id), ["farmerFound", "mainMenu"]);
   assert.equal(state.language, "mr-IN");
   assert.equal(state.step, "readback");
   assert.ok(!log.some((r) => r.action && r.action.type === "submit"), "nothing submitted before confirmation");
@@ -105,12 +134,15 @@ test("happy path registers only after confirmation", () => {
     { crop: state.fields.crop, variety: state.fields.variety, quantity: state.fields.quantity, unit: state.fields.unit, location: state.fields.location },
     { crop: "Onion", variety: "Nashik red", quantity: 20, unit: "quintals", location: "Sinnar, Nashik" }
   );
-  const confirm = step(state, { type: "digits", digits: "1" }, opts);
-  assert.equal(confirm.action.type, "submit");
-  const done = step(confirm.state, { type: "submitted", batchId: "LT-482913" }, opts);
-  assert.equal(done.end, true);
-  assert.equal(done.say[0].id, "registered");
+  const confirm = step(state, { type: "digits", digits: "1" }, dopts);
+  assert.deepEqual(confirm.action, { type: "submit", kind: "lot" });
+  const done = step(confirm.state, { type: "submitted", kind: "lot", id: "LT-482913" }, dopts);
+  assert.equal(done.end, undefined, "the call continues with 'anything else?'");
+  assert.deepEqual(done.say.map((u) => u.id), ["registered", "menuAgain"]);
   assert.equal(done.say[0].vars.batch, "L T 4 8 2 9 1 3");
+  const bye = step(done.state, { type: "digits", digits: "3" }, dopts);
+  assert.ok(bye.end);
+  assert.equal(bye.state.outcome, "registered");
 });
 
 test("keypad language menu, unit follow-up and correcting a field", () => {
@@ -119,6 +151,7 @@ test("keypad language menu, unit follow-up and correcting a field", () => {
     { type: "digits", digits: "0" },
     { type: "digits", digits: "1" }, // Punjabi
     { type: "identified", farmer: { ...farmer, village: null, district: null } },
+    { type: "digits", digits: "1" },
     { type: "speech", text: "wheat" },
     { type: "speech", text: "don't know" },
     { type: "speech", text: "about 300" },
@@ -136,35 +169,110 @@ test("keypad language menu, unit follow-up and correcting a field", () => {
   assert.equal(state.fields.location, "Kalwan");
 });
 
-test("unknown caller is asked for the mobile number, then told to register", () => {
-  const { log, state } = run([
+test("new caller registers as a farmer on the call, then records an upcoming harvest", () => {
+  const { state, log } = run([
+    { type: "start", callerNumber: "+919811122233" },
+    { type: "digits", digits: "1" }, // Hindi
+    { type: "identified", farmer: null },
+    { type: "speech", text: "yes please register me" },
+    { type: "speech", text: "yes" }, // caller-ID mobile
+    { type: "speech", text: "My name is Sunita Pawar" },
+    { type: "speech", text: "I live in Ozar" },
+    { type: "speech", text: "I don't know" }, // taluka
+    { type: "speech", text: "Nashik" },
+    { type: "speech", text: "Maharashtra" },
+    { type: "speech", text: "grapes and pomegranate" },
+    { type: "speech", text: "no" }, // FPO
+    { type: "speech", text: "yes I agree" },
+  ]);
+  assert.equal(log[2].say[0].id, "notRegisteredOffer");
+  assert.equal(log[3].say[0].id, "regIntro");
+  assert.equal(log[3].say[1].vars.last4, "2 2 3 3");
+  assert.equal(state.step, "regReadback");
+  assert.deepEqual(state.reg, {
+    mobile: "9811122233", name: "Sunita Pawar", village: "Ozar", taluka: null, talukaAsked: true,
+    district: "Nashik", state: "Maharashtra", category: "Fruits & Horticulture", fpo: null, fpoAsked: true, consent: true,
+  });
+  assert.ok(!log.some((r) => r.action && r.action.type === "registerFarmer"), "nothing registered before confirmation");
+
+  // Correct the district, then confirm.
+  const fixed = run([{ type: "speech", text: "no" }, { type: "speech", text: "the district" }, { type: "speech", text: "Niphad" }], state);
+  assert.equal(fixed.state.step, "regReadback");
+  assert.equal(fixed.state.reg.district, "Niphad");
+  const confirm = step(fixed.state, { type: "digits", digits: "1" }, dopts);
+  assert.equal(confirm.action.type, "registerFarmer");
+  const registered = step(confirm.state, { type: "farmerRegistered", farmer: { registryId: "FM-123456", name: "Sunita Pawar", village: "Ozar", district: "Niphad" }, existing: false }, dopts);
+  assert.deepEqual(registered.say.map((u) => u.id), ["farmerRegistered", "mainMenu"]);
+  assert.equal(registered.say[0].vars.farmerId, "F M 1 2 3 4 5 6");
+
+  const harvest = run([
+    { type: "speech", text: "upcoming harvest" },
+    { type: "speech", text: "grapes" },
+    { type: "speech", text: "Thompson seedless" },
+    { type: "speech", text: "5 tonnes" },
+    { type: "speech", text: "15 days ago" },
+    { type: "speech", text: "next month" },
+    { type: "speech", text: "yes" },
+    { type: "speech", text: "organic, no chemical spray" },
+    { type: "speech", text: "yes" },
+  ], registered.state);
+  assert.equal(harvest.log[4].say[0].id, "availPastDate", "a past date is refused for an upcoming harvest");
+  assert.deepEqual(harvest.last.action, { type: "submit", kind: "availability" });
+  assert.equal(harvest.state.fields.location, "Ozar, Niphad");
+  assert.equal(harvest.state.fields.notes, "organic, no chemical spray");
+  assert.equal(harvest.state.fields.harvestDate, p.parseHarvestDate("next month", today).date);
+});
+
+test("registration stops without consent; declining registration queues a callback", () => {
+  const declined = run([{ type: "start", callerNumber: "9811122233" }, { type: "digits", digits: "3" }, { type: "identified", farmer: null }, { type: "speech", text: "no" }]);
+  assert.equal(declined.state.outcome, "unregistered");
+  assert.equal(declined.last.action.type, "callback");
+  const noConsent = run([
+    { type: "start", callerNumber: "9811122233" }, { type: "digits", digits: "3" }, { type: "identified", farmer: null },
+    { type: "digits", digits: "1" }, { type: "digits", digits: "1" }, { type: "speech", text: "Raju" }, { type: "speech", text: "Ozar" },
+    { type: "speech", text: "Niphad" }, { type: "speech", text: "Nashik" }, { type: "speech", text: "Maharashtra" },
+    { type: "speech", text: "crops" }, { type: "digits", digits: "2" }, { type: "speech", text: "no" },
+  ]);
+  assert.equal(noConsent.state.outcome, "declined");
+  assert.ok(!noConsent.log.some((r) => r.action && r.action.type === "registerFarmer"));
+});
+
+test("caller registered with another number can type it", () => {
+  const { log } = run([
     { type: "start", callerNumber: "+15550001111" },
     { type: "digits", digits: "3" },
     { type: "identified", farmer: null },
-    { type: "digits", digits: "9999999999" },
-    { type: "identified", farmer: null },
+    { type: "digits", digits: "2" },
+    { type: "digits", digits: "9876543210" },
+    { type: "identified", farmer },
   ]);
-  assert.equal(log[2].state.step, "mobile");
-  assert.equal(log[3].action.mobile, "9999999999");
-  assert.equal(state.outcome, "unregistered");
-  assert.equal(log[4].action.type, "callback");
+  assert.equal(log[3].state.step, "mobile");
+  assert.equal(log[4].action.mobile, "9876543210");
+  assert.equal(log[5].say[0].id, "farmerFound");
+});
+
+test("caller ID hidden: registration asks for the mobile on the keypad", () => {
+  const { log, state } = run([{ type: "start" }, { type: "digits", digits: "3" }, { type: "identified", farmer: null }, { type: "digits", digits: "1" }, { type: "digits", digits: "9811122233" }]);
+  assert.equal(log[3].expect, "mobile");
+  assert.equal(state.reg.mobile, "9811122233");
+  assert.equal(state.step, "regName");
 });
 
 test("silence and repeated misunderstanding hand off to the helper", () => {
-  const silent = run([{ type: "start" }, { type: "digits", digits: "3" }, { type: "identified", farmer }, { type: "noInput" }, { type: "noInput" }, { type: "noInput" }]);
+  const silent = run([...intoLot, { type: "noInput" }, { type: "noInput" }, { type: "noInput" }]);
   assert.equal(silent.state.outcome, "callback");
-  const confused = run([{ type: "start" }, { type: "digits", digits: "3" }, { type: "identified", farmer }, { type: "speech", text: "wheat" }, { type: "speech", text: "x" }, { type: "speech", text: "fifty bags" }, { type: "speech", text: "fifty bags" }, { type: "speech", text: "fifty bags" }]);
+  const confused = run([...intoLot, { type: "speech", text: "wheat" }, { type: "speech", text: "x" }, { type: "speech", text: "fifty bags" }, { type: "speech", text: "fifty bags" }, { type: "speech", text: "fifty bags" }]);
   assert.equal(confused.state.outcome, "callback");
   assert.ok(!confused.log.some((r) => r.action && r.action.type === "submit"));
 });
 
 test("farmer questions are answered and the pending question repeated", () => {
-  const { last } = run([{ type: "start" }, { type: "digits", digits: "3" }, { type: "identified", farmer }, { type: "speech", text: "when will I get paid?" }]);
+  const { last } = run([...intoLot, { type: "speech", text: "when will I get paid?" }]);
   assert.equal(last.say[0].id, "faqPayment");
   assert.equal(last.say[1].id, "askCrop");
-  const helper = run([{ type: "start" }, { type: "digits", digits: "3" }, { type: "identified", farmer }, { type: "speech", text: "connect me to my helper" }]);
+  const helper = run([...intoLot, { type: "speech", text: "connect me to my helper" }]);
   assert.equal(helper.last.action.type, "transfer");
-  const stop = run([{ type: "start" }, { type: "digits", digits: "3" }, { type: "identified", farmer }, { type: "speech", text: "stop" }]);
+  const stop = run([...intoLot, { type: "speech", text: "stop" }]);
   assert.equal(stop.state.outcome, "stopped");
 });
 
@@ -172,15 +280,19 @@ test("resume offers the unfinished crop", () => {
   const { state, log } = run([
     { type: "start" },
     { type: "digits", digits: "3" },
-    { type: "identified", farmer, resumeFields: { crop: "Wheat", varietyAsked: true, variety: null } },
+    { type: "identified", farmer, resume: { task: "lot", fields: { crop: "Wheat", varietyAsked: true, variety: null } } },
     { type: "speech", text: "yes" },
   ]);
   assert.equal(log[2].say[1].id, "askResume");
+  assert.equal(state.task, "lot");
   assert.equal(state.step, "quantity");
 });
 
-test("backend failure is never announced as success", () => {
-  const r = step({ ...initialState(), step: "submitting", language: "hi-IN", fields: {} }, { type: "submitFailed" }, opts);
+test("backend failures are never announced as success", () => {
+  const r = step({ ...initialState(), step: "submitting", language: "hi-IN", task: "lot" }, { type: "submitFailed" }, dopts);
   assert.equal(r.say[0].id, "submitFailed");
   assert.equal(r.state.outcome, "failed");
+  const f = step({ ...initialState(), step: "registering", language: "hi-IN", task: "register" }, { type: "registerFailed" }, dopts);
+  assert.equal(f.say[0].id, "registerFailed");
+  assert.equal(f.action.type, "callback");
 });

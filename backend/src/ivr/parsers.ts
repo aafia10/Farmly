@@ -47,7 +47,9 @@ export type Intent =
   | "faqPrice"
   | "faqPayment"
   | "faqPrivacy"
-  | "faqCertificate";
+  | "faqCertificate"
+  | "faqCost"
+  | "faqDocuments";
 
 const INTENTS: [Intent, RegExp][] = [
   ["repeat", /\b(repeat|say (it |that )?again|once more|pardon|what did you say|didn'?t (hear|understand) (you|that))\b/],
@@ -57,6 +59,8 @@ const INTENTS: [Intent, RegExp][] = [
   ["faqPayment", /\b(paid|payment|pay me|money|when will i get)\b/],
   ["faqPrice", /\b(price|rate|buyer|who will buy|bhav|good money)\b/],
   ["faqPrivacy", /\b(safe|privacy|private|secure|share my|my data|my number)\b/],
+  ["faqCost", /\b(cost|charges?|fees?|is it free|free of cost|commission)\b/],
+  ["faqDocuments", /\b(aadhaar|aadhar|id proof|which documents|what documents|documents? (do i )?need|satbara|7 12|land record)\b/],
   ["faqCertificate", /\b(certificate|document|papers|certification)\b/],
   ["faqWhat", /\b(what is this|why (are you|do you)|who are you|what is farmly|what are you doing|why this call)\b/],
 ];
@@ -354,4 +358,150 @@ export function normalizeMobile(value?: string | null): string | undefined {
   const digits = value.replace(/\D/g, "");
   if (digits.length < 10) return undefined;
   return digits.slice(-10);
+}
+
+// ---------------------------------------------------------------------------
+// Farmer registration answers
+// ---------------------------------------------------------------------------
+
+const SKIP_PHRASE = /\b(dont know|do not know|not sure|no idea|not applicable)\b/;
+const SKIP_WORD = /^(no|nope|none|nothing|skip|na|nahi|nahin)( (nothing|thanks|thank you|sir|madam|ji|else|there is nothing))*$/;
+
+/** "don't know" / "no" / "nothing" mean the farmer has nothing to give for an optional question. */
+export function isSkip(text: string): boolean {
+  const t = normalize(text);
+  return !t || SKIP_WORD.test(t) || (SKIP_PHRASE.test(t) && t.split(" ").length <= 5);
+}
+
+/** Title case, keeping short all-caps words (initials, "FPO", "IVR") as spoken/transcribed. */
+const title = (s: string) =>
+  s
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .map((w) => (/^\p{Lu}{2,4}$/u.test(w) ? w : w.toLowerCase().replace(/(^|-)\p{L}/gu, (c) => c.toUpperCase())))
+    .join(" ");
+
+/** "My name is ramesh patil" -> "Ramesh Patil". */
+export function parseName(text: string): string | undefined {
+  const raw = text
+    .replace(/\b(my|full)?\s*name\s*(is|:)?\b/gi, " ")
+    .replace(/\b(i am|i'm|this is|myself|call me|it is|it's|sir|madam|ji)\b/gi, " ")
+    .replace(/[^\p{L}\s.'-]/gu, " ");
+  const name = title(raw).replace(/^[\s.'-]+|[\s.'-]+$/g, "");
+  if (name.length < 2 || name.split(" ").length > 6) return undefined;
+  return name;
+}
+
+/** Village / taluka / district: strip filler like "I live in", "the district is". */
+export function parsePlace(text: string): string | undefined {
+  const raw = text
+    .replace(/\b(i live in|i am from|i'm from|we live in|my village is|village is|my village|village|the|taluka|tehsil|tahsil|block|district|is|in|at|of|it is|it's|from|name)\b/gi, " ")
+    .replace(/[^\p{L}\s-]/gu, " ");
+  const place = title(raw);
+  if (place.length < 2 || place.split(" ").length > 5) return undefined;
+  return place;
+}
+
+const STATES: Record<string, string[]> = {
+  "Andhra Pradesh": ["andhra pradesh", "andhra"],
+  "Arunachal Pradesh": ["arunachal pradesh", "arunachal"],
+  Assam: ["assam"],
+  Bihar: ["bihar"],
+  Chhattisgarh: ["chhattisgarh", "chattisgarh", "chhatisgarh"],
+  Goa: ["goa"],
+  Gujarat: ["gujarat", "gujrat"],
+  Haryana: ["haryana"],
+  "Himachal Pradesh": ["himachal pradesh", "himachal"],
+  Jharkhand: ["jharkhand"],
+  Karnataka: ["karnataka"],
+  Kerala: ["kerala"],
+  "Madhya Pradesh": ["madhya pradesh", "mp"],
+  Maharashtra: ["maharashtra", "maharastra"],
+  Manipur: ["manipur"],
+  Meghalaya: ["meghalaya"],
+  Mizoram: ["mizoram"],
+  Nagaland: ["nagaland"],
+  Odisha: ["odisha", "orissa"],
+  Punjab: ["punjab"],
+  Rajasthan: ["rajasthan"],
+  Sikkim: ["sikkim"],
+  "Tamil Nadu": ["tamil nadu", "tamilnadu"],
+  Telangana: ["telangana"],
+  Tripura: ["tripura"],
+  "Uttar Pradesh": ["uttar pradesh", "up"],
+  Uttarakhand: ["uttarakhand", "uttaranchal"],
+  "West Bengal": ["west bengal", "bengal"],
+  "Jammu and Kashmir": ["jammu and kashmir", "jammu", "kashmir"],
+  Ladakh: ["ladakh"],
+  Delhi: ["delhi"],
+  Puducherry: ["puducherry", "pondicherry"],
+};
+const STATE_ALIASES: [string, string][] = Object.entries(STATES)
+  .flatMap(([name, aliases]) => aliases.map((a) => [a, name] as [string, string]))
+  .sort((a, b) => b[0].length - a[0].length);
+
+export function parseState(text: string): string | undefined {
+  const t = normalize(text);
+  for (const [alias, name] of STATE_ALIASES) if (new RegExp(`(^|\\s)${alias}(\\s|$)`).test(t)) return name;
+  return undefined;
+}
+
+/** Category values match the helper form's examples. */
+export function parseFarmingCategory(text: string): string | undefined {
+  const t = normalize(text);
+  const found: string[] = [];
+  if (/\b(mixed|all|everything|both|many)\b/.test(t)) return "Mixed Farming";
+  if (/\b(crop|crops|grain|grains|cereal|cereals|wheat|rice|paddy|pulses|dal|cotton|soybean|sugarcane|field)\b/.test(t)) found.push("Crops");
+  if (/\b(vegetable|vegetables|sabzi|sabji|onion|tomato|potato)\b/.test(t)) found.push("Vegetables");
+  if (/\b(fruit|fruits|horticulture|orchard|grapes|mango|banana|pomegranate)\b/.test(t)) found.push("Fruits & Horticulture");
+  if (/\b(dairy|milk|cow|cows|buffalo|buffaloes|cattle|goat|goats|livestock|animal|animals)\b/.test(t)) found.push("Dairy & Livestock");
+  if (/\b(poultry|chicken|chickens|hen|hens|eggs)\b/.test(t)) found.push("Poultry");
+  if (/\b(fish|fishery|fisheries|fishing)\b/.test(t)) found.push("Fisheries");
+  if (found.length > 1) return "Mixed Farming";
+  return found[0];
+}
+
+/** FPO / cooperative name, or null when the farmer is not a member. */
+export function parseFpo(text: string): { fpo: string | null } | undefined {
+  const t = normalize(text);
+  if (!t) return undefined;
+  if (/^(no|nope|nahi|nahin|na|none|not a member|i am not|im not|not)\b/.test(t) || /\b(not a member|no fpo|no cooperative|individual|alone|myself)\b/.test(t)) {
+    return { fpo: null };
+  }
+  const name = cleanFreeText(text.replace(/^(yes|haan|ha|ji)[,\s]*/i, "").replace(/\b(i am a member of|member of|it is|it's|the name is|called)\b/gi, " "));
+  if (name.replace(/\W/g, "").length < 2) return undefined; // just "yes": ask for the name
+  return { fpo: title(name) };
+}
+
+/** Main menu: what the caller wants to do. */
+export function parseTask(text: string): "lot" | "availability" | "finish" | undefined {
+  const t = normalize(text);
+  if (/\b(lot|harvested|already harvested|ready|sell|batch|register (a |my )?crop lot)\b/.test(t)) return "lot";
+  if (/\b(upcoming|availability|available|will harvest|future|coming|growing|expected|standing crop)\b/.test(t)) return "availability";
+  if (/\b(finish|done|nothing|no|thats all|that is all|end|exit|bye|nothing else)\b/.test(t)) return "finish";
+  return undefined;
+}
+
+export type RegField = "name" | "village" | "taluka" | "district" | "state" | "category" | "fpo" | "mobile";
+
+export function parseRegFieldChoice(text: string): RegField | undefined {
+  const t = normalize(text);
+  if (/\b(taluka|tehsil|tahsil|block)\b/.test(t)) return "taluka";
+  if (/\b(district|zilla)\b/.test(t)) return "district";
+  if (/\b(state)\b/.test(t)) return "state";
+  if (/\b(village|gaon|place)\b/.test(t)) return "village";
+  if (/\b(fpo|cooperative|society|company|organisation|organization)\b/.test(t)) return "fpo";
+  if (/\b(farming|category|type|what i grow|crops|dairy)\b/.test(t)) return "category";
+  if (/\b(mobile|number|phone)\b/.test(t)) return "mobile";
+  if (/\b(name)\b/.test(t)) return "name";
+  return undefined;
+}
+
+export type AvailField = Field | "notes";
+
+export function parseAvailFieldChoice(text: string): AvailField | undefined {
+  const t = normalize(text);
+  if (/\b(note|notes|remark|remarks|extra|comment)\b/.test(t)) return "notes";
+  return parseFieldChoice(text);
 }

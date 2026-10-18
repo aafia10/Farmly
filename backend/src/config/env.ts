@@ -40,6 +40,8 @@ const envSchema = z.object({
   SARVAM_API_KEY: optionalString,
   IVR_TTS_SPEAKER: optionalString,
   IVR_ENABLE_PARTIAL_LANGUAGES: optionalString,
+  // Profile UUID of the helper account that phone registrations are filed under (calls with no helper).
+  IVR_HELPER_ID: optionalString,
   TWILIO_ACCOUNT_SID: optionalString,
   TWILIO_AUTH_TOKEN: optionalString,
   TWILIO_PHONE_NUMBER: optionalString,
@@ -67,6 +69,7 @@ export const env = envSchema.parse({
   SARVAM_API_KEY: process.env.SARVAM_API_KEY,
   IVR_TTS_SPEAKER: process.env.IVR_TTS_SPEAKER,
   IVR_ENABLE_PARTIAL_LANGUAGES: process.env.IVR_ENABLE_PARTIAL_LANGUAGES,
+  IVR_HELPER_ID: process.env.IVR_HELPER_ID,
   TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
   TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
   TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER,

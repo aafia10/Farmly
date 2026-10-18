@@ -10,6 +10,32 @@ export interface IvrFields {
   harvestDate?: string;
   harvested?: boolean;
   location?: string;
+  notes?: string | null;
+}
+
+export interface IvrRegistration {
+  mobile?: string;
+  name?: string;
+  village?: string;
+  taluka?: string | null;
+  district?: string;
+  state?: string;
+  category?: string;
+  fpo?: string | null;
+  consent?: boolean;
+}
+
+export interface IvrSubmission {
+  key: string;
+  kind: "farmer" | "lot" | "availability";
+  seq: number;
+  reservedId: string;
+  payload: Record<string, unknown>;
+  status: "pending" | "registered" | "failed";
+  recordId?: string | null;
+  error?: string | null;
+  createdAt: string;
+  registeredAt?: string | null;
 }
 
 export interface IvrTurn {
@@ -30,8 +56,12 @@ export interface IvrSession {
   language: string | null;
   farmer: { registryId: string; name: string } | null;
   fields: IvrFields;
+  registration: IvrRegistration;
+  task: "register" | "lot" | "availability" | null;
+  submissions: IvrSubmission[];
   outcome: string | null;
   batchId: string | null;
+  farmerId: string | null;
   callbackRequested: boolean;
   callbackReason: string | null;
   lastError: string | null;
@@ -74,7 +104,8 @@ export const ivrApi = {
   config: () => backendClient.fetchApi<IvrConfig>("/ivr/config"),
   sessions: () => backendClient.fetchApi<IvrSession[]>("/ivr/sessions"),
   session: (id: string) => backendClient.fetchApi<IvrSession>(`/ivr/sessions/${id}`),
-  retry: (id: string) => backendClient.fetchApi<IvrSession>(`/ivr/sessions/${id}/retry`, { method: "POST" }),
+  retry: (id: string, key?: string) =>
+    backendClient.fetchApi<IvrSession>(`/ivr/sessions/${id}/retry`, { method: "POST", body: JSON.stringify(key ? { key } : {}) }),
   startSimulation: (callerNumber: string) =>
     backendClient.fetchApi<IvrTurnResult>("/ivr/sim/sessions", { method: "POST", body: JSON.stringify({ callerNumber }) }),
   sendTurn: (id: string, input: IvrInput) =>

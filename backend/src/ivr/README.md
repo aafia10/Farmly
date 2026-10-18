@@ -1,8 +1,14 @@
-# Phone crop registration (multilingual IVR)
+# Phone registration agent (multilingual IVR)
 
-A farmer phones Farmly, answers a few questions in their own language, hears the details read back, and confirms. Only then does the backend create the crop lot. It uses the same lot service as the Field Helper "Create lot" form. The farmer hears the real Batch ID only after the backend has stored the lot.
+A farmer phones Farmly and, in their own language, can:
 
-The conversation script, the questions, and the answers to farmer FAQs are in [conversation-script.md](conversation-script.md).
+- **register as a farmer**, if the number isn't registered yet;
+- **register a crop lot**, for a crop that is harvested and ready to sell;
+- **record an upcoming harvest** (crop availability).
+
+They can do several of these in one call. The agent asks the same questions as the helper forms on the website and reads the answers back. Only after the farmer says *yes* does it build the JSON body the website form would send and submit it through the same backend service (`farmerService`, `lotService`, `cropAvailabilityService`). The farmer hears the Farmly ID, batch number or reference number only after the backend has stored the record.
+
+The complete conversation script, with every question, the JSON produced and the answers to farmer questions, is in [conversation-script.md](conversation-script.md).
 
 ## How it works
 
@@ -11,21 +17,23 @@ Caller ──► Twilio number ──► POST /api/v1/ivr/twilio/voice   (signed
                 │                    │
                 │   <Play> prompt ◄──┤  dialog engine (src/ivr/dialog.ts)
                 │   <Record> answer ─►  /ivr/twilio/turn ──► Sarvam STT (saaras:v3, translate → English)
-                │                    │      parsers (crop, quantity+unit, date, yes/no, FAQ)
-                │                    │  confirmed? ──► createLotRecord()  (src/services/lotService.ts)
-                │   "Batch L T 4 8…" ◄┘
-Helper ──► /helper/calls  (session list, fields, errors, retry, simulator)
+                │                    │      parsers (name, place, state, crop, quantity+unit, date, yes/no, FAQ)
+                │                    │  confirmed? ──► JSON body ──► createFarmerRecord() / createLotRecord() /
+                │                    │                                createCropAvailabilityRecord()  (src/services)
+                │   "Farmly ID F M…" ◄┘   "Batch L T…"   "Reference C A…"
+Helper ──► /helper/calls  (calls, collected answers, generated JSON, errors, retry, simulator)
 ```
 
 - **One engine, two front doors.** Real Twilio calls and the local simulator run the same state machine (`src/ivr/dialog.ts`), so a simulated call tests exactly what a caller hears.
 - **Prompts** are written once in English (`src/ivr/script.ts`). At runtime they are translated with Sarvam `sarvam-translate:v1` and spoken with Sarvam `bulbul:v3`. Both results are cached under `backend/.cache/ivr/` (git-ignored), so each fixed prompt costs money only once.
 - **Answers** are transcribed straight to English with Sarvam `saaras:v3` in `translate` mode. This also handles code-mixed speech (Hinglish and similar), and one set of English parsers works for every language. Keypad presses work everywhere (1 = yes, 2 = no, language menu digits).
-- **No duplicates.** A session reserves its Batch ID before the insert, the insert never overwrites (`insertOnly`), turns of one session are serialised, `voicegenie_submissions` allows one row per call, and a resumed call reuses the earlier reservation.
-- **Failures.** Silence is re-asked twice, and an answer that isn't understood is re-asked up to three times. After that the call ends politely and the session is flagged for a helper callback. If speech recognition fails, or the backend fails to register the lot, the call also ends with a callback, and no Batch ID is announced. A helper can press **Retry registration**, which reuses the same Batch ID. A caller who hangs up can call back within 24 hours and continue where they left off.
+- **No duplicates.** Each registration reserves its ID (`FM-`, `LT-`, `CA-` plus six digits) before the insert, and the insert never overwrites (`insertOnly`). Turns of one call are processed one at a time, and `voicegenie_submissions` allows one row per (call, kind, number). Registering a mobile number that already exists recognises that farmer instead of creating a second profile, and a resumed call reuses the earlier reservation.
+- **Failures.** Silence is re-asked twice, and an answer that isn't understood is re-asked up to three times. After that the call ends politely and the session is flagged for a helper callback. If speech recognition fails, or the backend fails to save, the call also ends with a callback, and no ID is announced. In the workspace the helper presses **Retry** on that registration; it resends the stored JSON with the same reserved ID. A caller who hangs up during a lot or harvest can call back within 24 hours and continue where they left off.
+- **Whose name is on it.** Simulator calls are filed under the helper running them. For real calls, registrations are filed under the farmer's assigned helper, or else under the helper account set in `IVR_HELPER_ID`. They then show in that helper's activity log. Phone-registered farmers get `verificationLevel: "Basic"` until a helper verifies them in the field.
 
 ## Languages
 
-Sarvam's documentation lists these capabilities. None of the voices or recognisers has been tested yet with live calls in this project; do that before announcing a language to farmers.
+Sarvam's documentation lists these capabilities. On 18 October 2026 a full Marathi conversation was tested through the simulator with live Sarvam translation and text-to-speech: a farmer registration, an upcoming harvest and a crop lot, including a typed Marathi answer. Live phone audio (speech recognition over Twilio) and the other languages are not tested yet; do that before announcing a language to farmers.
 
 | Language | Speech recognition (saaras:v3) | Spoken prompts (bulbul:v3) | Status in Farmly |
 |---|---|---|---|
@@ -37,13 +45,13 @@ Set `IVR_ENABLE_PARTIAL_LANGUAGES=false` to hide Assamese and Urdu from the menu
 
 ## Running it for free (simulator)
 
-1. Run migrations `002` and `003` in Supabase (see the backend README) and set `SUPABASE_SERVICE_ROLE_KEY`. Without the service-role key, sessions are kept in memory only, which is enough to try the simulator.
+1. Run migrations `002`, `003` and `004` in Supabase (see the backend README) and set `SUPABASE_SERVICE_ROLE_KEY`. Without the service-role key, sessions are kept in memory only, which is enough to try the simulator.
 2. Start the backend and frontend, sign in as a **Field Helper**, and open **Phone Registrations** (`/helper/calls`).
-3. Enter a registered farmer's mobile number (this acts as the caller ID) and press **Call**.
+3. Enter a mobile number to act as the caller ID and press **Call**. Use a registered farmer's number to test lots and harvests, or a new number to test farmer registration.
    - Without `SARVAM_API_KEY`, prompts are shown in English. You type answers in English or romanised text, or use the keypad buttons.
    - With `SARVAM_API_KEY`, prompts are translated and spoken. You can type in any Indian script, or press the mic button and speak.
 
-A confirmed simulated call registers a **real** lot, labelled as coming from the simulator in the session list.
+A confirmed simulated call creates **real** records (farmer, lot, harvest), labelled as simulated in the session list.
 
 ## Real phone calls (Twilio)
 

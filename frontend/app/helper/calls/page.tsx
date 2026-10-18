@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/contexts/language-context";
 import { backendClient } from "@/lib/api/backendClient";
-import { ivrApi, ivrAudioUrl, IvrConfig, IvrFields, IvrInput, IvrPrompt, IvrSession } from "@/lib/api/ivr";
+import { ivrApi, ivrAudioUrl, IvrConfig, IvrFields, IvrInput, IvrPrompt, IvrRegistration, IvrSession, IvrSubmission } from "@/lib/api/ivr";
 
 const STATUS_STYLES: Record<IvrSession["status"], { label: string; cls: string }> = {
   in_progress: { label: "In progress", cls: "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" },
@@ -46,14 +46,9 @@ function StatusBadge({ status }: { status: IvrSession["status"] }) {
   return <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${s.cls}`}>{s.label}</span>;
 }
 
-function FieldList({ fields }: { fields: IvrFields }) {
-  const rows: [string, string | undefined][] = [
-    ["Crop", fields.crop],
-    ["Variety", fields.variety === null ? "Not known" : fields.variety],
-    ["Quantity", fields.quantity !== undefined ? `${fields.quantity} ${fields.unit || ""}` : undefined],
-    ["Harvest", fields.harvestDate ? `${fields.harvestDate}${fields.harvested ? " (harvested)" : " (expected)"}` : undefined],
-    ["Location", fields.location],
-  ];
+const KIND_LABEL: Record<IvrSubmission["kind"], string> = { farmer: "Farmer", lot: "Crop lot", availability: "Upcoming harvest" };
+
+function Rows({ rows }: { rows: [string, string | undefined][] }) {
   return (
     <dl className="grid grid-cols-[90px_1fr] gap-x-3 gap-y-1 text-xs">
       {rows.map(([k, v]) => (
@@ -63,6 +58,62 @@ function FieldList({ fields }: { fields: IvrFields }) {
         </React.Fragment>
       ))}
     </dl>
+  );
+}
+
+function FieldList({ fields, availability }: { fields: IvrFields; availability?: boolean }) {
+  const rows: [string, string | undefined][] = [
+    ["Crop", fields.crop],
+    ["Variety", fields.variety === null ? "Not known" : fields.variety],
+    ["Quantity", fields.quantity !== undefined ? `${fields.quantity} ${fields.unit || ""}` : undefined],
+    ["Harvest", fields.harvestDate ? `${fields.harvestDate}${fields.harvested ? " (harvested)" : " (expected)"}` : undefined],
+    ["Location", fields.location],
+  ];
+  if (availability) rows.push(["Notes", fields.notes === null ? "None" : fields.notes || undefined]);
+  return <Rows rows={rows} />;
+}
+
+function RegistrationList({ reg }: { reg: IvrRegistration }) {
+  return (
+    <Rows
+      rows={[
+        ["Mobile", reg.mobile],
+        ["Name", reg.name],
+        ["Village", reg.village],
+        ["Taluka", reg.taluka === null ? "Not given" : reg.taluka],
+        ["District", reg.district],
+        ["State", reg.state],
+        ["Farming", reg.category],
+        ["FPO", reg.fpo === null ? "None" : reg.fpo],
+        ["Consent", reg.consent ? "Given on the call" : undefined],
+      ]}
+    />
+  );
+}
+
+function SubmissionRow({ sub, busy, canRetry, onRetry }: { sub: IvrSubmission; busy: boolean; canRetry: boolean; onRetry: () => void }) {
+  const ok = sub.status === "registered";
+  return (
+    <div className={`rounded-xl border p-2.5 text-xs ${ok ? "border-emerald-500/30 bg-emerald-500/10" : "border-red-500/30 bg-red-500/10"}`}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          {ok ? <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" /> : <AlertTriangle className="w-4 h-4 shrink-0 text-red-600 dark:text-red-400" />}
+          <span className="font-semibold text-farmly-foreground">{KIND_LABEL[sub.kind]}</span>
+          <span className="font-mono text-farmly-foreground truncate">{sub.recordId || sub.reservedId}</span>
+          {!ok && <span className="text-red-700 dark:text-red-300">{sub.status === "failed" ? "failed" : "not sent"}</span>}
+        </div>
+        {!ok && canRetry && (
+          <Button type="button" size="sm" onClick={onRetry} disabled={busy} className="h-7 px-2.5 shrink-0">
+            <RotateCcw className="w-3.5 h-3.5 mr-1" /> Retry
+          </Button>
+        )}
+      </div>
+      {sub.error && <p className="mt-1 text-[11px] text-red-700 dark:text-red-300">{sub.error}</p>}
+      <details className="mt-1.5">
+        <summary className="cursor-pointer text-[11px] text-farmly-muted">Generated JSON (sent to the website API)</summary>
+        <pre className="mt-1 max-h-48 overflow-auto rounded-lg bg-farmly-background/60 p-2 text-[10px] leading-relaxed text-farmly-foreground">{JSON.stringify(sub.payload, null, 2)}</pre>
+      </details>
+    </div>
   );
 }
 
@@ -175,7 +226,7 @@ export default function HelperCallsPage() {
   const submitAnswer = (e: React.FormEvent) => {
     e.preventDefault();
     const v = answer.trim();
-    if (!v) return;
+    if (!v || busy) return; // the farmer's previous answer is still being processed; keep the text
     setAnswer("");
     if (/^[0-9*#]{1,12}$/.test(v)) send({ digits: v }, `[keypad ${v}]`);
     else send({ text: v }, v);
@@ -206,13 +257,14 @@ export default function HelperCallsPage() {
     }
   };
 
-  const retry = async (id: string) => {
+  const retry = async (id: string, key: string) => {
     setBusy(true);
     setNotice(null);
     try {
-      const s = await ivrApi.retry(id);
+      const s = await ivrApi.retry(id, key);
       setSessions((list) => list.map((x) => (x.id === id ? s : x)));
-      setNotice(s.batchId ? `Lot ${s.batchId} registered.` : s.lastError || "Retry failed");
+      const sub = s.submissions.find((x) => x.key === key);
+      setNotice(sub?.status === "registered" ? `${KIND_LABEL[sub.kind]} ${sub.recordId} registered.` : s.lastError || "Retry failed");
     } catch (err: any) {
       setNotice(err.message);
     } finally {
@@ -230,7 +282,7 @@ export default function HelperCallsPage() {
           <div>
             <h1 className="text-2xl font-bold text-farmly-foreground tracking-tight">{t("helper.phoneCallsTitle", "Phone Crop Registrations")}</h1>
             <p className="text-xs text-farmly-muted">
-              {t("helper.phoneCallsDesc", "Farmers call in, answer questions in their language, and confirm. A lot is created only after the farmer confirms.")}
+              {t("helper.phoneCallsDesc", "Farmers call in and, in their own language, register themselves, their crop lots and upcoming harvests. Nothing is saved until the farmer confirms the read-back.")}
             </p>
           </div>
           <Button type="button" variant="outline" size="sm" onClick={refresh} className="shrink-0">
@@ -306,7 +358,7 @@ export default function HelperCallsPage() {
                     value={answer}
                     onChange={(e) => setAnswer(e.target.value)}
                     placeholder={sim.expect === "mobile" ? "Type the 10-digit mobile number" : "Type what the farmer says (any language) or a key"}
-                    disabled={busy || recording}
+                    disabled={recording}
                   />
                   <Button type="submit" size="icon" disabled={busy || !answer.trim()} aria-label="Send">
                     <Send className="w-4 h-4" />
@@ -359,7 +411,14 @@ export default function HelperCallsPage() {
                     {s.source === "twilio" ? <PhoneIncoming className="w-4 h-4 text-farmly-accent shrink-0" /> : <FlaskConical className="w-4 h-4 text-farmly-muted shrink-0" />}
                     <div className="min-w-0 flex-1">
                       <div className="text-xs font-semibold text-farmly-foreground truncate">
-                        {s.farmer?.name || s.phone} {s.fields.crop ? `· ${s.fields.crop}` : ""}
+                        {s.farmer?.name || s.registration?.name || s.phone}{" "}
+                        {s.submissions.length
+                          ? `· ${s.submissions.filter((x) => x.status === "registered").map((x) => KIND_LABEL[x.kind]).join(", ") || "registration failed"}`
+                          : s.task === "register"
+                            ? "· registering farmer"
+                            : s.fields.crop
+                              ? `· ${s.fields.crop}`
+                              : ""}
                       </div>
                       <div className="text-[11px] text-farmly-muted flex items-center gap-1">
                         <Clock className="w-3 h-3" /> {new Date(s.createdAt).toLocaleString()} · {s.source === "twilio" ? "Phone call" : "Simulated"}
@@ -386,16 +445,32 @@ export default function HelperCallsPage() {
                   <StatusBadge status={selected.status} />
                 </div>
 
-                {selected.batchId && (
-                  <div className="p-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4" /> Lot registered: <span className="font-mono font-bold">{selected.batchId}</span>
+                {selected.submissions.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-farmly-muted">Registrations on this call</div>
+                    {selected.submissions.map((sub) => (
+                      <SubmissionRow key={sub.key} sub={sub} busy={busy} onRetry={() => retry(selected.id, sub.key)} canRetry={selected.status !== "in_progress"} />
+                    ))}
                   </div>
                 )}
 
-                <FieldList fields={selected.fields} />
+                {(selected.task === "register" || (!selected.farmer && Object.keys(selected.registration || {}).length > 0)) && (
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-farmly-muted mb-1">Farmer registration (collecting)</div>
+                    <RegistrationList reg={selected.registration} />
+                  </div>
+                )}
 
-                {!selected.batchId && missing.length > 0 && selected.status !== "in_progress" && (
-                  <p className="text-[11px] text-amber-700 dark:text-amber-300">Missing: {missing.map((m) => m.label).join(", ")}</p>
+                {(selected.task === "lot" || selected.task === "availability") && (
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-farmly-muted mb-1">
+                      {selected.task === "lot" ? "Crop lot" : "Upcoming harvest"} (collecting)
+                    </div>
+                    <FieldList fields={selected.fields} availability={selected.task === "availability"} />
+                    {missing.length > 0 && selected.status !== "in_progress" && (
+                      <p className="mt-1 text-[11px] text-amber-700 dark:text-amber-300">Missing: {missing.map((m) => m.label).join(", ")}</p>
+                    )}
+                  </div>
                 )}
                 {selected.callbackRequested && (
                   <p className="text-[11px] text-amber-700 dark:text-amber-300 flex gap-1.5">
@@ -404,11 +479,6 @@ export default function HelperCallsPage() {
                 )}
                 {selected.lastError && <p className="text-[11px] text-red-600 dark:text-red-400">Last error: {selected.lastError}</p>}
 
-                {selected.canRetry && (
-                  <Button type="button" size="sm" onClick={() => retry(selected.id)} disabled={busy}>
-                    <RotateCcw className="w-4 h-4 mr-1.5" /> Retry registration
-                  </Button>
-                )}
 
                 <details className="text-xs">
                   <summary className="cursor-pointer text-farmly-muted">Transcript ({selected.turns.length} turns)</summary>

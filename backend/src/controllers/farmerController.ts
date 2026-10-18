@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { supabase } from "../config/supabase";
 import { mappers } from "../mappers/entityMappers";
-import { toUuid } from "../utils/uuid";
+import { createFarmerRecord } from "../services/farmerService";
 
 export const farmerController = {
   async getFarmers(req: Request, res: Response): Promise<void> {
@@ -45,87 +45,30 @@ export const farmerController = {
   },
 
   async createFarmer(req: Request, res: Response): Promise<void> {
-    const {
-      id: clientId,
-      name,
-      mobile,
-      village,
-      taluka,
-      district,
-      state,
-      language,
-      farmingCategory,
-      fpo,
-      consent,
-      verificationLevel,
-      status,
-    } = req.body;
-
-    if (!name || !mobile || !village || !district || !state) {
-      res.status(400).json({
-        success: false,
-        message: "Missing required farmer registration fields",
-      });
-      return;
-    }
-
-    const deterministicId = clientId || `FM-${Date.now().toString().slice(-6)}`;
-    const isHelper = req.user?.role === "helper";
-    const resolvedHelperUuid = isHelper ? toUuid(req.user?.id) : null;
-
+    const b = req.body;
     try {
-      const { data, error } = await supabase
-        .from("farmers")
-        .upsert({
-          id: deterministicId,
-          name,
-          mobile,
-          village,
-          taluka: taluka || "",
-          district,
-          state,
-          language: language || "English",
-          farming_category: farmingCategory || "Crops",
-          fpo: fpo || null,
-          consent: consent ?? true,
-          verification_level: verificationLevel || "Field Verified",
-          status: status || "Active",
-          assisted_by_helper_id: resolvedHelperUuid,
-          last_activity: new Date().toISOString(),
-        }, { onConflict: "id" })
-        .select()
-        .single();
-
-      if (error) {
-        console.error("[createFarmer] Supabase error:", error);
-        res.status(500).json({ success: false, message: error.message });
-        return;
-      }
-
-      // ONLY log to helper_activities if created by an ACTUAL helper
-      if (isHelper && resolvedHelperUuid) {
-        try {
-          await supabase.from("helper_activities").insert({
-            id: `HA-${Date.now().toString().slice(-6)}`,
-            helper_id: resolvedHelperUuid,
-            action: `Registered farmer ${deterministicId} (${name})`,
-            category: "Registration",
-            details: `Village: ${village}, District: ${district}`,
-            badge_status: "Completed",
-          });
-        } catch (e: any) {
-          console.warn("[createFarmer] Helper activity log skipped:", e.message);
-        }
-      }
-
-      res.status(201).json({
-        success: true,
-        message: "Farmer registered successfully",
-        data: mappers.farmerToDto(data),
-      });
+      const { farmer } = await createFarmerRecord(
+        {
+          id: b.id,
+          name: b.name,
+          mobile: b.mobile,
+          village: b.village,
+          taluka: b.taluka,
+          district: b.district,
+          state: b.state,
+          language: b.language,
+          farmingCategory: b.farmingCategory,
+          fpo: b.fpo,
+          consent: b.consent,
+          verificationLevel: b.verificationLevel,
+          status: b.status,
+        },
+        req.user
+      );
+      res.status(201).json({ success: true, message: "Farmer registered successfully", data: mappers.farmerToDto(farmer) });
     } catch (err: any) {
       console.error("[createFarmer] Exception:", err);
-      res.status(500).json({ success: false, message: err.message });
+      res.status(err.statusCode || 500).json({ success: false, message: err.message });
     }
   },
 };
