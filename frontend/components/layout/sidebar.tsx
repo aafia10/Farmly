@@ -30,6 +30,7 @@ import {
   ClipboardList,
   Truck,
   FileBadge,
+  PhoneCall,
 } from "lucide-react";
 import { Logo } from "@/components/common/logo";
 import { useAuth } from "@/contexts/auth-context";
@@ -69,6 +70,7 @@ export function Sidebar({
           { label: "Farmers", translationKey: "nav.farmers", href: "/helper/farmers", icon: Users },
           { label: "Crop Availability", translationKey: "nav.cropAvailability", href: "/helper/crop-availability", icon: Wheat },
           { label: "Lots", translationKey: "nav.lots", href: "/helper/lots", icon: Boxes },
+          { label: "Phone Registrations", translationKey: "nav.phoneCalls", href: "/helper/calls", icon: PhoneCall },
           {
             label: "Evidence",
             translationKey: "nav.evidence",

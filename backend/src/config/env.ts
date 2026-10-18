@@ -35,6 +35,16 @@ const envSchema = z.object({
   CERT_REGISTRY_ADDRESS: optionalString,
   CHAIN_SIGNER_PRIVATE_KEY: optionalString,
   CHAIN_EXPLORER_TX_URL: optionalString,
+
+  // IVR crop registration (Sarvam speech + Twilio calls). All server-only.
+  SARVAM_API_KEY: optionalString,
+  IVR_TTS_SPEAKER: optionalString,
+  IVR_ENABLE_PARTIAL_LANGUAGES: optionalString,
+  TWILIO_ACCOUNT_SID: optionalString,
+  TWILIO_AUTH_TOKEN: optionalString,
+  TWILIO_PHONE_NUMBER: optionalString,
+  // Public HTTPS base URL that Twilio can reach (e.g. a free cloudflared/ngrok tunnel to this server).
+  IVR_PUBLIC_BASE_URL: optionalString,
 });
 
 export const env = envSchema.parse({
@@ -54,4 +64,11 @@ export const env = envSchema.parse({
   CERT_REGISTRY_ADDRESS: process.env.CERT_REGISTRY_ADDRESS,
   CHAIN_SIGNER_PRIVATE_KEY: process.env.CHAIN_SIGNER_PRIVATE_KEY,
   CHAIN_EXPLORER_TX_URL: process.env.CHAIN_EXPLORER_TX_URL,
+  SARVAM_API_KEY: process.env.SARVAM_API_KEY,
+  IVR_TTS_SPEAKER: process.env.IVR_TTS_SPEAKER,
+  IVR_ENABLE_PARTIAL_LANGUAGES: process.env.IVR_ENABLE_PARTIAL_LANGUAGES,
+  TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
+  TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
+  TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER,
+  IVR_PUBLIC_BASE_URL: process.env.IVR_PUBLIC_BASE_URL,
 });

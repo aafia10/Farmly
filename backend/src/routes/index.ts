@@ -19,6 +19,7 @@ import adminRoutes from "./adminRoutes";
 import mandiRoutes from "./mandiRoutes";
 import agrosathiRoutes from "./agrosathiRoutes";
 import { certificateRoutes, purchaseRoutes, traceabilityRoutes } from "./certificateRoutes";
+import ivrRoutes from "./ivrRoutes";
 
 const apiRouter = Router();
 
@@ -63,5 +64,6 @@ apiRouter.use("/agrosathi", agrosathiRoutes);
 apiRouter.use("/certificates", certificateRoutes);
 apiRouter.use("/purchases", purchaseRoutes);
 apiRouter.use("/traceability", traceabilityRoutes);
+apiRouter.use("/ivr", ivrRoutes);
 
 export default apiRouter;

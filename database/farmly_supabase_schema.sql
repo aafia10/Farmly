@@ -1454,7 +1454,7 @@ BEGIN
         WHERE table_schema = 'public'
           AND table_type = 'BASE TABLE'
           -- Certificate-chain tables stay locked to the backend's service role (see migrations/002).
-          AND table_name NOT IN ('purchases', 'certificates', 'traceability_events')
+          AND table_name NOT IN ('purchases', 'certificates', 'traceability_events', 'voicegenie_calls', 'voicegenie_submissions')
     LOOP
         EXECUTE format('DROP POLICY IF EXISTS "dev_all_access" ON public.%I;', t);
         EXECUTE format('CREATE POLICY "dev_all_access" ON public.%I FOR ALL USING (true) WITH CHECK (true);', t);

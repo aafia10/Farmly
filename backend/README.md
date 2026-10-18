@@ -69,8 +69,9 @@ npm install
 1. Open your Supabase project → **SQL Editor** → **New query**.
 2. Paste the full contents of `database/farmly_supabase_schema.sql` and click **Run**.
 3. In a new query, paste `database/migrations/002_certificate_traceability.sql` and click **Run**.
+4. In a new query, paste `database/migrations/003_ivr_sessions.sql` and click **Run** (phone registration sessions).
 
-Both scripts are idempotent (safe to re-run). The base schema creates:
+All three scripts are idempotent (safe to re-run). The base schema creates:
 
 - all tables (profiles, farmers, batches/lots, evidence, quality assessments, collection arrivals, FPO members, marketplace, offers, payments, disputes, notifications, transactions, …)
 - `updated_at` triggers and a trigger that creates a `profiles` row for every new auth user
@@ -164,6 +165,7 @@ The frontend finds the API through `NEXT_PUBLIC_API_URL` in `frontend/.env`. If 
 | `npm run build`      | Compile TypeScript from `src/` into `dist/` |
 | `npm start`          | Run the compiled server (`node dist/server.js`) — run `npm run build` first |
 | `npm run type-check` | Type-check without emitting files |
+| `npm test`           | Build, then run the IVR dialog and service tests (`node --test`, no network or database needed) |
 
 ### Production build
 
@@ -259,6 +261,14 @@ Example: a farmer registers 500 kg. A distributor buys 250 kg (farmer keeps 250 
 
 ---
 
+## Phone crop registration (IVR)
+
+Farmers can register a crop lot by phone in 13 Indian languages. A Sarvam AI voice agent asks the questions, reads the details back, and creates the lot through the same lot service as the helper form, only after the farmer confirms. Helpers follow calls, fix failures, and run a free local **call simulator** at `/helper/calls`.
+
+Setup, Twilio webhooks, verified languages, and costs: [src/ivr/README.md](src/ivr/README.md). Conversation script: [src/ivr/conversation-script.md](src/ivr/conversation-script.md).
+
+---
+
 ## API reference
 
 Base URL: `http://localhost:5000/api/v1`
@@ -331,6 +341,12 @@ Responses use the shape `{ "success": true, "data": … }` on success and `{ "su
 | | `GET /traceability/qr/:id` | — | QR code (SVG) pointing to the public page |
 | | `GET /traceability/available` | 🔒 | Batches the caller can buy (farmer lots for distributors, distributor stock for retailers) |
 | | `GET /traceability/dashboard` | 🔒 | Role-specific dashboard data |
+| Phone registration | `POST /ivr/twilio/voice`, `/turn`, `/mobile`, `/dial-status`, `/status` | Twilio signature | Twilio Voice webhooks (TwiML responses) |
+| | `GET /ivr/audio/:id.wav` | — | Cached prompt audio for Twilio `<Play>` |
+| | `GET /ivr/config` | 🔒 helper | Speech/Twilio configuration and enabled languages |
+| | `GET /ivr/sessions`, `GET /ivr/sessions/:id` | 🔒 helper | Call sessions with collected fields, errors, Batch ID and transcript |
+| | `POST /ivr/sessions/:id/retry` | 🔒 helper | Retry a confirmed registration that failed (reuses the reserved Batch ID) |
+| | `POST /ivr/sim/sessions`, `POST /ivr/sim/sessions/:id/turn` | 🔒 helper | Local call simulator (`callerNumber`; then `text`, `digits`, `audioBase64` or `noInput`) |
 
 ---
 
