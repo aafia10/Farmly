@@ -116,6 +116,16 @@ cp .env.example .env
 | `CERT_REGISTRY_ADDRESS` | For blockchain | —             | Deployed `CertificateRegistry` address (see `contracts/README.md`) |
 | `CHAIN_SIGNER_PRIVATE_KEY` | For blockchain | —          | Registrar wallet key. Use a dedicated testnet wallet. **Server only** |
 | `CHAIN_EXPLORER_TX_URL` | No | —                         | e.g. `https://sepolia.etherscan.io/tx`, for links in the UI |
+| `SEPOLIA_RPC_URL`   | No       | public Sepolia node     | RPC used to register lots on the `FarmlyBatchRegistry` contract |
+| `SEPOLIA_PRIVATE_KEY` | For lot anchoring | —           | Testnet wallet that pays for lot registrations sent by the backend. **Server only** |
+| `BATCH_REGISTRY_CONTRACT_ADDRESS` | For lot anchoring | — | Deployed `FarmlyBatchRegistry` address (see [Blockchain and IPFS](#blockchain-and-ipfs)) |
+| `PINATA_API_KEY` / `PINATA_SECRET_API_KEY` | No | — | Legacy Pinata key pair, only if you don't use `PINATA_JWT` |
+| `SARVAM_API_KEY`    | For phone calls | —                | Sarvam AI key (speech-to-text, translation, text-to-speech) |
+| `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` | For phone calls | — | Twilio Console → Account info. **Server only** |
+| `TWILIO_PHONE_NUMBER` | For phone calls | —              | Your Twilio number in E.164 form, e.g. `+16185550123` |
+| `IVR_PUBLIC_BASE_URL` | For phone calls | —              | Public HTTPS URL of this backend that Twilio can reach (tunnel or deployment), no trailing slash |
+| `IVR_HELPER_ID`     | No       | —                       | Profile UUID of the helper that phone registrations are filed under |
+| `IVR_TTS_SPEAKER` / `IVR_ENABLE_PARTIAL_LANGUAGES` | No | `shubh` / `true` | Voice and Assamese/Urdu options for the phone agent |
 
 `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` are also accepted as fallbacks. The server refuses to start if the Supabase values are missing. The server still starts without the certificate settings; those features then report themselves as unavailable or pending and never as verified.
 
@@ -259,16 +269,196 @@ Example: a farmer registers 500 kg. A distributor buys 250 kg (farmer keeps 250 
 1. Run migration `002_certificate_traceability.sql` (see [Set up the database](#3-set-up-the-database)).
 2. Set `SUPABASE_SERVICE_ROLE_KEY`.
 3. Set `PINATA_JWT` and `PINATA_GATEWAY_URL`.
-4. Deploy the contract (local chain or Sepolia, see `contracts/README.md`) and set the `CHAIN_*` variables and `CERT_REGISTRY_ADDRESS`.
+4. Deploy the certificate contract and set the `CHAIN_*` variables and `CERT_REGISTRY_ADDRESS`: see [Blockchain and IPFS](#blockchain-and-ipfs).
 5. Restart the backend.
+
+---
+
+## Blockchain and IPFS
+
+Farmly uses Pinata (IPFS) for documents and metadata, and two separate smart contracts on Ethereum's **Sepolia testnet**:
+
+| | Certificate registry | Lot (batch) registry |
+|---|---|---|
+| Contract | `contracts/contracts/CertificateRegistry.sol` | `contracts/FarmlyBatchRegistry.sol` |
+| What is recorded | SHA-256 of each certificate document, its IPFS CID, batch and transfer references, revocations | Every new crop lot: lot ID, crop, quantity and the IPFS CID of the lot's metadata |
+| Who signs | The backend, with a registrar wallet | The backend for helper-form and phone lots; the farmer's own **MetaMask** wallet on `/lots/new` |
+| Who may write | Registrar wallets only | Anyone (each record stores the sender's address) |
+| Backend variables | `CHAIN_RPC_URL`, `CHAIN_ID`, `CERT_REGISTRY_ADDRESS`, `CHAIN_SIGNER_PRIVATE_KEY`, `CHAIN_EXPLORER_TX_URL` | `SEPOLIA_RPC_URL`, `SEPOLIA_PRIVATE_KEY`, `BATCH_REGISTRY_CONTRACT_ADDRESS` |
+| Without configuration | Certificates stay *pending*, with **Retry** | Lots are saved and marked *anchoring not configured* |
+
+Both are optional. Nothing that wasn't really recorded is shown as recorded: placeholder IPFS CIDs and simulated transaction hashes are **never stored**, and a placeholder CID is never written on chain.
+
+**When a lot is anchored:**
+
+| How the lot is created | Pinata | Sepolia |
+|---|---|---|
+| Farmer, `/lots/new` | Backend pins the metadata (`POST /lots/pin-metadata`) | Farmer signs `registerBatch` in MetaMask; the lot is saved with that transaction hash |
+| Helper, `/helper/lots` | Backend pins the metadata before saving | Backend sends `registerBatch` and waits for one confirmation (around 15 s) |
+| Phone agent | Backend pins the metadata after saving | Backend registers in the background, so the call never waits for a block; the lot row gets the hashes when confirmed |
+
+### 1. Wallet and test ETH
+
+1. Install [MetaMask](https://metamask.io) and create a **new account used only for Farmly testing**. Never use a wallet that holds real funds.
+2. Turn on test networks (MetaMask → Settings → Advanced → *Show test networks*) and select **Sepolia**.
+3. Get free Sepolia ETH from a faucet, for example [Google Cloud's Sepolia faucet](https://cloud.google.com/application/web3/faucet/ethereum/sepolia) or the [Alchemy faucet](https://www.alchemy.com/faucets/ethereum-sepolia). About 0.05 ETH is enough for hundreds of registrations.
+4. Export that account's private key (MetaMask → account menu → *Account details* → *Show private key*). It goes **only** in `backend/.env` and `contracts/.env`.
+
+An RPC endpoint is needed to talk to Sepolia. The public node `https://ethereum-sepolia-rpc.publicnode.com` works for testing. For reliability use a free Alchemy or Infura Sepolia URL.
+
+### 2. Lot registry (`FarmlyBatchRegistry`)
+
+A shared deployment already exists on Sepolia at `0xFB558c0cC86738A7a40ff1BD7538E7cbeC89d794` (checked live, October 2026). Because registration is open, you can use it as is:
+
+```
+SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
+SEPOLIA_PRIVATE_KEY=<your test wallet's private key>
+BATCH_REGISTRY_CONTRACT_ADDRESS=0xFB558c0cC86738A7a40ff1BD7538E7cbeC89d794
+```
+
+To deploy your own copy (for example, so you own it):
+
+1. Open [Remix](https://remix.ethereum.org), create `FarmlyBatchRegistry.sol` and paste in `contracts/FarmlyBatchRegistry.sol`.
+2. **Solidity compiler** tab: version `0.8.20` or later, then **Compile**.
+3. **Deploy & run** tab: Environment *Injected Provider – MetaMask*, check MetaMask shows Sepolia, then **Deploy** and confirm in MetaMask.
+4. Copy the deployed address into `BATCH_REGISTRY_CONTRACT_ADDRESS` in `backend/.env`.
+5. Point the farmer form at the same contract in `frontend/.env`:
+   ```
+   NEXT_PUBLIC_BATCH_REGISTRY_CONTRACT_ADDRESS=<deployed address>
+   ```
+   This is a public address, not a secret. Without it the form uses the shared deployment above.
+
+The ABI the backend uses is `backend/src/config/contractAbi.json`. If you change the contract, update it.
+
+### 3. Certificate registry (`CertificateRegistry`)
+
+This uses the Hardhat package in `contracts/`. For a local chain, see `contracts/README.md`. For Sepolia:
+
+```bash
+cd contracts
+npm install
+npm test          # contract tests on Hardhat's in-memory chain
+```
+
+Create `contracts/.env`:
+
+```
+SEPOLIA_RPC_URL=<Sepolia RPC URL>
+DEPLOYER_PRIVATE_KEY=<your test wallet's private key>
+```
+
+Then deploy:
+
+```bash
+npm run deploy:sepolia
+```
+
+Put the printed address in `backend/.env`:
+
+```
+CHAIN_RPC_URL=<Sepolia RPC URL>
+CHAIN_ID=11155111
+CERT_REGISTRY_ADDRESS=<printed address>
+CHAIN_SIGNER_PRIVATE_KEY=<registrar wallet key; the deployer is the first registrar>
+CHAIN_EXPLORER_TX_URL=https://sepolia.etherscan.io/tx
+```
+
+The deploy script only allows `localhost` and `sepolia`; mainnet is intentionally not configured.
+
+### 4. Pinata
+
+1. Create a free account at [pinata.cloud](https://app.pinata.cloud). Under **API Keys → New Key**, choose *Admin* or allow the file upload and pinning scopes, and copy the **JWT**.
+2. Under **Gateways**, copy your dedicated gateway domain (`something.mypinata.cloud`).
+3. Set in `backend/.env`:
+   ```
+   PINATA_JWT=<JWT>
+   PINATA_GATEWAY_URL=<something.mypinata.cloud>
+   ```
+
+Certificates are uploaded as private files and opened through short-lived signed links. Lot metadata is pinned publicly, so its CID can be checked by anyone.
+
+### 5. Check it works
+
+1. Restart the backend.
+2. As a helper, create a lot on `/helper/lots`. The response message should be *"Lot minted and recorded on Sepolia & Pinata IPFS successfully"*.
+3. Open the lot's certificate page (`/lots/<id>/certificate`). The **Lot record anchor** card links to the IPFS metadata and to the transaction on [sepolia.etherscan.io](https://sepolia.etherscan.io).
+4. As a farmer, create a lot on `/lots/new`, approve the MetaMask prompt, and check that its transaction appears on Etherscan.
+
+> **Keys:** private keys go only in `backend/.env` and `contracts/.env`, which git ignores. Never put a private key in a `NEXT_PUBLIC_` variable, the frontend or a commit. If a key is ever exposed, move the test ETH to a new wallet and replace the key.
 
 ---
 
 ## Phone registration agent (IVR)
 
-Farmers can phone in and, in 13 Indian languages, register themselves, their crop lots and upcoming harvests. A Sarvam AI voice agent asks the same questions as the helper forms and reads the answers back. After the farmer confirms, it submits the generated JSON through the same services as the website. Helpers follow calls, see the JSON, retry failures and run a free local **call simulator** at `/helper/calls`.
+Farmers can phone in and, in 13 Indian languages, register themselves, their crop lots and upcoming harvests. A Sarvam AI voice agent asks the same questions as the helper forms and reads the answers back. Only after the farmer confirms does it submit the generated JSON through the same services as the website. Helpers follow calls, see the JSON, retry failures and run a free **call simulator** at `/helper/calls`.
 
-Setup, Twilio webhooks, verified languages, and costs: [src/ivr/README.md](src/ivr/README.md). Conversation script: [src/ivr/conversation-script.md](src/ivr/conversation-script.md).
+More detail is in [src/ivr/README.md](src/ivr/README.md) (languages, costs, limits) and the full [conversation script](src/ivr/conversation-script.md).
+
+### 1. Try it free with the simulator
+
+1. Run migrations 003–006 and set `SUPABASE_SERVICE_ROLE_KEY`. Without the key, call sessions are kept in memory and lost on restart.
+2. Optional: set `SARVAM_API_KEY` (sign up at [dashboard.sarvam.ai](https://dashboard.sarvam.ai); new accounts get free credit). Without it, prompts are shown in English text only.
+3. Sign in as a **Field Helper** and open **Phone Registrations** (`/helper/calls`). Enter a mobile number as the caller ID and press **Call**. Use a registered farmer's number to register lots, or a new number to register a farmer.
+
+### 2. Real calls with Twilio
+
+**a. Account and number**
+
+1. Sign up at [twilio.com](https://www.twilio.com/try-twilio). A trial includes free credit and one phone number.
+2. Console → **Phone Numbers → Manage → Buy a number**. Choose a number with **Voice** capability. On a trial account this is your free trial number.
+3. Trial accounts accept calls only from verified numbers. Under **Phone Numbers → Manage → Verified Caller IDs**, add every phone you will test from. Trial calls also play a short Twilio notice first; press a key to continue.
+4. From the Console dashboard, copy the **Account SID** and **Auth Token**.
+
+**b. Make the backend reachable**
+
+Twilio has to reach your backend over HTTPS. For local testing, use a free tunnel:
+
+```bash
+winget install --id Cloudflare.cloudflared
+```
+
+```bash
+cloudflared tunnel --url http://localhost:5000
+```
+
+Copy the printed `https://….trycloudflare.com` URL. `ngrok http 5000` works too. Quick-tunnel URLs change every time you restart them, so update the URL in both places below when that happens.
+
+**c. Configure `backend/.env`**
+
+```
+SARVAM_API_KEY=<Sarvam key>
+TWILIO_ACCOUNT_SID=<Account SID>
+TWILIO_AUTH_TOKEN=<Auth Token>
+TWILIO_PHONE_NUMBER=<+1…>
+IVR_PUBLIC_BASE_URL=<https://….trycloudflare.com>   # no trailing slash
+IVR_HELPER_ID=<optional: helper profile UUID that phone registrations are filed under>
+```
+
+Restart the backend. **Phone Registrations** should now show *Phone line (Twilio): live*.
+
+**d. Point the number at Farmly**
+
+Console → **Phone Numbers → Manage → Active numbers** → your number → **Configure → Voice configuration**:
+
+| Setting | Value |
+|---|---|
+| Configure with | Webhook, TwiML Bin, Function, … |
+| A call comes in | Webhook: `https://<tunnel>/api/v1/ivr/twilio/voice`, HTTP **POST** |
+| Call status changes | `https://<tunnel>/api/v1/ivr/twilio/status`, HTTP **POST** |
+
+Save. You don't need to configure `/turn`, `/mobile` or `/dial-status`: the backend gives those URLs to Twilio during the call.
+
+**e. Make a test call**
+
+Call the number from a verified phone. Choose a language by voice or keypad, then follow the prompts. The call appears live on `/helper/calls`, with the transcript, collected answers, the generated JSON and the registration result.
+
+**Notes**
+
+- **Security:** every webhook is checked against `X-Twilio-Signature` using your Auth Token, and unsigned requests get HTTP 403. This is why `IVR_PUBLIC_BASE_URL` must match the console URL exactly.
+- **Talk to a helper:** if the caller asks for a person, the agent dials the phone number on their helper's profile (`profiles.phone`, in E.164 form such as `+9198…`), with your Twilio number as caller ID. If there is no number or no answer, the call continues and a callback is queued.
+- **Calls from India:** a US Twilio number is an international call for the farmer. For real farmers you need an Indian number. Twilio asks for a regulatory bundle (business documents) before issuing one; an Indian telephony provider with a similar webhook model is an alternative.
+- **Response time:** Twilio waits about 15 s for each webhook. The first call in a new language translates and synthesises its prompts on the fly (later calls use the cache in `backend/.cache/ivr/`), so ring each language once before a demo.
+- **Costs:** Twilio inbound calls are about $0.0085/min plus $0.0025/min for recording, and the US number is $1.15/month. Sarvam charges about ₹30 per hour of speech recognised. See [src/ivr/README.md](src/ivr/README.md#costs-checked-october-2026-confirm-on-the-providers-pricing-pages).
 
 ---
 
@@ -294,10 +484,11 @@ Responses use the shape `{ "success": true, "data": … }` on success and `{ "su
 | | `POST /crop-availability` | 🔒 | Add a forecast |
 | Lots | `GET /lots` | 🔓 | List lots |
 | | `GET /lots/:id` | 🔓 | Lot details |
-| | `POST /lots` | 🔒 | Create a lot |
+| | `POST /lots` | 🔒 | Create a lot. Pins its metadata to Pinata and registers it on Sepolia, unless the body already carries `ipfsHash` / `blockchainHash` (MetaMask flow) |
+| | `POST /lots/pin-metadata` (alias `/lots/pinata-upload`) | 🔓 | Pin lot metadata JSON to Pinata; returns `ipfsHash`, `gatewayUrl`, `isMock` |
 | | `PATCH /lots/:id/status` | 🔒 | Update lot status |
 | | `GET /lots/:id/lineage` | 🔓 | Lot lineage tree (splits / merges) |
-| | `GET /lots/:id/certificate` | 🔓 | Lot with its registered certificates (public-safe) |
+| | `GET /lots/:id/certificate` | 🔓 | Lot with its registered certificates and, if it has one, its IPFS / Sepolia anchor (public-safe) |
 | Evidence | `GET /evidence` | 🔓 | List evidence items |
 | | `POST /evidence` | 🔒 | Add evidence |
 | | `PATCH /evidence/:id/status` | 🔒 | Verify / reject evidence |
@@ -367,3 +558,11 @@ Responses use the shape `{ "success": true, "data": … }` on success and `{ "su
 | Certificates stay "Chain registration pending" | Check the `CHAIN_*` variables, that the RPC node is running, and that the signer is a registrar with test ETH; then use **Retry registration**. |
 | Purchase returns `409 This batch has no active certificate yet` | The seller must upload a certificate for the batch first. |
 | Private document verification shows `UNAVAILABLE` | Set `PINATA_GATEWAY_URL` to your dedicated gateway; private files can only be read through signed URLs. |
+| Creating a lot says *blockchain/IPFS anchoring not configured* | Expected without `SEPOLIA_PRIVATE_KEY` + `BATCH_REGISTRY_CONTRACT_ADDRESS` (and `PINATA_JWT`). The lot is saved; no placeholder hash is stored. |
+| Lot registration on Sepolia fails with `insufficient funds` | Top up the `SEPOLIA_PRIVATE_KEY` wallet from a Sepolia faucet. |
+| `/lots/new` says *MetaMask is not installed* or asks to switch network | Install MetaMask, unlock it and approve the switch to Sepolia; the farmer's wallet needs a little Sepolia ETH. |
+| Calling the Twilio number says *not configured yet* | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `IVR_PUBLIC_BASE_URL` must all be set; restart the backend. |
+| Twilio debugger shows `403 Invalid Twilio signature` | `IVR_PUBLIC_BASE_URL` must exactly match the URL in the Twilio console (same host, `https`, no trailing slash). Quick tunnels change URL on every restart: update both. |
+| Twilio error `11200` / call drops after the greeting | The tunnel or backend is down, or a request took over 15 s. Check the backend log; call once per language to warm the prompt cache. |
+| Trial account: "the number you dialled is not verified" | Twilio trial accounts only accept calls from Verified Caller IDs: add the caller's number in the Twilio console. |
+| Errors like `column voicegenie_calls.call_sid does not exist` | The project has older VoiceGenie tables: run migrations 003–005. |
