@@ -64,7 +64,7 @@ interface MockDataContextType {
   cropAvailabilities: CropAvailability[];
   addCropAvailability: (item: Omit<CropAvailability, "id" | "createdAt">) => CropAvailability;
   lots: Lot[];
-  createLot: (lotData: Omit<Lot, "id" | "createdDate">) => Lot;
+  createLot: (lotData: Partial<Lot> & Omit<Lot, "createdDate">) => Lot;
   updateLotStatus: (lotId: string, status: Lot["status"]) => void;
   evidence: EvidenceItem[];
   addEvidence: (item: Omit<EvidenceItem, "id" | "timestamp">) => EvidenceItem;
@@ -417,14 +417,15 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
     return newAvail;
   };
 
-  const createLot = (lotData: Omit<Lot, "id" | "createdDate">): Lot => {
-    const newId = `LT-${Date.now().toString().slice(-6)}`;
-    const certRef = `CERT-MH-${newId.replace("LT-", "")}`;
+  const createLot = (lotData: Partial<Lot> & Omit<Lot, "createdDate">): Lot => {
+    const newId = lotData.id || `LT-${Date.now().toString().slice(-6)}`;
+    const certRef = lotData.certificateRef || `CERT-MH-${newId.replace("LT-", "")}`;
     const newLot: Lot = {
       ...lotData,
       id: newId,
       certificateRef: certRef,
       blockchainHash: lotData.blockchainHash || FIXED_BLOCKCHAIN_FALLBACK_HASH,
+      ipfsHash: lotData.ipfsHash,
       createdDate: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
     };
     const updated = [newLot, ...lots];

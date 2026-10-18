@@ -24,8 +24,9 @@ export default function LotCertificatePage({ params }: { params: Promise<{ id: s
   const lot = lots.find((l) => l.id === id) || lots[0];
   const certRef = lot.certificateRef || `QC-MH-NSK-2026-${lot.id.slice(-4)}`;
   const sha256Hash = "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4";
-  const mockIpfsCid = "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi";
-  const mockBlock = "Block #29,481,029 (Sepolia Agro Testnet)";
+  const ipfsCid = lot.ipfsHash || "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi";
+  const txHash = lot.blockchainHash || "0x7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069";
+  const isSepoliaTx = txHash.startsWith("0x");
 
   const handleDownload = () => {
     alert(`Downloading verified digital certificate ${certRef} (PDF format).`);
@@ -104,13 +105,31 @@ export default function LotCertificatePage({ params }: { params: Promise<{ id: s
             </div>
 
             <div>
-              <span className="text-farmly-muted block text-[10px] uppercase font-sans">Immutable IPFS CID (Mock Storage)</span>
-              <span className="text-farmly-primary break-all">{mockIpfsCid}</span>
+              <span className="text-farmly-muted block text-[10px] uppercase font-sans">Immutable IPFS CID (Pinata)</span>
+              <a
+                href={`https://gateway.pinata.cloud/ipfs/${ipfsCid}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-farmly-primary hover:underline break-all inline-flex items-center gap-1"
+              >
+                {ipfsCid} <ExternalLink className="w-3 h-3 inline shrink-0" />
+              </a>
             </div>
 
             <div>
-              <span className="text-farmly-muted block text-[10px] uppercase font-sans">Public Blockchain Anchor</span>
-              <span className="text-emerald-600 dark:text-emerald-400">{mockBlock}</span>
+              <span className="text-farmly-muted block text-[10px] uppercase font-sans">Public Blockchain Anchor (Sepolia)</span>
+              {isSepoliaTx ? (
+                <a
+                  href={`https://sepolia.etherscan.io/tx/${txHash}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-emerald-600 dark:text-emerald-400 hover:underline break-all inline-flex items-center gap-1"
+                >
+                  {txHash} <ExternalLink className="w-3 h-3 inline shrink-0" />
+                </a>
+              ) : (
+                <span className="text-emerald-600 dark:text-emerald-400">{txHash}</span>
+              )}
             </div>
           </div>
 

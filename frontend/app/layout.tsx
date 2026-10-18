@@ -1,49 +1,38 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { LanguageProvider } from "@/contexts/language-context";
 import { MockDataProvider } from "@/contexts/mock-data-context";
 import { AuthProvider } from "@/contexts/auth-context";
 
-const inter = Inter({
+const poppins = Poppins({
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
-  variable: "--font-inter",
+  variable: "--font-poppins",
+  preload: true,
 });
 
 export const metadata: Metadata = {
-  title: "Farmly — The Digital Infrastructure for Modern Farming",
+  title: "Farmly — Digital Infrastructure for Modern Farming",
   description:
     "Farmly connects farmers, buyers, and agricultural services through a simple digital infrastructure built for modern farming.",
   applicationName: "Farmly",
-  keywords: [
-    "Farmly",
-    "Agriculture",
-    "Digital Farming",
-    "Farmer Identity",
-    "Crop Management",
-    "Livestock",
-    "Dairy",
-    "Agricultural Marketplace",
-  ],
-  authors: [{ name: "Farmly Ecosystem" }],
+  keywords: ["Farmly", "Agriculture", "Digital Farming", "Farmer Identity", "Crop Management"],
+  authors: [{ name: "Farmly" }],
   creator: "Farmly",
   openGraph: {
-    title: "Farmly — The Digital Infrastructure for Modern Farming",
-    description:
-      "One Digital Platform for Every Farm. Connecting growers, buyers, and services.",
+    title: "Farmly — Digital Infrastructure for Modern Farming",
+    description: "One platform for every farm.",
     siteName: "Farmly",
     type: "website",
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#050806",
+  themeColor: "#fff6e8",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -51,12 +40,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-farmly-bg text-farmly-foreground font-sans antialiased selection:bg-farmly-primary selection:text-white">
+    <html lang="en" className={poppins.variable}>
+      <body className="min-h-screen bg-farmly-bg text-farmly-foreground font-sans antialiased">
         <ThemeProvider>
           <LanguageProvider>
             <MockDataProvider>

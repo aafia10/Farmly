@@ -3,122 +3,114 @@
 @tailwind utilities;
 
 @layer base {
-  /* Default = Light Mode (Tailwind darkMode: "class" — no class = light) */
   :root {
-    --farmly-bg: #F8FAF8;
-    --farmly-foreground: #111827;
-    --farmly-surface: #FFFFFF;
-    --farmly-surface-elevated: #F0F4F1;
-    --farmly-surface-card: #FFFFFF;
-    --farmly-muted: #4B5563;
-    --farmly-muted-dark: #6B7280;
-    --farmly-border: #E5E7EB;
-    --farmly-input-bg: #FFFFFF;
-    --farmly-input-border: #D1D5DB;
-    --farmly-input-text: #111827;
-    --farmly-table-header: #F3F4F6;
-    --farmly-table-row-hover: #F9FAFB;
-    --radius: 0.75rem;
+    /* ── Brand palette ─────────────────────────────── */
+    --farmly-bg:              #fff6e8;
+    --farmly-bg-warm:         #fff6e8;
+    --farmly-surface:         #ffffff;
+    --farmly-surface-elevated:#fff0d9;
+    --farmly-surface-card:    #ffffff;
+
+    /* ── Text ──────────────────────────────────────── */
+    --farmly-foreground:      #1a1208;
+    --farmly-muted:           #7a6a52;
+    --farmly-muted-dark:      #9e8c72;
+
+    /* ── Brand red ─────────────────────────────────── */
+    --farmly-primary:         #c1121f;
+    --farmly-primary-hover:   #a50e1a;
+    --farmly-accent:          #c1121f;
+    --farmly-accent-light:    #e63946;
+
+    /* ── Borders & inputs ──────────────────────────── */
+    --farmly-border:          rgba(193, 18, 31, 0.12);
+    --farmly-input-bg:        #ffffff;
+    --farmly-input-border:    rgba(193, 18, 31, 0.18);
+    --farmly-input-text:      #1a1208;
+
+    /* ── Table ─────────────────────────────────────── */
+    --farmly-table-header:    #fff0d9;
+    --farmly-table-row-hover: #fff6e8;
+
+    /* ── Radius (golden) ───────────────────────────── */
+    --radius:                 0.625rem;
+
     color-scheme: light;
   }
 
-  /* Dark Mode — activated by .dark class on <html> */
+  /* No dark mode — always warm cream */
   .dark {
-    --farmly-bg: #050806;
-    --farmly-foreground: #FFFFFF;
-    --farmly-surface: #0B120F;
-    --farmly-surface-elevated: #121C18;
-    --farmly-surface-card: #0E1713;
-    --farmly-muted: #D1D5DB;
-    --farmly-muted-dark: #9CA3AF;
-    --farmly-border: rgba(255, 255, 255, 0.10);
-    --farmly-input-bg: #0B120F;
-    --farmly-input-border: rgba(255, 255, 255, 0.14);
-    --farmly-input-text: #FFFFFF;
-    --farmly-table-header: #121C18;
-    --farmly-table-row-hover: rgba(255, 255, 255, 0.04);
-    --radius: 0.75rem;
-    color-scheme: dark;
-  }
-
-  /* Explicit Light Mode — same as :root, activated by .light class on <html> */
-  .light {
-    --farmly-bg: #F8FAF8;
-    --farmly-foreground: #111827;
-    --farmly-surface: #FFFFFF;
-    --farmly-surface-elevated: #F0F4F1;
-    --farmly-surface-card: #FFFFFF;
-    --farmly-muted: #4B5563;
-    --farmly-muted-dark: #6B7280;
-    --farmly-border: #E5E7EB;
-    --farmly-input-bg: #FFFFFF;
-    --farmly-input-border: #D1D5DB;
-    --farmly-input-text: #111827;
-    --farmly-table-header: #F3F4F6;
-    --farmly-table-row-hover: #F9FAFB;
-    --radius: 0.75rem;
+    --farmly-bg:              #fff6e8;
+    --farmly-surface:         #ffffff;
+    --farmly-surface-elevated:#fff0d9;
+    --farmly-foreground:      #1a1208;
+    --farmly-muted:           #7a6a52;
+    --farmly-muted-dark:      #9e8c72;
+    --farmly-border:          rgba(193, 18, 31, 0.12);
+    --farmly-input-bg:        #ffffff;
+    --farmly-input-border:    rgba(193, 18, 31, 0.18);
+    --farmly-input-text:      #1a1208;
+    --farmly-table-header:    #fff0d9;
+    --farmly-table-row-hover: #fff6e8;
     color-scheme: light;
   }
 
   * {
     border-color: var(--farmly-border);
+    box-sizing: border-box;
   }
 
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
     background-color: var(--farmly-bg);
     color: var(--farmly-foreground);
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family: 'Poppins', sans-serif;
+    font-feature-settings: "cv02","cv03","cv04","cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
     overflow-x: hidden;
-    transition: background-color 0.25s ease, color 0.25s ease;
+    letter-spacing: -0.01em;
   }
 
-  /* Custom selection */
   ::selection {
-    background-color: #145C43;
-    color: #FFFFFF;
+    background-color: #c1121f;
+    color: #ffffff;
   }
 
-  /* Accessible focus indicators */
   :focus-visible {
-    outline: 2px solid #2F8F68;
+    outline: 2px solid #c1121f;
     outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  input, select, textarea, button {
+    font-family: 'Poppins', sans-serif;
   }
 }
 
-/* Reduced motion support */
+/* Scrollbar — thin, warm */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #fff6e8; }
+::-webkit-scrollbar-thumb { background: rgba(193,18,31,0.25); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(193,18,31,0.45); }
+
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  ::before,
-  ::after {
+  *, ::before, ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
-}
-
-/* Custom subtle scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--farmly-bg);
-}
-
-::-webkit-scrollbar-thumb {
-  background: #0B3D2E;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #145C43;
 }

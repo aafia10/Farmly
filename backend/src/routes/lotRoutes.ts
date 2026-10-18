@@ -6,6 +6,8 @@ const router = Router();
 
 router.get("/", optionalAuth, lotController.getLots);
 router.get("/:id", optionalAuth, lotController.getLotById);
+router.post("/pinata-upload", optionalAuth, lotController.pinMetadata);
+router.post("/pin-metadata", optionalAuth, lotController.pinMetadata);
 router.post("/", verifyAuth, lotController.createLot);
 router.patch("/:id/status", verifyAuth, lotController.updateLotStatus);
 router.get("/:id/lineage", optionalAuth, lotController.getLotLineage);

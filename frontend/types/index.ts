@@ -141,6 +141,7 @@ export interface Lot {
   weighmentScaleId?: string;
   certificateRef?: string;
   blockchainHash?: string;
+  ipfsHash?: string;
 }
 
 export interface EvidenceItem {

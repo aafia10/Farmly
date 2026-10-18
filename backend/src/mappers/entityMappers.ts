@@ -76,6 +76,7 @@ export const mappers = {
       weighmentScaleId: row.weighment_scale_id || undefined,
       certificateRef: row.certificate_ref || undefined,
       blockchainHash: row.blockchain_hash || undefined,
+      ipfsHash: row.ipfs_hash || undefined,
     };
   },
 

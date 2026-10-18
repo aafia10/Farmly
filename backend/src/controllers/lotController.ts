@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { supabase } from "../config/supabase";
 import { mappers } from "../mappers/entityMappers";
 import { blockchainService, FIXED_BLOCKCHAIN_FALLBACK_HASH } from "../services/blockchainService";
+import { pinataService } from "../services/pinataService";
 import { toUuid } from "../utils/uuid";
 import { resolveFarmer } from "../utils/farmerRegistry";
 
@@ -70,6 +71,8 @@ export const lotController = {
       parentLotId,
       weighmentScaleId,
       certificateRef,
+      blockchainHash: clientBlockchainHash,
+      ipfsHash: clientIpfsHash,
     } = req.body;
 
     if (!farmerName || !crop || quantity === undefined) {
@@ -82,7 +85,6 @@ export const lotController = {
 
     const deterministicId = clientId || `LT-${Date.now().toString().slice(-6)}`;
     const certRef = certificateRef || `CERT-MH-${deterministicId.replace("LT-", "")}`;
-    const bHash = blockchainService.getFallbackHash();
 
     // For farmer role, enforce that the lot is created strictly under their own profile/registry
     const effectiveFarmerId = req.user?.role === "farmer" ? req.user.id : farmerId;
@@ -96,6 +98,45 @@ export const lotController = {
     const resolvedHelperUuid = isHelper ? toUuid(req.user?.id) : null;
 
     try {
+      let activeIpfsHash = clientIpfsHash;
+      if (!activeIpfsHash) {
+        console.log(`[createLot] Uploading batch ${deterministicId} metadata to Pinata IPFS...`);
+        const ipfsResult = await pinataService.uploadBatchMetadata({
+          batchId: deterministicId,
+          farmerName: resolved.farmerName,
+          farmerId: resolved.farmerUuid || undefined,
+          crop,
+          variety: variety || "Standard",
+          quantity: Number(quantity),
+          unit: unit || "kg",
+          qualityGrade: qualityGrade || "Standard",
+          location: location || "Nashik, Maharashtra",
+          weighmentScaleId: weighmentScaleId || "WB-NSK-01",
+          certificateRef: certRef,
+          timestamp: new Date().toISOString(),
+        });
+        activeIpfsHash = ipfsResult.ipfsHash;
+      }
+
+      let activeTxHash = clientBlockchainHash;
+      let anchorDetails = activeTxHash ? blockchainService.getAnchorDetails(activeTxHash) : null;
+
+      if (!activeTxHash) {
+        console.log(`[createLot] Recording batch ${deterministicId} with IPFS hash ${activeIpfsHash} on Sepolia...`);
+        anchorDetails = await blockchainService.registerBatchOnChain({
+          batchId: deterministicId,
+          farmerName: resolved.farmerName,
+          crop,
+          variety: variety || "Standard",
+          quantity: Number(quantity),
+          unit: unit || "kg",
+          qualityGrade: qualityGrade || "Standard",
+          location: location || "Nashik, Maharashtra",
+          ipfsHash: activeIpfsHash,
+        });
+        activeTxHash = anchorDetails.hash;
+      }
+
       const insertPayload: any = {
         id: deterministicId,
         farmer_id: resolved.farmerUuid,
@@ -117,7 +158,10 @@ export const lotController = {
         parent_lot_id: parentLotId || null,
         weighment_scale_id: weighmentScaleId || "WB-NSK-01",
         certificate_ref: certRef,
-        blockchain_hash: bHash,
+        blockchain_hash: activeTxHash,
+        blockchain_batch_id: deterministicId,
+        initial_transaction_hash: activeTxHash,
+        ipfs_hash: activeIpfsHash,
       };
 
       const { data, error } = await supabase
@@ -150,8 +194,13 @@ export const lotController = {
 
       res.status(201).json({
         success: true,
-        message: "Lot minted successfully",
-        data: mappers.lotToDto(data),
+        message: "Lot minted and recorded on Sepolia & Pinata IPFS successfully",
+        data: {
+          ...mappers.lotToDto(data),
+          blockchainAnchor: anchorDetails,
+          ipfsHash: activeIpfsHash,
+          ipfsUrl: pinataService.getGatewayUrl(activeIpfsHash),
+        },
       });
     } catch (err: any) {
       console.error("[createLot] Exception:", err);
@@ -242,10 +291,39 @@ export const lotController = {
           certificateRef: lot.certificate_ref || `CERT-MH-${lot.id}`,
           lot: mappers.lotToDto(lot),
           blockchainAnchor: anchor,
+          ipfsHash: lot.ipfs_hash || null,
+          ipfsUrl: lot.ipfs_hash ? pinataService.getGatewayUrl(lot.ipfs_hash) : null,
           issuedBy: "Maharashtra Quality Certification Bureau & Farmly Ledger",
           issuedAt: lot.created_at,
           verificationUrl: `http://localhost:3000/verify/${lot.id}`,
         },
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
+
+  async pinMetadata(req: Request, res: Response): Promise<void> {
+    try {
+      const payload = req.body;
+      const result = await pinataService.uploadBatchMetadata({
+        batchId: payload.batchId || `LT-${Date.now().toString().slice(-6)}`,
+        farmerName: payload.farmerName || "Farmer",
+        crop: payload.crop || "Crop",
+        variety: payload.variety || "Standard",
+        quantity: Number(payload.quantity) || 0,
+        unit: payload.unit || "kg",
+        qualityGrade: payload.qualityGrade || "Standard",
+        location: payload.location || "Nashik, Maharashtra",
+        certificateRef: payload.certificateRef,
+        timestamp: new Date().toISOString(),
+      });
+
+      res.json({
+        success: true,
+        ipfsHash: result.ipfsHash,
+        gatewayUrl: pinataService.getGatewayUrl(result.ipfsHash),
+        isMock: result.isMock,
       });
     } catch (err: any) {
       res.status(500).json({ success: false, message: err.message });
