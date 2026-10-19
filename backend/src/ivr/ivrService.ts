@@ -481,8 +481,8 @@ export function createIvrService(deps: IvrDeps) {
       }
     }
 
-    const say: RenderedPrompt[] = [];
-    for (const { u, state } of utterances) say.push(await render(u, state, rec));
+    // Translate and synthesise all reply prompts at once: the caller is waiting.
+    const say: RenderedPrompt[] = await Promise.all(utterances.map(({ u, state }) => render(u, state, rec)));
     for (const p of say) rec.turns.push({ at: deps.now().toISOString(), role: "agent", text: p.text, english: p.english, language: p.language });
 
     if (ended) {

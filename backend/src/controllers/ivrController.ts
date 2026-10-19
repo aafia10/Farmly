@@ -1,13 +1,17 @@
+import crypto from "crypto";
 import { Request, Response, NextFunction } from "express";
 import { getIvrService, CallerInput, TurnOutput } from "../ivr/ivrService";
 import { CallRecord } from "../ivr/store";
 import { IVR_LANGUAGES, enabledLanguages } from "../ivr/languages";
 import { audioPath, speechConfigured, transcribeToEnglish, translateToEnglish } from "../ivr/speech";
-import { downloadRecording, publicBase, twiml, twilioConfigured, twimlMessage, validSignature } from "../ivr/twilio";
+import { ackTwiml, downloadRecording, publicBase, twiml, twilioConfigured, twimlMessage, validSignature, waitTwiml } from "../ivr/twilio";
 import { toUuid } from "../utils/uuid";
 import { AuthUser } from "../types";
 
 const helperKey = (u: AuthUser) => toUuid(u.id) || u.id;
+
+/** Spoken answers being processed after the acknowledgement chime, keyed by ticket. */
+const pendingTurns = new Map<string, Promise<TurnOutput>>();
 
 function canSee(rec: CallRecord, user: AuthUser): boolean {
   return user.role === "admin" || rec.source === "twilio" || rec.helperId === helperKey(user);
@@ -110,18 +114,63 @@ export const ivrController = {
       if (req.query.noInput) input = { kind: "noInput" };
       else if (/^[0-9*#]+$/.test(digits)) input = { kind: "digits", digits: digits.replace(/#$/, "") || "#" };
       else if (req.body.RecordingUrl) {
-        const rec = await service.deps.store.get(id);
-        try {
-          const audio = await downloadRecording(String(req.body.RecordingUrl));
-          input = await transcribe(audio, "audio/wav", sttHint(rec));
-        } catch (err: any) {
-          input = { kind: "sttError", message: err.message };
-        }
+        // Spoken answer: acknowledge at once and do the slow part (download, speech recognition,
+        // reply prompts) in the background; Twilio fetches the reply from /turn-result.
+        const ticket = crypto.randomBytes(9).toString("hex");
+        const recordingUrl = String(req.body.RecordingUrl);
+        const started = Date.now();
+        const work = (async () => {
+          const rec = await service.deps.store.get(id);
+          let spoken: CallerInput;
+          try {
+            const audio = await downloadRecording(recordingUrl);
+            spoken = await transcribe(audio, "audio/wav", sttHint(rec));
+          } catch (err: any) {
+            spoken = { kind: "sttError", message: err.message };
+          }
+          const heardAt = Date.now();
+          const { output } = await service.handle(id, spoken);
+          console.log(`[ivr] turn ${id.slice(0, 8)}: heard in ${heardAt - started} ms, reply ready in ${Date.now() - started} ms`);
+          return output;
+        })();
+        // If the caller hangs up before /turn-result is fetched, a failure must not crash the server.
+        work.catch((err) => console.error("[ivr] background turn failed:", err.message));
+        pendingTurns.set(ticket, work);
+        setTimeout(() => pendingTurns.delete(ticket), 120_000).unref();
+        sendTwiml(res, ackTwiml(id, ticket));
+        return;
       } else input = { kind: "noInput" };
       const { output } = await service.handle(id, input);
       sendTwiml(res, twiml(id, output));
     } catch (err: any) {
       console.error("[ivr] turn webhook:", err.message);
+      sendTwiml(res, twimlMessage("Sorry, something went wrong. A Farmly helper will call you back."));
+    }
+  },
+
+  /** Returns the reply for a spoken answer that was acknowledged with the chime. */
+  async twilioTurnResult(req: Request, res: Response): Promise<void> {
+    const id = String(req.query.s || "");
+    const ticket = String(req.query.t || "");
+    const pending = pendingTurns.get(ticket);
+    try {
+      if (!pending) {
+        // Unknown ticket (e.g. the server restarted mid-call): ask the question again.
+        const { output } = await getIvrService().handle(id, { kind: "noInput" });
+        sendTwiml(res, twiml(id, output));
+        return;
+      }
+      // Stay well inside Twilio's 15 s webhook limit; if the reply isn't ready, pause and poll again.
+      const output = await Promise.race([pending, new Promise<null>((r) => setTimeout(() => r(null), 11_000))]);
+      if (!output) {
+        sendTwiml(res, waitTwiml(id, ticket));
+        return;
+      }
+      pendingTurns.delete(ticket);
+      sendTwiml(res, twiml(id, output));
+    } catch (err: any) {
+      pendingTurns.delete(ticket);
+      console.error("[ivr] turn-result webhook:", err.message);
       sendTwiml(res, twimlMessage("Sorry, something went wrong. A Farmly helper will call you back."));
     }
   },

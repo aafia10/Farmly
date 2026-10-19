@@ -263,11 +263,15 @@ test("unknown caller who declines registration gets a callback", async () => {
   assert.equal(calls.farmer.length + calls.lot.length, 0);
 });
 
-test("speech recognition failure ends politely with a callback", async () => {
+test("speech recognition failures are re-asked, then end politely with a callback", async () => {
   const { service } = makeService();
   const { record } = await service.start({ source: "twilio", callerNumber: "9876543210", callSid: "CA3" });
+  const first = await service.handle(record.id, { kind: "sttError", message: "Sarvam timeout" });
+  assert.equal(first.output.end, false, "one failure re-asks the question");
+  assert.match(say(first.output), /didn't understand/);
+  await service.handle(record.id, { kind: "sttError", message: "Sarvam timeout" });
   const r = await service.handle(record.id, { kind: "sttError", message: "Sarvam timeout" });
-  assert.ok(r.output.end);
+  assert.ok(r.output.end, "the third failure in a row ends politely");
   assert.ok(r.record.callbackRequested);
   assert.equal(r.record.lastError, "Sarvam timeout");
 });
@@ -296,4 +300,27 @@ test("Twilio signature validation and TwiML", () => {
   assert.match(xml, /<Redirect method="POST">[^<]*noInput=1<\/Redirect>/);
   const mobile = twiml("abc", { say: [], expect: "mobile", end: false });
   assert.match(mobile, /<Gather input="dtmf" numDigits="10"/);
+});
+
+test("spoken answers: beep, short end-of-speech wait, instant chime then result", () => {
+  process.env.IVR_PUBLIC_BASE_URL = process.env.IVR_PUBLIC_BASE_URL || "https://example.test";
+  const { twiml, ackTwiml, waitTwiml, ACK_TONE_ID, ensureAckTone } = require("../dist/ivr/twilio");
+  const { audioPath } = require("../dist/ivr/speech");
+  const xml = twiml("abc", { say: [], expect: "speech", end: false });
+  assert.match(xml, /<Record [^>]*timeout="2"/);
+  assert.match(xml, /<Record [^>]*playBeep="true"/);
+
+  ensureAckTone();
+  const file = audioPath(ACK_TONE_ID);
+  assert.ok(file, "acknowledgement tone is written to the audio cache");
+  const wav = require("fs").readFileSync(file);
+  assert.equal(wav.toString("ascii", 0, 4), "RIFF");
+  assert.equal(wav.toString("ascii", 8, 12), "WAVE");
+  assert.equal(wav.readUInt32LE(24), 8000, "8 kHz telephone audio");
+  assert.ok(wav.length > 3000 && wav.length < 6000, "short chime (~0.2 s)");
+
+  const ack = ackTwiml("abc", "t123");
+  assert.ok(ack.includes(`/ivr/audio/${ACK_TONE_ID}.wav</Play><Redirect method="POST">`), "chime first, then redirect");
+  assert.ok(ack.includes("/ivr/twilio/turn-result?s=abc&amp;t=t123</Redirect>"), "redirect to the reply");
+  assert.match(waitTwiml("abc", "t123"), /<Pause length="1"\/><Redirect method="POST">[^<]*turn-result\?s=abc&amp;t=t123<\/Redirect>/);
 });

@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "type-check": "tsc --noEmit",
-    "test": "npm run build && node --test test/ivr-dialog.test.js test/ivr-service.test.js"
+    "test": "npm run build && node --test test/ivr-dialog.test.js test/ivr-service.test.js",
+    "ivr:warm": "npm run build && node dist/ivr/warm.js"
   },
   "keywords": [
     "farmly",

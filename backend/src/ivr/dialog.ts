@@ -550,6 +550,10 @@ export function step(state: DialogState, event: DialogEvent, opts: DialogOptions
   }
 
   if (event.type === "sttError") {
+    // A single recognition hiccup just re-asks; only repeated failures end the call.
+    if (state.attempts + 1 < MAX_ATTEMPTS) {
+      return { state: { ...state, attempts: state.attempts + 1 }, say: [{ id: "notUnderstood" }, ...question(state)], expect: expectFor(state.step) };
+    }
     return end(state, [{ id: "speechUnavailable" }], state.completed.length ? "registered" : "callback", { type: "callback", reason: "Speech recognition unavailable" });
   }
 

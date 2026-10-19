@@ -88,6 +88,8 @@ From India, a US Twilio number is an **international call for the farmer**. For 
 ## Limits and known gaps
 
 - Twilio waits about 15 seconds for each webhook. The first call in a new language translates and synthesises its prompts on the fly, so ring each language once to warm the cache.
+- **How a spoken answer is handled:** a beep marks when to speak. Recording stops after 2 seconds of silence. A short chime plays the moment the answer is received, while it is transcribed and the reply is prepared in the background (`/twilio/turn-result`), so callers don't sit in silence and repeat themselves. A single recognition failure re-asks the question; only the third in a row ends the call with a callback.
+- **Warm the prompt cache before a demo:** `npm run ivr:warm -- hi-IN mr-IN` (no arguments means every enabled language). It translates and synthesises all fixed prompts once, costing roughly 9,000 characters of Sarvam translation and speech per language, so first calls answer as fast as later ones.
 - `<Record>` answers are limited to 25 seconds, and Sarvam's REST speech-to-text accepts up to 30 seconds.
 - The quality grade is not asked on the phone. It is recorded as "Standard" (farmer-declared) and graded later at collection, the same as an ungraded helper entry.
 - Prompt audio is served from `/api/v1/ivr/audio/<sha256>.wav` without login, because Twilio has to fetch it. The IDs can't be guessed, but a readback file contains the farmer's crop details.

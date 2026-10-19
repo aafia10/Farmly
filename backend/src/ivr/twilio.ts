@@ -6,6 +6,7 @@
 import crypto from "crypto";
 import { env } from "../config/env";
 import type { RenderedPrompt, TurnOutput } from "./ivrService";
+import { audioPath, saveAudio } from "./speech";
 
 export function twilioConfigured(): boolean {
   return Boolean(env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN && env.IVR_PUBLIC_BASE_URL);
@@ -59,7 +60,7 @@ export function twiml(sessionId: string, out: TurnOutput): string {
     // Speak, then record the answer. Pressing any key ends the recording and is sent as Digits.
     // If nothing is recorded Twilio skips the action URL, so the Redirect reports silence.
     body =
-      `${prompts}<Record action="${url("turn")}" method="POST" timeout="3" maxLength="25" playBeep="false" trim="trim-silence" finishOnKey="0123456789*#"/>` +
+      `${prompts}<Record action="${url("turn")}" method="POST" timeout="2" maxLength="20" playBeep="true" trim="trim-silence" finishOnKey="0123456789*#"/>` +
       `<Redirect method="POST">${url("turn", "&amp;noInput=1")}</Redirect>`;
   }
   return `<?xml version="1.0" encoding="UTF-8"?><Response>${body}</Response>`;
@@ -74,11 +75,74 @@ export async function downloadRecording(recordingUrl: string): Promise<Buffer> {
   const u = new URL(recordingUrl);
   if (u.protocol !== "https:" || !/(^|\.)twilio\.com$/.test(u.hostname)) throw new Error("Unexpected recording host");
   const auth = Buffer.from(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKEN}`).toString("base64");
-  for (let attempt = 0; attempt < 5; attempt++) {
+  // The recording is usually ready within a few hundred ms of the callback: poll quickly first.
+  const waits = [150, 250, 350, 500, 700, 900, 1200];
+  for (let attempt = 0; attempt <= waits.length; attempt++) {
     const res = await fetch(`${recordingUrl}.wav`, { headers: { Authorization: `Basic ${auth}` } });
     if (res.ok) return Buffer.from(await res.arrayBuffer());
     if (res.status !== 404) throw new Error(`Recording download failed (${res.status})`);
-    await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+    if (attempt < waits.length) await new Promise((r) => setTimeout(r, waits[attempt]));
   }
   throw new Error("Recording was not ready in time");
+}
+
+// ---------------------------------------------------------------------------
+// Instant acknowledgement while the answer is processed
+// ---------------------------------------------------------------------------
+
+/** Fixed content ID of the acknowledgement tone in the audio cache. */
+export const ACK_TONE_ID = crypto.createHash("sha256").update("farmly-ack-tone-v1").digest("hex");
+
+/** A soft two-note chime (8 kHz, 16-bit mono WAV), generated locally: no speech service needed. */
+function ackToneWav(): Buffer {
+  const rate = 8000;
+  const notes = [
+    { freq: 784, ms: 90 },
+    { freq: 1047, ms: 130 },
+  ];
+  const samples: number[] = [];
+  for (const { freq, ms } of notes) {
+    const n = Math.round((rate * ms) / 1000);
+    for (let i = 0; i < n; i++) {
+      const env = Math.min(1, i / 40, (n - i) / 160); // soft attack and release
+      samples.push(Math.round(Math.sin((2 * Math.PI * freq * i) / rate) * 9000 * env));
+    }
+  }
+  const data = Buffer.alloc(samples.length * 2);
+  samples.forEach((v, i) => data.writeInt16LE(v, i * 2));
+  const header = Buffer.alloc(44);
+  header.write("RIFF", 0);
+  header.writeUInt32LE(36 + data.length, 4);
+  header.write("WAVE", 8);
+  header.write("fmt ", 12);
+  header.writeUInt32LE(16, 16);
+  header.writeUInt16LE(1, 20); // PCM
+  header.writeUInt16LE(1, 22); // mono
+  header.writeUInt32LE(rate, 24);
+  header.writeUInt32LE(rate * 2, 28);
+  header.writeUInt16LE(2, 32);
+  header.writeUInt16LE(16, 34);
+  header.write("data", 36);
+  header.writeUInt32LE(data.length, 40);
+  return Buffer.concat([header, data]);
+}
+
+export function ensureAckTone(): void {
+  if (!audioPath(ACK_TONE_ID)) saveAudio(ACK_TONE_ID, ackToneWav());
+}
+
+/**
+ * Answer heard: play the chime at once and fetch the reply from /turn-result, so the caller
+ * never sits in silence (and repeats themselves) while speech is recognised and the reply prepared.
+ */
+export function ackTwiml(sessionId: string, ticket: string): string {
+  ensureAckTone();
+  const result = esc(`${publicBase()}/api/v1/ivr/twilio/turn-result?s=${encodeURIComponent(sessionId)}&t=${ticket}`);
+  return `<?xml version="1.0" encoding="UTF-8"?><Response><Play>${esc(`${publicBase()}/api/v1/ivr/audio/${ACK_TONE_ID}.wav`)}</Play><Redirect method="POST">${result}</Redirect></Response>`;
+}
+
+/** The reply is still being prepared: wait briefly and ask again. */
+export function waitTwiml(sessionId: string, ticket: string): string {
+  const result = esc(`${publicBase()}/api/v1/ivr/twilio/turn-result?s=${encodeURIComponent(sessionId)}&t=${ticket}`);
+  return `<?xml version="1.0" encoding="UTF-8"?><Response><Pause length="1"/><Redirect method="POST">${result}</Redirect></Response>`;
 }

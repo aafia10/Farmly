@@ -143,6 +143,12 @@ export function audioPath(id: string): string | undefined {
   return fs.existsSync(p) ? p : undefined;
 }
 
+/** Stores locally generated audio (e.g. the acknowledgement tone) in the audio cache. */
+export function saveAudio(id: string, wav: Buffer): void {
+  fs.mkdirSync(AUDIO_DIR, { recursive: true });
+  fs.writeFileSync(path.join(AUDIO_DIR, `${id}.wav`), wav);
+}
+
 /** Returns the cache ID of a WAV file with the spoken text, synthesising it if needed. */
 export async function synthesize(text: string, languageCode: string): Promise<string> {
   const id = audioId(text, languageCode);

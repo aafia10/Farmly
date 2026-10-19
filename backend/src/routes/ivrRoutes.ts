@@ -8,6 +8,7 @@ const router = Router();
 // Twilio webhooks (authenticated by X-Twilio-Signature, not by user tokens).
 router.post("/twilio/voice", ivrController.twilioGuard, ivrController.twilioVoice);
 router.post("/twilio/turn", ivrController.twilioGuard, ivrController.twilioTurn);
+router.post("/twilio/turn-result", ivrController.twilioGuard, ivrController.twilioTurnResult);
 router.post("/twilio/mobile", ivrController.twilioGuard, ivrController.twilioMobile);
 router.post("/twilio/dial-status", ivrController.twilioGuard, ivrController.twilioDialStatus);
 router.post("/twilio/status", ivrController.twilioGuard, ivrController.twilioStatus);
