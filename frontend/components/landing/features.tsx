@@ -30,7 +30,7 @@ export function Features() {
             return (
               <motion.div
                 key={feature.id}
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 15 }}
+                initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.4, delay: idx * 0.08 }}

@@ -33,12 +33,12 @@ export function Logo({
       {/* Brand Icon Mark: Hexagonal shield wrapping an agricultural sprout */}
       <div
         className={cn(
-          "relative flex items-center justify-center rounded-xl bg-gradient-to-br from-farmly-primary to-farmly-dark-green border border-farmly-accent/40 shadow-sm transition-transform duration-300 group-hover:scale-105",
+          "relative flex items-center justify-center rounded-xl bg-gradient-to-br from-farmly-accent-light to-farmly-accent border border-white/30 shadow-sm shadow-farmly-accent/30 transition-transform duration-300 group-hover:scale-105",
           iconSizes[size]
         )}
       >
-        <Sprout className="text-farmly-foreground w-3/5 h-3/5 transition-transform duration-300 group-hover:rotate-6" />
-        <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-farmly-accent rounded-full border border-farmly-bg" />
+        <Sprout className="text-white w-3/5 h-3/5 transition-transform duration-300 group-hover:rotate-6" />
+        <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-farmly-primary rounded-full border border-farmly-bg" />
       </div>
 
       <div className="flex flex-col">

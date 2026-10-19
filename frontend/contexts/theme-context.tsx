@@ -35,7 +35,7 @@ function applyTheme(resolved: "light" | "dark") {
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(DEFAULT_THEME);
-  const [actualTheme, setActualTheme] = useState<"light" | "dark">("dark");
+  const [actualTheme, setActualTheme] = useState<"light" | "dark">("light");
 
   // Pick up the theme the init script already applied, so the toggle icon matches on first render.
   useEffect(() => {

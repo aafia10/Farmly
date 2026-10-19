@@ -19,13 +19,13 @@ import { StatusPill, UnavailableNotice, certificateStatePill } from "@/component
 
 function StatCard({ label, value, hint, icon: Icon }: { label: string; value: React.ReactNode; hint?: string; icon: LucideIcon }) {
   return (
-    <Card className="p-5 sm:p-6 flex items-start justify-between gap-4">
+    <Card className="group relative overflow-hidden p-5 sm:p-6 flex items-start justify-between gap-4">
       <div className="space-y-1 min-w-0">
-        <p className="text-sm text-farmly-muted">{label}</p>
-        <p className="text-2xl sm:text-3xl font-bold text-farmly-foreground tracking-tight">{value}</p>
+        <p className="text-[13px] font-semibold text-farmly-muted">{label}</p>
+        <p className="text-2xl sm:text-[2rem] font-extrabold text-farmly-foreground tracking-[-0.03em] tabular-nums">{value}</p>
         {hint && <p className="text-xs text-farmly-muted">{hint}</p>}
       </div>
-      <div className="w-10 h-10 rounded-xl bg-farmly-primary/10 text-farmly-primary dark:text-farmly-accent-light flex items-center justify-center shrink-0">
+      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-farmly-accent/20 to-farmly-primary/10 ring-1 ring-inset ring-farmly-accent/25 text-farmly-primary dark:text-farmly-accent-light flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105">
         <Icon className="w-5 h-5" aria-hidden="true" />
       </div>
     </Card>
@@ -87,7 +87,7 @@ function Header({ name, subtitle, action }: { name?: string; subtitle: string; a
   return (
     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
       <div className="space-y-1">
-        <h1 className="text-2xl sm:text-3xl font-bold text-farmly-foreground tracking-tight">Namaste, {name || "there"}</h1>
+        <h1 className="text-2xl sm:text-[2rem] font-extrabold text-farmly-foreground tracking-[-0.03em] tabular-nums">Namaste, {name || "there"}</h1>
         <p className="text-sm text-farmly-muted">{subtitle}</p>
       </div>
       {action}

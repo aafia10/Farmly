@@ -1,7 +1,7 @@
 export type Theme = "light" | "dark" | "system";
 
 export const THEME_STORAGE_KEY = "farmly_theme";
-export const DEFAULT_THEME: Theme = "dark";
+export const DEFAULT_THEME: Theme = "light";
 
 /**
  * Inlined in <head> so the first paint already uses the saved theme (no flash).

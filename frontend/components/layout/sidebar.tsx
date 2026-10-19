@@ -159,7 +159,7 @@ export function Sidebar({
   const navItems = getNavItems(role);
 
   const sidebarContent = (
-    <div className="flex flex-col h-full justify-between bg-farmly-surface border-r border-farmly-border p-4 select-none">
+    <div className="flex flex-col h-full justify-between bg-farmly-surface/95 backdrop-blur-sm border-r border-farmly-border p-4 select-none shadow-[1px_0_0_rgba(16,51,36,0.02),8px_0_24px_-20px_rgba(16,51,36,0.25)] dark:shadow-none">
       <div className="space-y-6">
         {/* Logo & Mobile Close Button */}
         <div className="flex items-center justify-between px-2 pt-2">
@@ -178,7 +178,7 @@ export function Sidebar({
 
         {/* Current Active Role Badge */}
         <div className="px-2">
-          <div className="px-3 py-2 rounded-xl bg-farmly-surface-elevated border border-farmly-border/70 flex items-center justify-between text-xs">
+          <div className="px-3 py-2.5 rounded-xl bg-gradient-to-br from-farmly-surface-elevated to-farmly-surface border border-farmly-border flex items-center justify-between text-xs">
             <div className="flex flex-col">
               <span className="text-[10px] text-farmly-muted-dark uppercase tracking-wider font-mono">
                 {t("common.workspace", "Workspace")}
@@ -205,17 +205,17 @@ export function Sidebar({
                 href={item.href}
                 onClick={onCloseMobile}
                 className={cn(
-                  "flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-150 group outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent min-h-[40px]",
+                  "relative flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-150 group outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent min-h-[40px]",
                   isActive
-                    ? "bg-farmly-primary text-white shadow-sm font-semibold"
-                    : "text-farmly-muted hover:bg-farmly-surface-elevated hover:text-farmly-foreground"
+                    ? "bg-gradient-to-r from-farmly-primary to-farmly-primary-hover text-white font-semibold shadow-[0_6px_16px_-8px_rgba(20,92,67,0.6)]"
+                    : "text-farmly-muted hover:bg-farmly-surface-elevated hover:text-farmly-foreground hover:translate-x-0.5"
                 )}
               >
                 <div className="flex items-center gap-3">
                   <Icon
                     className={cn(
                       "w-4 h-4 transition-colors",
-                      isActive ? "text-farmly-foreground" : "text-farmly-muted group-hover:text-emerald-500"
+                      isActive ? "text-white" : "text-farmly-muted-dark group-hover:text-farmly-primary dark:group-hover:text-farmly-accent-light"
                     )}
                   />
                   <span>{t(item.translationKey, item.label)}</span>
@@ -243,7 +243,7 @@ export function Sidebar({
       <div className="pt-4 border-t border-farmly-border/50 space-y-3">
         <div className="px-2 flex items-center justify-between">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-farmly-primary border border-farmly-accent/40 flex items-center justify-center font-bold text-xs text-white shrink-0">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-farmly-accent to-farmly-primary ring-2 ring-farmly-surface shadow-sm flex items-center justify-center font-bold text-xs text-white shrink-0">
               {user?.fullName?.charAt(0) || "U"}
             </div>
             <div className="min-w-0 flex-1">

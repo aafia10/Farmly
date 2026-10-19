@@ -13,7 +13,7 @@ interface RoleSelectorProps {
 export function RoleSelector({ value, onChange, error }: RoleSelectorProps) {
   return (
     <div className="space-y-2 text-left">
-      <label className="block text-xs sm:text-sm font-semibold text-farmly-muted tracking-wide">
+      <label className="block text-xs sm:text-[13px] font-semibold text-farmly-foreground/80">
         Select your role
       </label>
 
@@ -34,10 +34,10 @@ export function RoleSelector({ value, onChange, error }: RoleSelectorProps) {
               aria-checked={isSelected}
               onClick={() => onChange(role.id)}
               className={cn(
-                "h-full p-4 rounded-xl border text-left flex items-start gap-3 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent",
+                "h-full p-4 rounded-2xl border text-left flex items-start gap-3 transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent",
                 isSelected
-                  ? "bg-farmly-primary/5 border-farmly-primary dark:bg-farmly-surface-elevated dark:border-farmly-accent"
-                  : "bg-farmly-surface border-farmly-border hover:border-farmly-accent/50 hover:bg-farmly-surface-elevated"
+                  ? "bg-farmly-primary/[0.06] border-farmly-primary ring-4 ring-farmly-accent/10 dark:bg-farmly-surface-elevated dark:border-farmly-accent"
+                  : "bg-farmly-surface border-farmly-border hover:-translate-y-0.5 hover:border-farmly-accent/50 hover:farmly-elevated"
               )}
             >
               <div

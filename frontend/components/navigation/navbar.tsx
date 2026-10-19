@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { Logo } from "@/components/common/logo";
+import { ThemeToggle } from "@/components/common/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { NAV_LINKS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -44,7 +45,7 @@ export function Navbar() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         isScrolled
-          ? "bg-farmly-bg/90 backdrop-blur-md border-b border-farmly-border shadow-lg shadow-black/20 py-3"
+          ? "bg-farmly-bg/90 backdrop-blur-md border-b border-farmly-border shadow-[0_4px_24px_-8px_rgba(16,51,36,0.18)] dark:shadow-black/30 py-3"
           : "bg-transparent py-5"
       )}
     >
@@ -70,6 +71,7 @@ export function Navbar() {
 
         {/* Desktop Right CTAs */}
         <div className="hidden md:flex items-center gap-3">
+          <ThemeToggle />
           <Link href="/login">
             <Button
               variant="ghost"
@@ -91,7 +93,9 @@ export function Navbar() {
           </Link>
         </div>
 
-        {/* Mobile Hamburger Toggle */}
+        {/* Mobile: theme toggle + hamburger */}
+        <div className="md:hidden flex items-center gap-2">
+        <ThemeToggle className="min-h-[44px] min-w-[44px]" />
         <button
           type="button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -105,6 +109,7 @@ export function Navbar() {
             <Menu className="w-5 h-5 text-farmly-foreground" aria-hidden="true" />
           )}
         </button>
+        </div>
       </div>
 
       {/* Mobile Drawer Navigation */}

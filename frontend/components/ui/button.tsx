@@ -4,18 +4,18 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent focus-visible:ring-offset-2 focus-visible:ring-offset-farmly-bg disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold tracking-[-0.01em] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent focus-visible:ring-offset-2 focus-visible:ring-offset-farmly-bg disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
   {
     variants: {
       variant: {
         default:
-          "bg-farmly-primary text-white hover:bg-farmly-primary-hover shadow-sm border border-farmly-accent/30",
+          "bg-gradient-to-b from-farmly-primary-hover to-farmly-primary text-white border border-farmly-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_1px_2px_rgba(16,51,36,0.18),0_6px_16px_-6px_rgba(20,92,67,0.45)] hover:from-farmly-accent hover:to-farmly-primary-hover hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_10px_22px_-8px_rgba(20,92,67,0.55)]",
         secondary:
-          "bg-farmly-surface-elevated text-farmly-foreground hover:bg-farmly-surface border border-farmly-border hover:border-farmly-accent/50",
+          "bg-farmly-surface text-farmly-foreground border border-farmly-border shadow-[0_1px_2px_rgba(16,51,36,0.06)] hover:bg-farmly-surface-elevated hover:border-farmly-accent/50",
         accent:
           "bg-farmly-accent text-white hover:bg-farmly-accent-light shadow-md shadow-farmly-accent/20",
         outline:
-          "border border-farmly-border bg-transparent text-farmly-foreground hover:bg-farmly-surface-elevated hover:border-farmly-accent/40",
+          "border border-farmly-border bg-farmly-surface/60 text-farmly-foreground hover:bg-farmly-surface-elevated hover:border-farmly-accent/50 hover:text-farmly-primary dark:hover:text-farmly-accent-light",
         ghost:
           "text-farmly-foreground hover:bg-farmly-surface-elevated",
         link:

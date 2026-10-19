@@ -55,41 +55,41 @@ export default function AdminDashboardPage() {
 
         {/* 4 Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-5 border border-farmly-border bg-farmly-surface">
+          <Card hoverGlow className="p-5">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Open Fraud Alerts</span>
               <AlertTriangle className="w-4 h-4 text-red-500" />
             </div>
-            <div className="text-2xl font-bold text-farmly-foreground font-mono">{openAlerts.length}</div>
+            <div className="text-[1.7rem] font-extrabold text-farmly-foreground tracking-[-0.03em] tabular-nums">{openAlerts.length}</div>
             <div className="text-[11px] text-amber-600 dark:text-amber-400 mt-1">
               Requires supervisor sign-off
             </div>
           </Card>
 
-          <Card className="p-5 border border-farmly-border bg-farmly-surface">
+          <Card hoverGlow className="p-5">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Total Platform Users</span>
               <Users className="w-4 h-4 text-farmly-primary dark:text-farmly-accent-light" />
             </div>
-            <div className="text-2xl font-bold text-farmly-foreground font-mono">{farmers.length + 7}</div>
+            <div className="text-[1.7rem] font-extrabold text-farmly-foreground tracking-[-0.03em] tabular-nums">{farmers.length + 7}</div>
             <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1">Across all 8 role domains</div>
           </Card>
 
-          <Card className="p-5 border border-farmly-border bg-farmly-surface">
+          <Card hoverGlow className="p-5">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Cryptographic Ledger</span>
               <Lock className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
             </div>
-            <div className="text-2xl font-bold text-farmly-foreground font-mono">100% Valid</div>
+            <div className="text-[1.7rem] font-extrabold text-farmly-foreground tracking-[-0.03em] tabular-nums">100% Valid</div>
             <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1">Zero broken hash chains</div>
           </Card>
 
-          <Card className="p-5 border border-farmly-border bg-farmly-surface">
+          <Card hoverGlow className="p-5">
             <div className="flex items-center justify-between text-xs text-farmly-muted mb-2">
               <span>Disputed Inquiries</span>
               <Scale className="w-4 h-4 text-amber-700 dark:text-amber-400" />
             </div>
-            <div className="text-2xl font-bold text-farmly-foreground font-mono">{disputes.length}</div>
+            <div className="text-[1.7rem] font-extrabold text-farmly-foreground tracking-[-0.03em] tabular-nums">{disputes.length}</div>
             <div className="text-[11px] text-farmly-muted mt-1">Tare variance reconciliation</div>
           </Card>
         </div>

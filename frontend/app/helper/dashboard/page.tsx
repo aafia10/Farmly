@@ -14,13 +14,13 @@ import { useAuth } from "@/contexts/auth-context";
 function StatCard({ label, value, hint, icon: Icon, href }: { label: string; value: number; hint: string; icon: LucideIcon; href: string }) {
   return (
     <Link href={href} className="group block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-farmly-accent">
-      <Card className="p-5 sm:p-6 h-full flex items-start justify-between gap-4 group-hover:border-farmly-primary/40">
+      <Card className="relative overflow-hidden p-5 sm:p-6 h-full flex items-start justify-between gap-4 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-farmly-accent/50 group-hover:farmly-lift">
         <div className="space-y-1">
-          <p className="text-sm text-farmly-muted">{label}</p>
-          <p className="text-2xl sm:text-3xl font-bold text-farmly-foreground tracking-tight">{value}</p>
+          <p className="text-[13px] font-semibold text-farmly-muted">{label}</p>
+          <p className="text-2xl sm:text-[2rem] font-extrabold text-farmly-foreground tracking-[-0.03em] tabular-nums">{value}</p>
           <p className="text-xs text-farmly-muted">{hint}</p>
         </div>
-        <div className="w-10 h-10 rounded-xl bg-farmly-primary/10 text-farmly-primary dark:text-farmly-accent-light flex items-center justify-center shrink-0">
+        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-farmly-accent/20 to-farmly-primary/10 ring-1 ring-inset ring-farmly-accent/25 text-farmly-primary dark:text-farmly-accent-light flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105">
           <Icon className="w-5 h-5" aria-hidden="true" />
         </div>
       </Card>
@@ -49,7 +49,7 @@ export default function HelperDashboardPage() {
       <div className="space-y-8 sm:space-y-10">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-farmly-foreground tracking-tight">Namaste, {user?.fullName || "there"}</h1>
+            <h1 className="text-2xl sm:text-[2rem] font-extrabold text-farmly-foreground tracking-[-0.03em] tabular-nums">Namaste, {user?.fullName || "there"}</h1>
             <p className="text-sm text-farmly-muted">Farmers you assist, registrations and pending field tasks.</p>
           </div>
           <Link href="/helper/farmers" className="shrink-0">

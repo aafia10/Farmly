@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { FarmlyMark } from "@/components/common/farmly-mark";
 import {
   ArrowRight,
   Sprout,
@@ -51,7 +52,7 @@ export function Hero() {
           {/* Left Column: Core Value Proposition */}
           <motion.div
             className="lg:col-span-7 flex flex-col items-start text-left"
-            initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
@@ -116,7 +117,7 @@ export function Hero() {
           {/* Right Column: Agricultural Abstract Illustration */}
           <motion.div
             className="lg:col-span-5 flex justify-center items-center"
-            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.95 }}
+            initial={false}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
           >
@@ -127,10 +128,8 @@ export function Hero() {
               <div className="absolute inset-16 rounded-full border border-farmly-primary/30 bg-farmly-surface/30 backdrop-blur-xs" />
 
               {/* Central Farmly Hub Card */}
-              <div className="relative z-10 w-48 h-48 rounded-3xl bg-gradient-to-br from-farmly-surface-elevated to-farmly-surface border border-farmly-accent/50 p-5 flex flex-col items-center justify-center text-center shadow-2xl shadow-farmly-dark-green/40">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-farmly-primary to-farmly-dark-green flex items-center justify-center mb-3 shadow-inner border border-farmly-accent/30">
-                  <Sprout className="w-8 h-8 text-emerald-700 dark:text-emerald-300" />
-                </div>
+              <div className="relative z-10 w-48 h-48 rounded-3xl bg-gradient-to-br from-farmly-surface-elevated to-farmly-surface border border-farmly-accent/50 p-5 flex flex-col items-center justify-center text-center farmly-lift">
+                <FarmlyMark className="w-14 h-14 mb-3 drop-shadow-[0_8px_18px_rgba(20,92,67,0.35)]" />
                 <div className="font-bold text-farmly-foreground text-base">Farmly Core</div>
                 <div className="text-[11px] text-farmly-accent mt-0.5 font-medium">
                   Unified Agriculture

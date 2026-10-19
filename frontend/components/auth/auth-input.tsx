@@ -21,7 +21,7 @@ export const AuthInput = React.forwardRef<HTMLInputElement, AuthInputProps>(
       <div className="space-y-1.5 text-left w-full">
         <label
           htmlFor={inputId}
-          className="block text-xs sm:text-sm font-semibold text-farmly-muted tracking-wide"
+          className="block text-xs sm:text-[13px] font-semibold text-farmly-foreground/80"
         >
           {label}
         </label>
@@ -42,12 +42,12 @@ export const AuthInput = React.forwardRef<HTMLInputElement, AuthInputProps>(
               error ? errorId : helperText ? helperId : undefined
             }
             className={cn(
-              "w-full rounded-xl bg-farmly-surface-elevated px-4 py-3 text-sm text-farmly-foreground placeholder:text-farmly-muted-dark/70 border transition-all duration-200 outline-none",
+              "w-full rounded-xl bg-farmly-input-bg px-4 py-3 text-sm text-farmly-foreground placeholder:text-farmly-muted-dark/70 border shadow-[0_1px_2px_rgba(16,51,36,0.04)] transition-all duration-200 outline-none",
               Icon ? "pl-10" : "pl-4",
               rightElement ? "pr-11" : "pr-4",
               error
-                ? "border-red-500/80 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                : "border-farmly-border hover:border-farmly-accent/40 focus:border-farmly-accent focus:ring-2 focus:ring-farmly-accent/20"
+                ? "border-red-500/80 focus:border-red-500 focus:ring-4 focus:ring-red-500/15"
+                : "border-farmly-input-border hover:border-farmly-accent/50 focus:border-farmly-accent focus:ring-4 focus:ring-farmly-accent/15"
             )}
             {...props}
           />

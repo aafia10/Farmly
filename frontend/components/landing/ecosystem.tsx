@@ -30,7 +30,7 @@ export function Ecosystem() {
             return (
               <motion.div
                 key={category.id}
-                initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.96 }}
+                initial={false}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}

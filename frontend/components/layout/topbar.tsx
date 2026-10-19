@@ -32,7 +32,7 @@ export function Topbar({ onOpenMobileMenu, title }: TopbarProps) {
   ];
 
   return (
-    <header className="sticky top-0 z-20 w-full h-16 bg-farmly-bg/90 backdrop-blur-md border-b border-farmly-border px-4 sm:px-6 flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-20 w-full h-16 bg-farmly-surface/80 backdrop-blur-xl border-b border-farmly-border px-4 sm:px-6 flex items-center justify-between gap-3 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] dark:shadow-none">
       {/* Left: Mobile hamburger & breadcrumb/title */}
       <div className="flex items-center gap-3 min-w-0 flex-1">
         <button
@@ -58,7 +58,7 @@ export function Topbar({ onOpenMobileMenu, title }: TopbarProps) {
           <button
             type="button"
             onClick={() => setRoleSwitcherOpen(!roleSwitcherOpen)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-farmly-surface-elevated border border-farmly-border hover:border-farmly-accent/40 text-xs font-semibold text-farmly-foreground transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-farmly-surface border border-farmly-border shadow-[0_1px_2px_rgba(16,51,36,0.05)] hover:border-farmly-accent/50 text-xs font-semibold text-farmly-foreground transition-colors"
             aria-label="Switch demo role"
           >
             <span className="capitalize">{t("role." + role, role.replace("_", " "))}</span>
@@ -66,7 +66,7 @@ export function Topbar({ onOpenMobileMenu, title }: TopbarProps) {
           </button>
 
           {roleSwitcherOpen && (
-            <div className="absolute right-0 mt-1.5 w-52 rounded-2xl bg-farmly-surface border border-farmly-border shadow-2xl p-1.5 z-50 animate-fade-in max-h-96 overflow-y-auto">
+            <div className="absolute right-0 mt-1.5 w-52 rounded-2xl bg-farmly-surface border border-farmly-border farmly-lift p-1.5 z-50 animate-fade-in max-h-96 overflow-y-auto">
               <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-farmly-muted-dark">
                 {t("common.switchRole", "Switch Role View")}
               </div>
@@ -116,10 +116,10 @@ export function Topbar({ onOpenMobileMenu, title }: TopbarProps) {
         {/* Profile Avatar */}
         <Link
           href={role === "helper" ? "/helper/profile" : "/profile"}
-          className="p-1.5 rounded-xl bg-farmly-surface-elevated border border-farmly-border hover:border-farmly-accent/40 text-farmly-foreground transition-colors"
+          className="p-1.5 rounded-xl bg-farmly-surface border border-farmly-border shadow-[0_1px_2px_rgba(16,51,36,0.05)] hover:border-farmly-accent/50 text-farmly-foreground transition-colors"
           aria-label="View user profile"
         >
-          <div className="w-7 h-7 rounded-lg bg-farmly-primary flex items-center justify-center font-bold text-xs text-white">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-farmly-accent to-farmly-primary flex items-center justify-center font-bold text-xs text-white">
             <User className="w-4 h-4" />
           </div>
         </Link>

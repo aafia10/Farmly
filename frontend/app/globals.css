@@ -5,20 +5,22 @@
 @layer base {
   /* Default = Light Mode (Tailwind darkMode: "class" — no class = light) */
   :root {
-    --farmly-bg: #F8FAF8;
-    --farmly-foreground: #111827;
+    --farmly-bg: #F5F8F5;
+    --farmly-foreground: #0F1D16;
     --farmly-surface: #FFFFFF;
-    --farmly-surface-elevated: #F0F4F1;
+    --farmly-surface-elevated: #EEF4EF;
     --farmly-surface-card: #FFFFFF;
-    --farmly-muted: #4B5563;
-    --farmly-muted-dark: #6B7280;
-    --farmly-border: #E5E7EB;
+    --farmly-muted: #46574E;
+    --farmly-muted-dark: #66776E;
+    --farmly-border: #DCE6DF;
     --farmly-input-bg: #FFFFFF;
-    --farmly-input-border: #D1D5DB;
-    --farmly-input-text: #111827;
-    --farmly-table-header: #F3F4F6;
-    --farmly-table-row-hover: #F9FAFB;
-    --farmly-table-hover: #F9FAFB;
+    --farmly-input-border: #C9D6CD;
+    --farmly-input-text: #0F1D16;
+    --farmly-table-header: #F0F5F1;
+    --farmly-table-row-hover: #F6FAF7;
+    --farmly-table-hover: #F6FAF7;
+    --farmly-shadow-rgb: 16 51 36;
+    --farmly-glow: rgba(47, 143, 104, 0.16);
     --radius: 0.75rem;
     color-scheme: light;
   }
@@ -39,26 +41,30 @@
     --farmly-table-header: #121C18;
     --farmly-table-row-hover: rgba(255, 255, 255, 0.04);
     --farmly-table-hover: rgba(255, 255, 255, 0.04);
+    --farmly-shadow-rgb: 0 0 0;
+    --farmly-glow: rgba(62, 176, 129, 0.22);
     --radius: 0.75rem;
     color-scheme: dark;
   }
 
   /* Explicit Light Mode — same as :root, activated by .light class on <html> */
   .light {
-    --farmly-bg: #F8FAF8;
-    --farmly-foreground: #111827;
+    --farmly-bg: #F5F8F5;
+    --farmly-foreground: #0F1D16;
     --farmly-surface: #FFFFFF;
-    --farmly-surface-elevated: #F0F4F1;
+    --farmly-surface-elevated: #EEF4EF;
     --farmly-surface-card: #FFFFFF;
-    --farmly-muted: #4B5563;
-    --farmly-muted-dark: #6B7280;
-    --farmly-border: #E5E7EB;
+    --farmly-muted: #46574E;
+    --farmly-muted-dark: #66776E;
+    --farmly-border: #DCE6DF;
     --farmly-input-bg: #FFFFFF;
-    --farmly-input-border: #D1D5DB;
-    --farmly-input-text: #111827;
-    --farmly-table-header: #F3F4F6;
-    --farmly-table-row-hover: #F9FAFB;
-    --farmly-table-hover: #F9FAFB;
+    --farmly-input-border: #C9D6CD;
+    --farmly-input-text: #0F1D16;
+    --farmly-table-header: #F0F5F1;
+    --farmly-table-row-hover: #F6FAF7;
+    --farmly-table-hover: #F6FAF7;
+    --farmly-shadow-rgb: 16 51 36;
+    --farmly-glow: rgba(47, 143, 104, 0.16);
     --radius: 0.75rem;
     color-scheme: light;
   }
@@ -73,6 +79,10 @@
 
   body {
     background-color: var(--farmly-bg);
+    background-image:
+      radial-gradient(1100px 520px at 0% -8%, rgba(62, 176, 129, 0.075), transparent 60%),
+      radial-gradient(900px 480px at 100% 0%, rgba(20, 92, 67, 0.05), transparent 55%);
+    background-attachment: fixed;
     color: var(--farmly-foreground);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
@@ -80,6 +90,14 @@
     min-height: 100vh;
     overflow-x: hidden;
     transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  .dark body {
+    background-image: none;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
   }
 
   /* Custom selection */
@@ -118,10 +136,37 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #0B3D2E;
-  border-radius: 4px;
+  background: #B9CCBF;
+  border-radius: 999px;
+  border: 2px solid var(--farmly-bg);
 }
 
 ::-webkit-scrollbar-thumb:hover {
+  background: #2F8F68;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #0B3D2E;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
   background: #145C43;
+}
+
+@layer components {
+  /* Soft, green-tinted elevation (light) / subtle depth (dark). */
+  .farmly-elevated {
+    box-shadow:
+      0 1px 2px rgb(var(--farmly-shadow-rgb) / 0.05),
+      0 8px 24px -12px rgb(var(--farmly-shadow-rgb) / 0.14);
+  }
+  .farmly-lift {
+    box-shadow:
+      0 2px 4px rgb(var(--farmly-shadow-rgb) / 0.05),
+      0 18px 40px -16px rgb(var(--farmly-shadow-rgb) / 0.24);
+  }
+  .farmly-focus-glow:focus,
+  .farmly-focus-glow:focus-visible {
+    box-shadow: 0 0 0 4px var(--farmly-glow);
+  }
 }
